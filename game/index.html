@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sheep Escape</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="top-bar">
+    <span id="moves-display">MOVES: 0</span>
+    <span id="timer-display">0:30</span>
+  </div>
+
+  <div id="game-container">
+    <canvas id="canvas"></canvas>
+
+    <div id="start-overlay" class="overlay">
+      <h1>SHEEP ESCAPE</h1>
+      <p>Tap a sheep to set it free!<br>Each sheep escapes diagonally — tap ones with a clear path to the edge.</p>
+      <button id="play-btn">PLAY</button>
+    </div>
+
+    <div id="win-overlay" class="overlay hidden">
+      <h1>ALL ESCAPED! 🐑</h1>
+      <p id="move-count"></p>
+      <button id="replay-btn">PLAY AGAIN</button>
+      <button id="hub-btn">BACK TO GAMES</button>
+    </div>
+
+    <div id="timeout-overlay" class="overlay hidden">
+      <h1>TIME'S UP! ⏰</h1>
+      <p>The sheep are still out there...</p>
+      <button id="retry-btn">TRY AGAIN</button>
+      <button id="hub-btn-timeout">BACK TO GAMES</button>
+    </div>
+  </div>
+
+  <div id="bottom-bar">
+    <button id="undo-btn" disabled>↩ UNDO</button>
+    <button id="addtime-btn">+10s ⏱</button>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

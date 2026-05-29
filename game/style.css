@@ -1,0 +1,165 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #1a2a14;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  font-family: 'Courier New', Courier, monospace;
+  color: #fff;
+  overflow: hidden;
+  touch-action: none;
+  gap: 10px;
+}
+
+/* ── Top bar: moves left, timer right ── */
+#top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(440px, calc(100vw - 16px));
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: #c8e6a0;
+  text-transform: uppercase;
+}
+
+#timer-display {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  transition: color 0.3s;
+}
+
+#timer-display.warning { color: #f0b429; }
+#timer-display.urgent  { color: #ff3b3b; animation: pulse 0.5s ease-in-out infinite alternate; }
+
+@keyframes pulse {
+  from { opacity: 1; }
+  to   { opacity: 0.35; }
+}
+
+/* ── Canvas ── */
+#game-container {
+  position: relative;
+  line-height: 0;
+}
+
+canvas {
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Bottom bar: undo left, add-time right ── */
+#bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(440px, calc(100vw - 16px));
+  gap: 12px;
+}
+
+#bottom-bar button {
+  flex: 1;
+  padding: 11px 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  transition: transform 0.1s, background 0.15s;
+}
+
+#undo-btn {
+  background: #3a5a3a;
+  color: #c8e6a0;
+}
+#undo-btn:not(:disabled):hover { background: #4e7a4e; transform: scale(1.03); }
+#undo-btn:not(:disabled):active { transform: scale(0.96); }
+#undo-btn:disabled { background: #243824; color: #4a6a4a; cursor: not-allowed; }
+
+#addtime-btn {
+  background: #6ab04c;
+  color: #0e1a0b;
+}
+#addtime-btn:hover  { background: #8dd66a; transform: scale(1.03); }
+#addtime-btn:active { transform: scale(0.96); }
+
+@keyframes flash-anim {
+  0%   { background: #6ab04c; }
+  40%  { background: #e8ff80; }
+  100% { background: #6ab04c; }
+}
+#addtime-btn.flash { animation: flash-anim 0.35s ease; }
+
+/* ── Overlays ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 20, 8, 0.90);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  padding: 32px;
+  border-radius: 10px;
+}
+
+.overlay h1 {
+  font-size: clamp(18px, 6vw, 28px);
+  letter-spacing: 4px;
+  color: #c8e6a0;
+}
+
+.overlay p {
+  font-size: clamp(11px, 3vw, 13px);
+  color: #a0b890;
+  max-width: 260px;
+  line-height: 1.8;
+  letter-spacing: 1px;
+}
+
+.hidden { display: none !important; }
+
+/* ── Overlay buttons ── */
+.overlay button {
+  background: #6ab04c;
+  color: #0e1a0b;
+  border: none;
+  padding: 13px 36px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: transform 0.1s, background 0.15s;
+}
+
+.overlay button:hover  { background: #8dd66a; transform: scale(1.05); }
+.overlay button:active { transform: scale(0.95); }
+
+#hub-btn,
+#hub-btn-timeout {
+  background: transparent;
+  color: #6a886a;
+  border: 1px solid #3a5a3a;
+  font-size: 11px;
+}
+#hub-btn:hover,
+#hub-btn-timeout:hover {
+  background: #1e2e1e;
+  color: #a0b890;
+  transform: none;
+}
