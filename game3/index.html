@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Climbing Up Wheeler — Nancy's 25th</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="scene">
+  <div id="cab-lid"><div id="lid-shine"></div></div>
+
+  <div id="cab">
+    <div class="cab-side left"><div class="side-stripe"></div></div>
+
+    <div id="cab-face">
+
+      <div id="marquee-wrap">
+        <div id="marquee-body">
+          <div id="marquee-rainbow"></div>
+          <div id="marquee-text">🪜 &nbsp; CLIMBING UP WHEELER &nbsp; 🪜</div>
+          <div id="marquee-sub">✦ JUST LIKE CLIMBING UP THE SIDE OF WHEELER ✦</div>
+        </div>
+        <div class="bolt tl"></div><div class="bolt tr"></div>
+        <div class="bolt bl"></div><div class="bolt br"></div>
+      </div>
+
+      <div id="speaker-bar">
+        <div class="grille"></div>
+        <div id="brand-plate">25¢ · ARCADE · 25¢</div>
+        <div class="grille"></div>
+      </div>
+
+      <div id="monitor-housing">
+        <div id="monitor-bezel">
+          <div id="screen-area">
+            <canvas id="canvas"></canvas>
+
+            <!-- START OVERLAY -->
+            <div id="start-overlay" class="overlay">
+              <div class="ladder-icon">🪜</div>
+              <h1>FIRE ESCAPE</h1>
+              <div class="price-badge">25¢ TO PLAY</div>
+              <p>20 memories. One chance.<br>Place each photo on the correct rung —<br>oldest at the top, newest at the bottom.<br><strong>One mistake and you start over.</strong></p>
+              <button id="play-btn">INSERT QUARTER ⬤</button>
+            </div>
+
+            <!-- WIN OVERLAY -->
+            <div id="win-overlay" class="overlay hidden">
+              <h1>YOU MADE IT! 🎉</h1>
+              <p>All 20 memories in order.<br>Just like climbing up the side of Wheeler. 🪜</p>
+              <p class="bday-note">Happy 25th, Nancy! 🎂</p>
+              <button id="replay-btn">CLIMB AGAIN</button>
+              <button id="hub-btn">BACK TO ARCADE</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div id="ctrl-panel">
+        <div id="ctrl-inner">
+          <div class="screw sl"></div><div class="screw sr"></div>
+          <div id="hud-row">
+            <span id="progress-display">PHOTO 0 / 20</span>
+            <span id="streak-display">STREAK: 0</span>
+          </div>
+          <div id="real-btns">
+            <button id="restart-btn" disabled>↺ RESTART</button>
+            <button id="back-btn">← ARCADE</button>
+          </div>
+          <div id="deco-controls">
+            <div id="joystick-assy">
+              <div id="j-base"></div><div id="j-shaft"></div><div id="j-ball"></div>
+            </div>
+            <div id="p1-start">1P START</div>
+            <div id="action-assy">
+              <div class="a-btn" id="btn-red"></div>
+              <div class="a-btn" id="btn-blue"></div>
+              <div class="a-btn" id="btn-yellow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="coin-door">
+        <div id="coin-door-panel">
+          <div class="quarter-slot-row">
+            <div class="q-slot"><span>25¢</span></div>
+            <div class="q-slot"><span>25¢</span></div>
+          </div>
+          <div id="coin-door-label">INSERT QUARTER — 25¢ PER PLAY</div>
+          <div id="coin-return">COIN RETURN</div>
+        </div>
+      </div>
+
+      <div id="kickplate"><span id="kickplate-text">FIRE ESCAPE © 25¢</span></div>
+    </div>
+
+    <div class="cab-side right"><div class="side-stripe"></div></div>
+  </div>
+
+  <div id="floor-glow"></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

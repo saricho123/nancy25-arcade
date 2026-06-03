@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Debug</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #111; color: #0f0; font-family: monospace; font-size: 13px; padding: 16px; }
+    .line { padding: 3px 0; border-bottom: 1px solid #222; }
+    .ok   { color: #0f0; }
+    .fail { color: #f44; }
+    .warn { color: #fa0; }
+    .info { color: #aaf; }
+    h2 { color: #fff; margin: 12px 0 6px; font-size: 14px; border-top: 1px solid #444; padding-top: 8px; }
+    #canvas-test { display: block; margin: 10px 0; border: 2px solid #0f0; }
+    button { background: #0f0; color: #000; border: none; padding: 8px 16px; cursor: pointer; font-family: monospace; font-size: 13px; margin: 4px 4px 4px 0; }
+  </style>
+  <script src="three.min.js"></script>
+</head>
+<body>
+
+<h2>ENVIRONMENT</h2>
+<div id="env"></div>
+
+<h2>THREE.JS</h2>
+<div id="three"></div>
+
+<h2>WEBGL TEST — should see a spinning green cube below</h2>
+<canvas id="canvas-test" width="300" height="200"></canvas>
+<div id="webgl"></div>
+
+<h2>CSS ON MAIN INDEX.HTML CANVAS</h2>
+<div id="css"></div>
+
+<h2>ELEMENTS VISIBLE IN index.html?</h2>
+<div id="elements"></div>
+
+<h2>ACTIONS</h2>
+<button onclick="window.location='index.html'">Open index.html</button>
+<button onclick="injectDebug()">Inject debug panel into index.html</button>
+
+<script>
+function log(parentId, msg, cls) {
+  const d = document.createElement('div');
+  d.className = 'line ' + (cls || 'info');
+  d.textContent = msg;
+  document.getElementById(parentId).appendChild(d);
+}
+
+// ── Environment ──
+log('env', 'User Agent: ' + navigator.userAgent, 'info');
+log('env', 'Protocol: ' + location.protocol, location.protocol === 'file:' ? 'warn' : 'ok');
+if (location.protocol === 'file:') {
+  log('env', '  ⚠ file:// may block some features (should still work for WebGL)', 'warn');
+}
+
+// ── Three.js ──
+if (typeof THREE === 'undefined') {
+  log('three', '✗ THREE is undefined — three.min.js failed to load', 'fail');
+  log('three', '  Check: is three.min.js in the same folder?', 'warn');
+  log('three', '  File path: ' + location.href, 'info');
+} else {
+  log('three', '✓ THREE loaded. Version: ' + THREE.REVISION, 'ok');
+}
+
+// ── WebGL test ──
+const testCanvas = document.getElementById('canvas-test');
+try {
+  const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+  if (!gl) {
+    log('webgl', '✗ WebGL not available — browser may not support it', 'fail');
+  } else {
+    log('webgl', '✓ WebGL context created: ' + gl.getParameter(gl.RENDERER), 'ok');
+
+    // Try a Three.js render
+    if (typeof THREE !== 'undefined') {
+      try {
+        const renderer = new THREE.WebGLRenderer({ canvas: testCanvas, antialias: true });
+        renderer.setSize(300, 200);
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x220044);
+        const cam = new THREE.PerspectiveCamera(70, 300/200, 0.1, 100);
+        cam.position.z = 4;
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        const cube = new THREE.Mesh(
+          new THREE.BoxGeometry(1.5, 1.5, 1.5),
+          new THREE.MeshLambertMaterial({ color: 0x00ff88 })
+        );
+        scene.add(cube);
+        let t = 0;
+        function spin() {
+          requestAnimationFrame(spin);
+          t += 0.02;
+          cube.rotation.x = t;
+          cube.rotation.y = t * 1.3;
+          renderer.render(scene, cam);
+        }
+        spin();
+        log('webgl', '✓ Three.js rendering — you should see a spinning green cube above', 'ok');
+      } catch(e) {
+        log('webgl', '✗ Three.js render error: ' + e.message, 'fail');
+      }
+    }
+  }
+} catch(e) {
+  log('webgl', '✗ WebGL error: ' + e.message, 'fail');
+}
+
+// ── Check index.html via fetch ──
+fetch('index.html')
+  .then(r => r.text())
+  .then(html => {
+    log('elements', '✓ index.html fetched (' + html.length + ' chars)', 'ok');
+
+    const checks = [
+      ['#room-canvas',     '<canvas id="room-canvas"'],
+      ['#coin-bar',        'id="coin-bar"'],
+      ['#machine-prompt',  'id="machine-prompt"'],
+      ['#game-overlay',    'id="game-overlay"'],
+      ['three.min.js ref', 'three.min.js'],
+      ['THREE.JS script',  'THREE.JS 3D ARCADE ROOM'],
+      ['hide CSS rule',    'display: none !important'],
+      ['GAME_DATA array',  'GAME_DATA'],
+      ['insertCoin fn',    'insertCoin'],
+      ['checkProximity',   'checkProximity'],
+    ];
+
+    checks.forEach(([label, search]) => {
+      const found = html.includes(search);
+      log('elements', (found ? '✓ ' : '✗ ') + label + (found ? '' : ' — NOT FOUND'), found ? 'ok' : 'fail');
+    });
+
+    // Check canvas z-index in script
+    const zMatch = html.match(/canvas\.style\.zIndex\s*=\s*['"](\d+)['"]/);
+    log('elements', 'canvas z-index set to: ' + (zMatch ? zMatch[1] : 'NOT SET'), zMatch ? 'ok' : 'fail');
+
+    // Check if body background override is present
+    const bgOverride = html.includes('background: #000 !important') || html.includes("background: #000 !important");
+    log('elements', (bgOverride ? '✓' : '✗') + ' body background override', bgOverride ? 'ok' : 'fail');
+  })
+  .catch(e => {
+    log('elements', '✗ Could not fetch index.html: ' + e.message, 'fail');
+    log('elements', '  (this is normal on file:// if CORS blocks it)', 'warn');
+  });
+
+// CSS properties note
+log('css', 'Open index.html, then open DevTools (F12)', 'info');
+log('css', 'Run in console: getComputedStyle(document.getElementById("room-canvas"))', 'info');
+log('css', 'Check: display, visibility, opacity, z-index, width, height', 'info');
+
+// ── Inject debug panel ──
+function injectDebug() {
+  // Open index.html in same tab and inject a debug overlay
+  const url = 'index.html?debug=1';
+  alert('Opening index.html — watch for the debug panel in the top-left corner.\n\nIf you see a black screen, open DevTools console and paste any errors here.');
+  window.location = url;
+}
+</script>
+</body>
+</html>

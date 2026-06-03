@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fear of Flying — Nancy's 25th</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="scene">
+  <div id="cab-lid"><div id="lid-shine"></div></div>
+
+  <div id="cab">
+    <div class="cab-side left"><div class="side-stripe"></div></div>
+
+    <div id="cab-face">
+
+      <!-- ① MARQUEE -->
+      <div id="marquee-wrap">
+        <div id="marquee-body">
+          <div id="marquee-rainbow"></div>
+          <div id="marquee-text">✈️ &nbsp; FEAR OF FLYING &nbsp; ✈️</div>
+          <div id="marquee-sub">✦ HELP NANCY CONQUER THE SKIES ✦</div>
+        </div>
+        <div class="bolt tl"></div><div class="bolt tr"></div>
+        <div class="bolt bl"></div><div class="bolt br"></div>
+      </div>
+
+      <!-- ② SPEAKER BAR -->
+      <div id="speaker-bar">
+        <div class="grille"></div>
+        <div id="brand-plate">25¢ · ARCADE · 25¢</div>
+        <div class="grille"></div>
+      </div>
+
+      <!-- ③ MONITOR -->
+      <div id="monitor-housing">
+        <div id="monitor-bezel">
+          <div id="screen-area">
+            <canvas id="canvas"></canvas>
+
+            <div id="start-overlay" class="overlay">
+              <div class="plane-icon">✈️</div>
+              <h1>FEAR OF FLYING</h1>
+              <div class="price-badge">25¢ TO PLAY</div>
+              <p>Help Nancy conquer her fear!<br>Drag to steer the plane.<br>Dodge the clouds &amp; turbulence!</p>
+              <button id="play-btn">INSERT QUARTER ⬤</button>
+            </div>
+
+            <div id="gameover-overlay" class="overlay hidden">
+              <h1>GAME OVER! 😱</h1>
+              <p>"Nanky is not okay..." 😰</p>
+              <p id="final-score"></p>
+              <button id="replay-btn">TRY AGAIN — 25¢</button>
+              <button id="hub-btn-go">BACK TO ARCADE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ CONTROL PANEL -->
+      <div id="ctrl-panel">
+        <div id="ctrl-inner">
+          <div class="screw sl"></div><div class="screw sr"></div>
+          <div id="hud-row">
+            <span id="lives-display">✈✈✈</span>
+            <span id="score-display">0 mi</span>
+          </div>
+          <div id="real-btns">
+            <button id="back-btn">← ARCADE</button>
+          </div>
+          <div id="deco-controls">
+            <div id="joystick-assy">
+              <div id="j-base"></div>
+              <div id="j-shaft"></div>
+              <div id="j-ball"></div>
+            </div>
+            <div id="p1-start">1P START</div>
+            <div id="action-assy">
+              <div class="a-btn" id="btn-red"></div>
+              <div class="a-btn" id="btn-blue"></div>
+              <div class="a-btn" id="btn-yellow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ COIN DOOR -->
+      <div id="coin-door">
+        <div id="coin-door-panel">
+          <div class="quarter-slot-row">
+            <div class="q-slot"><span>25¢</span></div>
+            <div class="q-slot"><span>25¢</span></div>
+          </div>
+          <div id="coin-door-label">INSERT QUARTER — 25¢ PER PLAY</div>
+          <div id="coin-return">COIN RETURN</div>
+        </div>
+      </div>
+
+      <div id="kickplate"><span id="kickplate-text">FEAR OF FLYING © 25¢</span></div>
+    </div>
+
+    <div class="cab-side right"><div class="side-stripe"></div></div>
+  </div>
+
+  <div id="floor-glow"></div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

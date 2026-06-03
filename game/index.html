@@ -3,45 +3,168 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Sheep Escape</title>
+  <title>Sheep Escape — Nancy's 25th</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="top-bar">
-    <span id="moves-display">MOVES: 0</span>
-    <span id="timer-display">0:30</span>
+<div id="scene">
+
+  <!-- Visible top surface of the box (3D lid) -->
+  <div id="cab-lid">
+    <div id="lid-shine"></div>
   </div>
 
-  <div id="game-container">
-    <canvas id="canvas"></canvas>
+  <div id="cab">
 
-    <div id="start-overlay" class="overlay">
-      <h1>SHEEP ESCAPE</h1>
-      <p>Tap a sheep to set it free!<br>Each sheep escapes diagonally — tap ones with a clear path to the edge.</p>
-      <button id="play-btn">PLAY</button>
+    <!-- Left side panel -->
+    <div class="cab-side left">
+      <div class="side-stripe"></div>
+      <div class="side-coins">
+        <div class="s-coin">25¢</div>
+        <div class="s-coin">25¢</div>
+        <div class="s-coin">25¢</div>
+      </div>
     </div>
 
-    <div id="win-overlay" class="overlay hidden">
-      <h1>ALL ESCAPED! 🐑</h1>
-      <p id="move-count"></p>
-      <button id="replay-btn">PLAY AGAIN</button>
-      <button id="hub-btn">BACK TO GAMES</button>
+    <!-- Cabinet front face -->
+    <div id="cab-face">
+
+      <!-- ① MARQUEE -->
+      <div id="marquee-wrap">
+        <div id="marquee-body">
+          <div id="marquee-rainbow"></div>
+          <div id="marquee-text">🎂&nbsp; NANCY TURNS 25 &nbsp;🎂</div>
+          <div id="marquee-sub">✦ QUARTER CENTURY ARCADE ✦</div>
+        </div>
+        <!-- Mounting bolts (cosmetic) -->
+        <div class="bolt tl"></div><div class="bolt tr"></div>
+        <div class="bolt bl"></div><div class="bolt br"></div>
+      </div>
+
+      <!-- ② SPEAKER BAR -->
+      <div id="speaker-bar">
+        <div class="grille"></div>
+        <div id="brand-plate">25¢ · ARCADE · 25¢</div>
+        <div class="grille"></div>
+      </div>
+
+      <!-- ③ MONITOR -->
+      <div id="monitor-housing">
+        <div id="monitor-bezel">
+          <div id="screen-area">
+            <canvas id="canvas"></canvas>
+
+            <!-- START OVERLAY -->
+            <div id="start-overlay" class="overlay">
+              <div id="coin-anim-wrap">
+                <div class="big-quarter">
+                  <div class="bq-face">25¢</div>
+                </div>
+              </div>
+              <h1>SHEEP ESCAPE</h1>
+              <div class="price-badge">25¢ TO PLAY</div>
+              <p>Happy 25th Birthday, Nancy!<br>Tap sheep with a clear diagonal path to set them free.</p>
+              <button id="play-btn">INSERT QUARTER ⬤</button>
+            </div>
+
+            <!-- WIN OVERLAY -->
+            <div id="win-overlay" class="overlay hidden">
+              <div class="win-coins">
+                <div class="sm-quarter">25¢</div>
+                <div class="sm-quarter delay1">25¢</div>
+                <div class="sm-quarter delay2">25¢</div>
+              </div>
+              <h1>ALL ESCAPED! 🐑</h1>
+              <p id="move-count"></p>
+              <p class="bday-note">Happy Quarter-Century, Nancy! 🪙🎂</p>
+              <button id="replay-btn">ANOTHER QUARTER?</button>
+              <button id="hub-btn">BACK TO ARCADE</button>
+            </div>
+
+            <!-- TIMEOUT OVERLAY -->
+            <div id="timeout-overlay" class="overlay hidden">
+              <h1>TIME'S UP! ⏰</h1>
+              <p>The sheep are still out there...<br>Insert another quarter!</p>
+              <button id="retry-btn">TRY AGAIN — 25¢</button>
+              <button id="hub-btn-timeout">BACK TO ARCADE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ CONTROL PANEL -->
+      <div id="ctrl-panel">
+        <div id="ctrl-inner">
+          <!-- Screw heads (cosmetic) -->
+          <div class="screw sl"></div><div class="screw sr"></div>
+
+          <div id="hud-row">
+            <span id="moves-display">MOVES: 0</span>
+            <span id="timer-display">0:30</span>
+          </div>
+          <div id="real-btns">
+            <button id="undo-btn" disabled>↩ UNDO</button>
+            <button id="addtime-btn">+10s ⏱</button>
+          </div>
+          <div id="deco-controls">
+            <!-- Joystick -->
+            <div id="joystick-assy">
+              <div id="j-base"></div>
+              <div id="j-shaft"></div>
+              <div id="j-ball"></div>
+            </div>
+            <!-- 1P START -->
+            <div id="p1-start">1P START</div>
+            <!-- Action buttons -->
+            <div id="action-assy">
+              <div class="a-btn" id="btn-red"></div>
+              <div class="a-btn" id="btn-blue"></div>
+              <div class="a-btn" id="btn-yellow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ COIN DOOR -->
+      <div id="coin-door">
+        <div id="coin-door-panel">
+          <div class="quarter-slot-row">
+            <div class="q-slot"><span>25¢</span></div>
+            <div class="q-slot"><span>25¢</span></div>
+          </div>
+          <div id="coin-door-label">INSERT QUARTER — 25¢ PER PLAY</div>
+          <div id="coin-return">COIN RETURN</div>
+        </div>
+      </div>
+
+      <!-- ⑥ KICKPLATE -->
+      <div id="kickplate">
+        <span id="kickplate-text">SHEEP ESCAPE © 25¢</span>
+      </div>
+
+    </div><!-- /cab-face -->
+
+    <!-- Right side panel -->
+    <div class="cab-side right">
+      <div class="side-stripe"></div>
+      <div class="side-coins">
+        <div class="s-coin">25¢</div>
+        <div class="s-coin">25¢</div>
+        <div class="s-coin">25¢</div>
+      </div>
     </div>
 
-    <div id="timeout-overlay" class="overlay hidden">
-      <h1>TIME'S UP! ⏰</h1>
-      <p>The sheep are still out there...</p>
-      <button id="retry-btn">TRY AGAIN</button>
-      <button id="hub-btn-timeout">BACK TO GAMES</button>
-    </div>
-  </div>
+  </div><!-- /cab -->
 
-  <div id="bottom-bar">
-    <button id="undo-btn" disabled>↩ UNDO</button>
-    <button id="addtime-btn">+10s ⏱</button>
-  </div>
+  <!-- Floor glow (light spilling under the machine) -->
+  <div id="floor-glow"></div>
 
-  <script src="game.js"></script>
+</div><!-- /scene -->
+
+<script src="game.js"></script>
 </body>
 </html>

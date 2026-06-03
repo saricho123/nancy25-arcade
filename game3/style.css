@@ -644,6 +644,31 @@ canvas { display: block; }
   letter-spacing: 2px !important;
 }
 
+/* ── game3-specific ── */
+#restart-btn {
+  flex: 1; padding: 9px 0;
+  font-family: inherit; font-size: 10px; font-weight: bold;
+  letter-spacing: 2px; cursor: pointer; border-radius: 6px; border: none;
+  background: #28204a; color: #a090d8;
+  box-shadow: 0 4px 0 #100c24;
+  transition: transform .08s, box-shadow .08s;
+}
+#restart-btn:not(:disabled):hover  { background: #382e60; }
+#restart-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 #100c24; }
+#restart-btn:disabled { background: #16123a; color: #302858; cursor: not-allowed; }
+#back-btn {
+  flex: 1; padding: 9px 0;
+  font-family: inherit; font-size: 10px; font-weight: bold;
+  letter-spacing: 2px; cursor: pointer; border-radius: 6px; border: none;
+  background: #1e1838; color: #6050a0;
+  box-shadow: 0 4px 0 #0c0820;
+  transition: transform .08s, box-shadow .08s;
+}
+#back-btn:hover  { background: #2a2450; color: #9080d0; }
+#back-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #0c0820; }
+.ladder-icon { font-size: 44px; }
+.bday-note { color: #c8a030 !important; text-shadow: 0 0 8px rgba(200,160,48,0.4); }
+
 /* ════════════════════════════════════════════════════
    FONT ASSIGNMENTS
    Press Start 2P — overlay titles, kickplate, scores

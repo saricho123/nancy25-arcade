@@ -13,18 +13,20 @@ const DIR_ANGLE = {
   NW: -3 * Math.PI / 4
 }
 
-const R            = 22   // sheep radius (px) — smaller = denser
+const HAT_COLORS = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#f783ac','#74c0fc']
+
+const R            = 22
 const TIMER_SECS   = 30
 const SCURRY_SPEED = 9
 
 const state = {
-  sheep:       [],
-  phase:       'start',   // 'start' | 'playing' | 'win' | 'timeout'
-  moves:       0,
-  pendingWin:  false,
-  timeEnd:     0,         // Date.now() timestamp when time runs out
-  history:     [],        // stack of sheep IDs for undo (oldest first)
-  grassBlades: []
+  sheep:      [],
+  phase:      'start',
+  moves:      0,
+  pendingWin: false,
+  timeEnd:    0,
+  history:    [],
+  grassBlades:[]
 }
 
 let canvas, ctx
@@ -39,7 +41,6 @@ function init() {
   window.addEventListener('resize', () => { resize(); generateGrass() })
 
   canvas.addEventListener('pointerdown', onPointerDown)
-
   document.getElementById('play-btn').addEventListener('click', startGame)
   document.getElementById('replay-btn').addEventListener('click', startGame)
   document.getElementById('retry-btn').addEventListener('click', startGame)
@@ -53,8 +54,11 @@ function init() {
 }
 
 function resize() {
-  canvas.width  = Math.min(window.innerWidth  - 16, 440)
-  canvas.height = Math.min(window.innerHeight - 160, 640)
+  // Horizontal: sides(30×2) + face-borders(3×2) + housing-pad(10×2) + bezel-pad(9×2) = 104px
+  // Vertical: lid(18) + marquee(66) + speakers(28) + monitor-pads(38) +
+  //           ctrl-panel(110) + coin-door(56) + kickplate(18) + floor(24) = 358px
+  canvas.width  = Math.min(window.innerWidth  - 106, 350)
+  canvas.height = Math.min(window.innerHeight - 360, 390)
 }
 
 // ── Grass ─────────────────────────────────────────────────────────────────────
@@ -90,15 +94,14 @@ function startGame() {
 
   let ok = false
   while (!ok) ok = generateSolvableLevel()
-
   generateGrass()
 }
 
-// ── Level generation (guaranteed solvable — reverse simulation) ───────────────
+// ── Level generation ──────────────────────────────────────────────────────────
 
 function generateSolvableLevel() {
   const margin  = R * 1.4
-  const minDist = R * 1.75   // tightly packed
+  const minDist = R * 1.75
   const N       = 45
 
   const positions = []
@@ -113,35 +116,30 @@ function generateSolvableLevel() {
 
   for (let attempt = 0; attempt < 60; attempt++) {
     const order = shuffle(positions.map((p, i) => ({
-      id:    i,
-      x:     p.x,  y:     p.y,
-      origX: p.x,  origY: p.y,
-      dir:   null,
-      state: 'active'
+      id:       i,
+      x: p.x,  y: p.y,
+      origX: p.x, origY: p.y,
+      dir:      null,
+      state:    'active',
+      hatColor: HAT_COLORS[Math.floor(Math.random() * HAT_COLORS.length)]
     })))
     let success = true
 
     for (let i = 0; i < order.length; i++) {
       const sheep   = order[i]
       const onField = order.slice(i + 1)
-
       const validDirs = DIR_KEYS.filter(dir => {
         const { dx, dy } = DIRS[dir]
         const ox = sheep.x + dx * R * 1.15
         const oy = sheep.y + dy * R * 1.15
         return !onField.some(o => rayHitsCircle(ox, oy, dx, dy, o.x, o.y, R))
       })
-
       if (!validDirs.length) { success = false; break }
       sheep.dir = validDirs[Math.floor(Math.random() * validDirs.length)]
     }
 
-    if (success) {
-      state.sheep = order
-      return true
-    }
+    if (success) { state.sheep = order; return true }
   }
-
   return false
 }
 
@@ -159,9 +157,9 @@ function isRemovable(sheep) {
   const { dx, dy } = DIRS[sheep.dir]
   const ox = sheep.x + dx * R * 1.15
   const oy = sheep.y + dy * R * 1.15
-  return !state.sheep.some(other => {
-    if (other.id === sheep.id || other.state !== 'active') return false
-    return rayHitsCircle(ox, oy, dx, dy, other.x, other.y, R)
+  return !state.sheep.some(o => {
+    if (o.id === sheep.id || o.state !== 'active') return false
+    return rayHitsCircle(ox, oy, dx, dy, o.x, o.y, R)
   })
 }
 
@@ -193,7 +191,6 @@ function onPointerDown(e) {
       hit = s; break
     }
   }
-
   if (!hit || !isRemovable(hit)) return
 
   state.history.push(hit.id)
@@ -212,13 +209,9 @@ function undoMove() {
   const id    = state.history.pop()
   const sheep = state.sheep.find(s => s.id === id)
   if (!sheep) return
-
-  sheep.x     = sheep.origX
-  sheep.y     = sheep.origY
-  sheep.state = 'active'
-  state.moves = Math.max(0, state.moves - 1)
+  sheep.x = sheep.origX; sheep.y = sheep.origY; sheep.state = 'active'
+  state.moves      = Math.max(0, state.moves - 1)
   state.pendingWin = false
-
   document.getElementById('moves-display').textContent = `MOVES: ${state.moves}`
   updateUndoBtn()
 }
@@ -234,26 +227,22 @@ function addTime() {
   state.timeEnd += 10_000
   const btn = document.getElementById('addtime-btn')
   btn.classList.remove('flash')
-  void btn.offsetWidth  // force reflow to restart animation
+  void btn.offsetWidth
   btn.classList.add('flash')
 }
 
 // ── Update ────────────────────────────────────────────────────────────────────
 
 function update() {
-  // Scurry movement
   for (const s of state.sheep) {
     if (s.state !== 'scurrying') continue
     const { dx, dy } = DIRS[s.dir]
     s.x += dx * SCURRY_SPEED
     s.y += dy * SCURRY_SPEED
-    if (s.x < -R * 3 || s.x > canvas.width  + R * 3 ||
-        s.y < -R * 3 || s.y > canvas.height + R * 3) {
+    if (s.x < -R*3 || s.x > canvas.width+R*3 || s.y < -R*3 || s.y > canvas.height+R*3)
       s.state = 'removed'
-    }
   }
 
-  // Win check
   if (state.pendingWin && state.sheep.every(s => s.state === 'removed')) {
     state.pendingWin = false
     state.phase = 'win'
@@ -263,7 +252,6 @@ function update() {
     return
   }
 
-  // Timer
   if (state.phase === 'playing') {
     const remaining = Math.max(0, state.timeEnd - Date.now())
     const totalSecs = Math.ceil(remaining / 1000)
@@ -272,7 +260,6 @@ function update() {
     const el   = document.getElementById('timer-display')
     el.textContent = `${mins}:${String(secs).padStart(2, '0')}`
     el.className = totalSecs <= 5 ? 'urgent' : totalSecs <= 10 ? 'warning' : ''
-
     if (remaining <= 0) {
       state.phase = 'timeout'
       document.getElementById('timeout-overlay').classList.remove('hidden')
@@ -282,11 +269,7 @@ function update() {
 
 // ── Render ────────────────────────────────────────────────────────────────────
 
-function loop() {
-  update()
-  draw()
-  requestAnimationFrame(loop)
-}
+function loop() { update(); draw(); requestAnimationFrame(loop) }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -294,15 +277,10 @@ function draw() {
   if (state.phase === 'start') return
   const t = Date.now()
   for (const s of state.sheep) {
-    if (s.state === 'active') {
-      drawSheep(s.x, s.y, R, s.dir, 0)
-    } else if (s.state === 'scurrying') {
-      drawSheep(s.x, s.y, R, s.dir, Math.sin(t / 70 + s.id * 1.9) * 0.2)
-    }
+    if      (s.state === 'active')    drawSheep(s.x, s.y, R, s.dir, 0, s.hatColor)
+    else if (s.state === 'scurrying') drawSheep(s.x, s.y, R, s.dir, Math.sin(t/70 + s.id*1.9)*0.2, s.hatColor)
   }
 }
-
-// ── Field ─────────────────────────────────────────────────────────────────────
 
 function drawField() {
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height)
@@ -311,21 +289,20 @@ function drawField() {
   grad.addColorStop(1,    '#3d8a2a')
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, canvas.width, canvas.height)
-
   ctx.lineCap = 'round'
   for (const b of state.grassBlades) {
     ctx.strokeStyle = b.dark ? '#3a7a28' : '#82d468'
     ctx.lineWidth   = 1.5
     ctx.beginPath()
     ctx.moveTo(b.x, b.y)
-    ctx.quadraticCurveTo(b.x + b.lean * 0.5, b.y - b.h * 0.55, b.x + b.lean, b.y - b.h)
+    ctx.quadraticCurveTo(b.x + b.lean*0.5, b.y - b.h*0.55, b.x + b.lean, b.y - b.h)
     ctx.stroke()
   }
 }
 
-// ── Sheep — no legs, compact body ─────────────────────────────────────────────
+// ── Sheep + party hat ─────────────────────────────────────────────────────────
 
-function drawSheep(cx, cy, r, dir, wobble) {
+function drawSheep(cx, cy, r, dir, wobble, hatColor) {
   const angle = DIR_ANGLE[dir] + wobble
   const bw    = r * 0.78
   const bh    = r * 0.52
@@ -337,42 +314,78 @@ function drawSheep(cx, cy, r, dir, wobble) {
   // Wool body
   ctx.fillStyle = '#f0efe7'
   ctx.beginPath()
-  ctx.ellipse(-bw * 0.06, 0, bw, bh, 0, 0, Math.PI * 2)
+  ctx.ellipse(-bw*0.06, 0, bw, bh, 0, 0, Math.PI*2)
   ctx.fill()
 
   // Puff bumps
   ctx.fillStyle = '#e2e1d8'
-  ctx.beginPath(); ctx.arc(-bw * 0.38, -bh * 0.72, bh * 0.54, 0, Math.PI * 2); ctx.fill()
-  ctx.beginPath(); ctx.arc( bw * 0.05, -bh * 0.80, bh * 0.50, 0, Math.PI * 2); ctx.fill()
-  ctx.beginPath(); ctx.arc(-bw * 0.70, -bh * 0.18, bh * 0.44, 0, Math.PI * 2); ctx.fill()
+  ctx.beginPath(); ctx.arc(-bw*0.38, -bh*0.72, bh*0.54, 0, Math.PI*2); ctx.fill()
+  ctx.beginPath(); ctx.arc( bw*0.05, -bh*0.80, bh*0.50, 0, Math.PI*2); ctx.fill()
+  ctx.beginPath(); ctx.arc(-bw*0.70, -bh*0.18, bh*0.44, 0, Math.PI*2); ctx.fill()
 
-  // Subtle outline
+  // Outline
   ctx.strokeStyle = 'rgba(0,0,0,0.07)'
   ctx.lineWidth   = 1
   ctx.beginPath()
-  ctx.ellipse(-bw * 0.06, 0, bw, bh, 0, 0, Math.PI * 2)
+  ctx.ellipse(-bw*0.06, 0, bw, bh, 0, 0, Math.PI*2)
   ctx.stroke()
 
   // Head
   ctx.fillStyle = '#5c3d28'
   ctx.beginPath()
-  ctx.arc(bw * 0.9, r * 0.04, bh * 0.44, 0, Math.PI * 2)
+  ctx.arc(bw*0.9, r*0.04, bh*0.44, 0, Math.PI*2)
   ctx.fill()
 
   // Ear
   ctx.fillStyle = '#3e2616'
   ctx.beginPath()
-  ctx.ellipse(bw * 0.84, -bh * 0.44, bh * 0.13, bh * 0.23, -0.35, 0, Math.PI * 2)
+  ctx.ellipse(bw*0.84, -bh*0.44, bh*0.13, bh*0.23, -0.35, 0, Math.PI*2)
   ctx.fill()
 
   // Eye
-  ctx.fillStyle = '#ffffff'
-  ctx.beginPath()
-  ctx.arc(bw * 0.96, -bh * 0.06, bh * 0.13, 0, Math.PI * 2)
-  ctx.fill()
+  ctx.fillStyle = '#fff'
+  ctx.beginPath(); ctx.arc(bw*0.96, -bh*0.06, bh*0.13, 0, Math.PI*2); ctx.fill()
   ctx.fillStyle = '#1a1209'
+  ctx.beginPath(); ctx.arc(bw*0.975, -bh*0.07, bh*0.065, 0, Math.PI*2); ctx.fill()
+
+  // ── Party hat ──
+  const hx   = bw * 0.9             // over the head
+  const hBase= r  * 0.04 - bh * 0.44  // base y = top of head
+  const hw   = bh * 0.40             // half-width at base
+  const hTip = hBase - r * 0.65     // tip y
+
+  // Hat body
+  ctx.fillStyle = hatColor
   ctx.beginPath()
-  ctx.arc(bw * 0.975, -bh * 0.07, bh * 0.065, 0, Math.PI * 2)
+  ctx.moveTo(hx, hTip)
+  ctx.lineTo(hx - hw, hBase)
+  ctx.lineTo(hx + hw, hBase)
+  ctx.closePath()
+  ctx.fill()
+
+  // White diagonal stripe across middle of hat
+  const st = 0.40  // 40% up from base
+  const sy  = hBase + (hTip - hBase) * st
+  const shw = hw * (1 - st)
+  ctx.fillStyle = 'rgba(255,255,255,0.30)'
+  ctx.beginPath()
+  ctx.moveTo(hx - shw,      sy + r*0.045)
+  ctx.lineTo(hx + shw,      sy + r*0.045)
+  ctx.lineTo(hx + shw*0.55, sy - r*0.045)
+  ctx.lineTo(hx - shw*0.55, sy - r*0.045)
+  ctx.closePath()
+  ctx.fill()
+
+  // Brim band
+  ctx.fillStyle = 'rgba(255,255,255,0.22)'
+  ctx.beginPath()
+  ctx.ellipse(hx, hBase, hw, r*0.07, 0, 0, Math.PI*2)
+  ctx.fill()
+
+  // Pom-pom
+  ctx.fillStyle = '#fff'
+  ctx.beginPath()
+  ctx.arc(hx, hTip, r*0.10, 0, Math.PI*2)
   ctx.fill()
 
   ctx.restore()
