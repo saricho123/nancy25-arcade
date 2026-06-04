@@ -591,34 +591,35 @@
         cx.fillText('CLIMBING UP WHEELER',128,22);
 
       } else if (idx === 3) {
-        // Chutes & Memories — parchment board with snakes + ladders
-        cx.fillStyle='#f5edd8'; cx.fillRect(0,0,256,200);
-        // grid
-        const sq=36;
-        for(let r=0;r<5;r++) for(let c=0;c<5;c++){
-          const colors=['#fff9e0','#e6f4ff','#ffe6f0','#e8ffe8','#f4e6ff'];
-          cx.fillStyle=colors[(r*5+c)%5];
-          cx.fillRect(8+c*sq, 8+r*sq, sq-2, sq-2);
-          cx.strokeStyle='rgba(120,90,50,.3)'; cx.lineWidth=0.5;
-          cx.strokeRect(8+c*sq,8+r*sq,sq-2,sq-2);
-          cx.fillStyle='rgba(80,60,30,.5)'; cx.font='10px monospace'; cx.textAlign='center';
-          cx.fillText(r*5+c+1, 8+c*sq+sq/2, 8+r*sq+sq*.65);
-        }
-        // snake
-        cx.strokeStyle='rgba(200,80,10,.8)'; cx.lineWidth=4; cx.lineCap='round';
-        cx.beginPath(); cx.moveTo(44,44); cx.quadraticCurveTo(90,10,170,80); cx.stroke();
-        // ladder
-        cx.strokeStyle='rgba(30,140,30,.7)'; cx.lineWidth=2.5;
-        cx.beginPath(); cx.moveTo(152,188); cx.lineTo(80,80); cx.stroke();
-        cx.beginPath(); cx.moveTo(170,188); cx.lineTo(98,80); cx.stroke();
-        for(let i=0;i<5;i++){ cx.beginPath(); cx.moveTo(152+i*3.6,188-i*21.6); cx.lineTo(170+i*3.6,188-i*21.6); cx.stroke(); }
-        // token
-        cx.fillStyle='#f8d060'; cx.beginPath(); cx.arc(44,152,10,0,Math.PI*2); cx.fill();
-        cx.fillStyle='#4a2e00'; cx.font='bold 10px monospace'; cx.textAlign='center';
-        cx.fillText('N',44,156);
-        cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,256,32);
-        cx.fillStyle='#7b1fa2'; cx.font='bold 11px monospace'; cx.textAlign='center';
-        cx.fillText('CHUTES & MEMORIES',128,22);
+        // Flute Face-Off — whack-a-mole holes on dark background
+        cx.fillStyle='#070e07'; cx.fillRect(0,0,256,200);
+        // musical notes
+        cx.fillStyle='rgba(0,180,80,0.08)'; cx.font='18px serif'; cx.textAlign='left';
+        ['♩','♪','♫','♬'].forEach((n,i)=>cx.fillText(n,20+i*58,28));
+        // draw 9 holes in 3x3
+        const hxs=[56,128,200], hys=[70,120,170];
+        hxs.forEach(hx=>hys.forEach(hy=>{
+          // outer rim
+          const rim=cx.createRadialGradient(hx-3,hy-3,14,hx,hy,26);
+          rim.addColorStop(0,'#ccc'); rim.addColorStop(0.6,'#888'); rim.addColorStop(1,'#333');
+          cx.beginPath(); cx.arc(hx,hy,26,0,Math.PI*2); cx.fillStyle=rim; cx.fill();
+          // dark hole
+          const hole=cx.createRadialGradient(hx,hy-4,0,hx,hy,20);
+          hole.addColorStop(0,'#1a1a1a'); hole.addColorStop(1,'#040404');
+          cx.beginPath(); cx.arc(hx,hy,20,0,Math.PI*2); cx.fillStyle=hole; cx.fill();
+        }));
+        // a face peeking from center hole
+        cx.save();
+        cx.beginPath(); cx.arc(128,120,20,0,Math.PI*2); cx.clip();
+        cx.fillStyle='#ffcc88'; cx.fillRect(108,108,40,32);
+        cx.fillStyle='#222'; cx.beginPath(); cx.arc(120,116,3,0,Math.PI*2); cx.fill();
+        cx.beginPath(); cx.arc(136,116,3,0,Math.PI*2); cx.fill();
+        cx.strokeStyle='#222'; cx.lineWidth=2; cx.beginPath();
+        cx.arc(128,122,6,0.1,Math.PI-0.1); cx.stroke();
+        cx.restore();
+        cx.fillStyle='rgba(0,0,0,.5)'; cx.fillRect(0,0,256,32);
+        cx.fillStyle='#00ff88'; cx.font='bold 11px monospace'; cx.textAlign='center';
+        cx.fillText('FLUTE FACE-OFF',128,22);
 
       } else {
         // Coming Soon — mystery screen
@@ -649,7 +650,7 @@
       {url:'game/index.html',  name:'SHEEP ESCAPE',      x:-8.5, z:-3,  body:0x0e2a0c, screen:0x22ee55, marq:0x1a6620, accent:0x44ff88},
       {url:'game2/index.html', name:'FEAR OF FLYING',    x:-4.0, z:-6,  body:0x081830, screen:0x2299ff, marq:0x0a3060, accent:0x55aaff},
       {url:'game3/index.html', name:'WHEELER CLIMB',     x: 0.0, z:-7,  body:0x2a0a04, screen:0xff4422, marq:0x601808, accent:0xff6644},
-      {url:'game4/index.html', name:'CHUTES & MEMORIES', x: 4.0, z:-6,  body:0x181006, screen:0xeecc11, marq:0x402c00, accent:0xffdd44},
+      {url:'game4/index.html', name:'FLUTE FACE-OFF',    x: 4.0, z:-6,  body:0x1a2e1e, screen:0x00ff88, marq:0x0a2010, accent:0x44ffaa},
       {url:null,               name:'COMING SOON',       x: 8.5, z:-3,  body:0x1e0428, screen:0xff44cc, marq:0x501040, accent:0xff88ee},
     ];
 

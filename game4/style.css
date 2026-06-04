@@ -1,702 +1,375 @@
-/* ─────────────────────────────────────────────────────────────────
-   BASE
-───────────────────────────────────────────────────────────────── */
+/* FLUTE FACE-OFF — Silver & Green Musical Arcade Cabinet */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; touch-action: none; }
 
 body {
-  background:
-    radial-gradient(ellipse at 50% 20%, #1e0a3a 0%, #080510 60%, #020105 100%);
+  background: radial-gradient(ellipse at center, #071007 0%, #020802 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Courier New', Courier, monospace;
+  min-height: 100vh;
+  font-family: 'Press Start 2P', monospace;
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   SCENE WRAPPER
-───────────────────────────────────────────────────────────────── */
 #scene {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative;
+  filter: drop-shadow(0 0 36px rgba(0,255,80,0.18));
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   CAB LID  — the visible top surface of the physical box
-   Perspective + rotateX makes it look like a horizontal surface
-   receding away from the viewer.
-───────────────────────────────────────────────────────────────── */
+/* Cabinet lid */
 #cab-lid {
-  width: 88%;
+  width: 374px;
   height: 18px;
-  background: linear-gradient(to right, #2a1c50 0%, #3e2c74 40%, #3a2868 70%, #241848 100%);
-  border-radius: 12px 12px 0 0;
-  border: 2px solid #5a3ea0;
-  border-bottom: none;
+  background: linear-gradient(to bottom, #b4bcb4, #8a928a);
+  border-radius: 6px 6px 0 0;
+  transform: perspective(600px) rotateX(-38deg);
+  transform-origin: bottom center;
   position: relative;
   overflow: hidden;
-  transform: perspective(700px) rotateX(-38deg);
-  transform-origin: bottom center;
-  box-shadow: 0 -6px 24px rgba(120,60,255,0.25);
-  z-index: 2;
-  margin-bottom: -1px;
 }
 #lid-shine {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom,
-    rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 60%, transparent 100%);
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%);
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   CABINET OUTER — three-column: left side | front | right side
-───────────────────────────────────────────────────────────────── */
+/* Cabinet body */
 #cab {
   display: flex;
-  align-items: stretch;
-  filter: drop-shadow(0 28px 70px rgba(0,0,0,1));
+  width: 374px;
+  background: linear-gradient(180deg, #8c9890 0%, #5e6860 100%);
+  border-radius: 0 0 10px 10px;
+  box-shadow:
+    inset -4px 0 12px rgba(0,0,0,0.4),
+    inset 4px 0 12px rgba(0,0,0,0.4),
+    0 8px 24px rgba(0,0,0,0.6);
 }
 
-/* ── Side panels ── */
 .cab-side {
-  width: 30px;
-  background: linear-gradient(to right, #0c0818, #160f28, #100c20);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding-top: 55px;
-  gap: 28px;
-}
-.cab-side.left {
-  border-radius: 14px 0 0 10px;
-  border: 2px solid #2e1e50;
-  border-right: none;
-  box-shadow: -5px 2px 18px rgba(0,0,0,0.9);
-  background: linear-gradient(to right, #0a0616, #160e28, #120a20);
-}
-.cab-side.right {
-  border-radius: 0 14px 10px 0;
-  border: 2px solid #2e1e50;
-  border-left: none;
-  box-shadow:  5px 2px 18px rgba(0,0,0,0.9);
-  background: linear-gradient(to left, #0a0616, #160e28, #120a20);
-}
-
-/* Rainbow racing stripe painted on the side */
-.side-stripe {
-  position: absolute;
-  top: 0; left: 5px; right: 5px; bottom: 0;
-  background: linear-gradient(to bottom,
-    #ff6b6b 0%, #ff922b 15%, #ffd93d 30%,
-    #6bcb77 45%, #4d96ff 60%, #cc5de8 75%, #f783ac 90%);
-  opacity: 0.40;
-}
-
-/* Quarter coins on side panel */
-.s-coin {
-  position: relative;
-  z-index: 1;
   width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 32%, #f8e070, #c89010, #7a5000);
-  border: 1px solid #a07010;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 5px;
-  font-weight: bold;
-  color: #4a2c00;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.7), inset 0 1px 2px rgba(255,220,80,0.5);
-  animation: coin-wobble 3s ease-in-out infinite;
 }
-.s-coin:nth-child(2) { animation-delay: 1s; }
-.s-coin:nth-child(3) { animation-delay: 2s; }
-@keyframes coin-wobble {
-  0%,100% { transform: rotate(-5deg); }
-  50%      { transform: rotate(5deg) scale(1.08); }
+.side-stripe {
+  width: 7px;
+  height: 82%;
+  background: linear-gradient(to bottom, #00ff88, #008844, #00ff88);
+  border-radius: 4px;
+  box-shadow: 0 0 10px #00ff88, 0 0 20px rgba(0,255,136,0.4);
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   CABINET FRONT FACE
-───────────────────────────────────────────────────────────────── */
 #cab-face {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background: linear-gradient(170deg, #1c1438 0%, #120e26 45%, #0e0a1e 100%);
-  border-left:  3px solid #3a2868;
-  border-right: 3px solid #3a2868;
-  box-shadow:
-    inset  4px 0 0 rgba(255,255,255,0.03),
-    inset -4px 0 0 rgba(255,255,255,0.03);
+  padding: 0 6px;
 }
 
-/* ① MARQUEE ────────────────────────────────────────────────────── */
+/* Marquee */
 #marquee-wrap {
-  width: 100%;
-  padding: 8px 10px 6px;
-  background: #100c20;
-  border-bottom: 3px solid #2e2050;
   position: relative;
+  background: linear-gradient(to bottom, #0e1e0e, #0a160a);
+  border: 2px solid #00aa55;
+  border-radius: 4px;
+  margin: 8px 0 6px;
+  padding: 7px 6px;
+  box-shadow: 0 0 18px rgba(0,255,100,0.28), inset 0 0 8px rgba(0,0,0,0.6);
 }
-
-#marquee-body {
-  border-radius: 8px 8px 4px 4px;
-  overflow: hidden;
-  border: 2px solid rgba(255,255,255,0.14);
-  box-shadow:
-    0 0 24px rgba(180,100,255,0.35),
-    inset 0 0 16px rgba(200,150,255,0.12);
-  position: relative;
-}
-
 #marquee-rainbow {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-    #ff6b6b, #ff922b, #ffd93d, #6bcb77,
-    #4d96ff, #cc5de8, #f783ac, #ff6b6b);
-  background-size: 300% 100%;
-  animation: rainbow-shift 4s linear infinite;
-  opacity: 0.88;
+  height: 3px;
+  background: linear-gradient(to right, #00ff88, #80ffcc, #ffffff, #80ffcc, #00ff88);
+  margin-bottom: 5px;
+  border-radius: 2px;
 }
-@keyframes rainbow-shift {
-  0%   { background-position:   0% 50%; }
-  100% { background-position: 300% 50%; }
-}
-
 #marquee-text {
-  position: relative; z-index: 1;
+  font-family: 'Bungee', 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #00ff88;
   text-align: center;
-  padding: 8px 0 3px;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 4px;
-  color: #fff;
-  text-shadow: 0 0 12px rgba(255,255,255,0.9), 0 1px 2px rgba(0,0,0,0.5);
+  text-shadow: 0 0 10px #00ff88, 0 0 22px #00cc66;
+  letter-spacing: 1px;
 }
 #marquee-sub {
-  position: relative; z-index: 1;
+  font-size: 6.5px;
+  color: #80ffcc;
   text-align: center;
-  padding: 0 0 6px;
-  font-size: 7px;
-  letter-spacing: 3px;
-  color: rgba(255,255,255,0.85);
-  text-shadow: 0 0 8px rgba(255,255,255,0.6);
+  margin-top: 3px;
+  letter-spacing: 2px;
+  opacity: 0.8;
 }
-
-/* Mounting bolts */
 .bolt {
   position: absolute;
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
+  background: #aaa;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 32%, #666, #222);
-  border: 1px solid #111;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  border: 1px solid #666;
 }
-.bolt.tl { top: 10px; left: 12px; }
-.bolt.tr { top: 10px; right: 12px; }
-.bolt.bl { bottom: 8px; left: 12px; }
-.bolt.br { bottom: 8px; right: 12px; }
+.bolt.tl { top: 4px; left: 4px; }
+.bolt.tr { top: 4px; right: 4px; }
+.bolt.bl { bottom: 4px; left: 4px; }
+.bolt.br { bottom: 4px; right: 4px; }
 
-/* ② SPEAKER BAR ───────────────────────────────────────────────── */
+/* Speaker */
 #speaker-bar {
-  width: 100%;
   display: flex;
   align-items: center;
-  padding: 5px 10px;
-  background: #0c0a1a;
-  border-bottom: 2px solid #1e1838;
-  gap: 8px;
+  gap: 6px;
+  margin-bottom: 5px;
 }
 .grille {
   flex: 1;
-  height: 18px;
-  background-image: radial-gradient(circle, #282050 1.5px, transparent 1.5px);
-  background-size: 6px 6px;
-  background-color: #08060f;
-  border-radius: 3px;
-  border: 1px solid #181430;
+  height: 13px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 3px,
+    #1e2e1e 3px, #1e2e1e 4px
+  );
+  border-radius: 2px;
+  border: 1px solid #2a3a2a;
 }
 #brand-plate {
-  font-size: 7px;
-  letter-spacing: 3px;
-  color: #3a2860;
+  font-size: 6px;
+  color: #80ffcc;
+  letter-spacing: 1px;
   white-space: nowrap;
+  text-shadow: 0 0 4px #00ff88;
 }
 
-/* ③ MONITOR ────────────────────────────────────────────────────── */
+/* Monitor */
 #monitor-housing {
-  width: 100%;
-  padding: 10px;
-  background: #070512;
-  border-top: 2px solid #14103a;
-  border-bottom: 2px solid #14103a;
-  box-shadow: inset 0 6px 20px rgba(0,0,0,0.9);
+  background: #141a14;
+  border: 3px solid #1e2e1e;
+  border-radius: 6px;
+  padding: 7px;
+  box-shadow: 0 0 22px rgba(0,255,100,0.12), inset 0 0 10px rgba(0,0,0,0.9);
 }
 #monitor-bezel {
-  background: #030208;
-  border-radius: 6px;
-  padding: 9px;
-  border: 2px solid #0e0a1e;
-  box-shadow:
-    inset 0 0 28px rgba(0,0,0,0.95),
-    0 0 0 1px rgba(80,50,140,0.4);
+  background: #0a0a0a;
+  border: 2px solid #2a3a2a;
+  border-radius: 4px;
+  padding: 4px;
 }
 #screen-area {
   position: relative;
-  border-radius: 4px;
+  width: 298px;
+  height: 298px;
+  background: #000;
+  border-radius: 2px;
   overflow: hidden;
-  line-height: 0;
-  box-shadow:
-    inset 0 0 28px rgba(0,0,0,0.8),
-    0 0 14px rgba(80,200,100,0.06);
 }
-canvas { display: block; }
-
-/* CRT scanlines */
-#screen-area::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px, transparent 3px,
-    rgba(0,0,0,0.055) 3px, rgba(0,0,0,0.055) 4px
-  );
-  pointer-events: none;
-  z-index: 10;
-}
-/* Corner vignette */
-#screen-area::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.65) 100%);
-  pointer-events: none;
-  z-index: 11;
-}
-
-/* ④ CONTROL PANEL ──────────────────────────────────────────────── */
-#ctrl-panel {
+#canvas {
+  display: block;
   width: 100%;
-  background: linear-gradient(to bottom, #181230, #10102a, #0c0e24);
-  border-top: 3px solid #2e265a;
-  padding: 0 0 4px;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* Overlays */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,8,0,0.9);
+  gap: 9px;
+  padding: 14px;
+  text-align: center;
+}
+.overlay.hidden { display: none; }
+.overlay-icon {
+  font-size: 30px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.9); }
+}
+.overlay h1 {
+  font-size: 10px;
+  color: #00ff88;
+  text-shadow: 0 0 12px #00ff88;
+  line-height: 1.6;
+}
+.overlay p {
+  font-size: 6.5px;
+  color: #80ffcc;
+  line-height: 1.9;
+  max-width: 240px;
+}
+.price-badge {
+  background: #00aa55;
+  color: #000;
+  font-size: 7px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.end-score-line {
+  color: #ffd700 !important;
+  font-size: 8px !important;
+  text-shadow: 0 0 8px #ffd700;
+}
+.bday-note {
+  color: #ffccdd !important;
+  font-size: 6.5px !important;
+}
+.overlay button {
+  background: #00ff88;
+  color: #000;
+  border: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin: 2px;
+  transition: all 0.12s;
+}
+.overlay button:hover { background: #80ffcc; transform: scale(1.05); }
+
+/* Control panel */
+#ctrl-panel {
+  background: linear-gradient(to bottom, #6e7870, #4a524a);
+  border-radius: 0 0 6px 6px;
+  padding: 7px;
+  margin-top: 5px;
 }
 #ctrl-inner {
   position: relative;
-  padding: 8px 12px 6px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  /* Faint panel texture */
-  background: repeating-linear-gradient(
-    45deg,
-    transparent, transparent 10px,
-    rgba(255,255,255,0.01) 10px, rgba(255,255,255,0.01) 11px
-  );
+  gap: 5px;
 }
-
-/* Screw heads on control panel */
 .screw {
   position: absolute;
-  top: 8px;
-  width: 6px; height: 6px;
+  width: 7px; height: 7px;
+  background: radial-gradient(circle at 35% 35%, #ccc, #888);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 32%, #555, #1a1a1a);
-  border: 1px solid #0a0a0a;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.7);
+  top: 2px;
 }
-.screw.sl { left: 8px; }
-.screw.sr { right: 8px; }
-
-/* HUD */
+.screw.sl { left: 2px; }
+.screw.sr { right: 2px; }
 #hud-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: #9080c0;
-  text-transform: uppercase;
-  padding: 0 4px;
+  padding: 0 12px;
 }
-#timer-display {
-  font-size: 15px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  color: #9080c0;
-  transition: color 0.3s;
+#hud-row span {
+  font-size: 6.5px;
+  color: #00ff88;
+  text-shadow: 0 0 4px #00ff88;
 }
-#timer-display.warning { color: #f0b429; }
-#timer-display.urgent  { color: #ff3b3b; animation: blink .45s ease-in-out infinite alternate; }
-@keyframes blink { from { opacity: 1; } to { opacity: 0.18; } }
-
-/* Real buttons */
-#real-btns { display: flex; gap: 7px; }
+#real-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
 #real-btns button {
-  flex: 1;
-  padding: 8px 0;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: bold;
-  letter-spacing: 2px;
+  background: #0e1e0e;
+  color: #00ff88;
+  border: 1px solid #00aa55;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5.5px;
+  padding: 4px 7px;
   cursor: pointer;
-  border-radius: 6px;
-  border: none;
-  transition: transform .08s, box-shadow .08s;
+  border-radius: 3px;
+  transition: all 0.12s;
 }
-#undo-btn {
-  background: #28204a;
-  color: #a090d8;
-  box-shadow: 0 4px 0 #100c24;
-}
-#undo-btn:not(:disabled):hover  { background: #382e60; }
-#undo-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 1px 0 #100c24; }
-#undo-btn:disabled { background: #16123a; color: #302858; cursor: not-allowed; }
-#addtime-btn {
-  background: #36186a;
-  color: #c8a8ff;
-  box-shadow: 0 4px 0 #160830;
-}
-#addtime-btn:hover  { background: #4c2490; }
-#addtime-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #160830; }
-@keyframes flash-anim {
-  0%   { background: #36186a; }
-  40%  { background: #b090ff; }
-  100% { background: #36186a; }
-}
-#addtime-btn.flash { animation: flash-anim .35s ease; }
+#real-btns button:hover { background: #00aa55; color: #000; }
 
-/* Decorative controls */
+/* Deco controls */
 #deco-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 2px 4px 0;
+  padding: 2px 6px;
 }
-
-/* Joystick */
-#joystick-assy {
-  position: relative;
-  width: 48px; height: 44px;
-  display: flex; align-items: flex-end; justify-content: center;
-}
+#joystick-assy { position: relative; width: 34px; height: 34px; }
 #j-base {
-  width: 48px; height: 13px;
-  background: radial-gradient(ellipse at 50% 30%, #3a3a3a, #161616);
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 30px; height: 13px;
+  background: radial-gradient(ellipse, #333, #111);
   border-radius: 50%;
-  border: 2px solid #080808;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.06);
 }
 #j-shaft {
-  position: absolute;
-  bottom: 13px;
-  width: 7px; height: 18px;
-  background: linear-gradient(to right, #444, #888, #444);
-  border-radius: 3px 3px 0 0;
+  position: absolute; bottom: 9px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 20px;
+  background: linear-gradient(to right, #555, #aaa, #555);
+  border-radius: 3px;
 }
 #j-ball {
-  position: absolute;
-  bottom: 24px;
-  width: 17px; height: 17px;
-  background: radial-gradient(circle at 34% 28%, #777, #111);
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 13px; height: 13px;
+  background: radial-gradient(circle at 35% 35%, #66ffaa, #00aa55);
   border-radius: 50%;
-  border: 2px solid #080808;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.9), inset 0 1px 2px rgba(255,255,255,0.12);
+  box-shadow: 0 0 6px #00ff88;
 }
-
-/* 1P START */
 #p1-start {
-  font-size: 7px;
-  letter-spacing: 2px;
-  color: #5040a0;
-  border: 1px solid #302860;
-  border-radius: 4px;
-  padding: 5px 7px;
-  background: #0a0820;
-  text-align: center;
+  font-size: 5px;
+  color: #80ffcc;
+  border: 1px solid #00aa55;
+  padding: 3px 5px;
+  border-radius: 2px;
 }
-
-/* Action buttons */
-#action-assy { display: flex; gap: 5px; align-items: center; }
+#action-assy { display: flex; gap: 4px; align-items: center; }
 .a-btn {
-  width: 21px; height: 21px;
+  width: 18px; height: 18px;
   border-radius: 50%;
   border: 2px solid rgba(0,0,0,0.5);
-  box-shadow: 0 4px 0 rgba(0,0,0,0.7), inset 0 -1px 3px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.18);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
 }
-#btn-red    { background: radial-gradient(circle at 34% 28%, #ff6666, #bb0000); }
-#btn-blue   { background: radial-gradient(circle at 34% 28%, #66aaff, #0033bb); }
-#btn-yellow { background: radial-gradient(circle at 34% 28%, #ffee66, #bb8800); }
+#btn-red    { background: radial-gradient(circle at 35% 35%, #ff6666, #cc0000); }
+#btn-blue   { background: radial-gradient(circle at 35% 35%, #66aaff, #0044cc); }
+#btn-yellow { background: radial-gradient(circle at 35% 35%, #ffee66, #ccaa00); }
 
-/* ⑤ COIN DOOR ──────────────────────────────────────────────────── */
+/* Coin door */
 #coin-door {
-  width: 100%;
-  background: linear-gradient(to bottom, #0c0a1e, #0a0819);
-  border-top: 2px solid #201840;
-}
-#coin-door-panel {
-  margin: 7px 16px;
-  background: linear-gradient(135deg, #1a1630, #0e0c22);
-  border: 1px solid #2a2250;
-  border-radius: 5px;
-  padding: 7px 10px 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.7);
-}
-.quarter-slot-row { display: flex; gap: 24px; }
-.q-slot {
-  width: 34px; height: 7px;
-  background: #040310;
+  margin-top: 5px;
+  background: linear-gradient(to bottom, #323e32, #20261e);
+  border: 1px solid #3e503e;
   border-radius: 4px;
-  border: 1px solid #2a205a;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.95);
+  padding: 5px 8px;
+}
+.quarter-slot-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 3px; }
+.q-slot {
+  width: 34px; height: 12px;
+  background: #111;
+  border: 1px solid #3e503e;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.q-slot span {
-  font-size: 5px;
-  color: #3a2880;
-  letter-spacing: 1px;
-}
+.q-slot span { font-size: 5px; color: #80ffcc; }
 #coin-door-label {
-  font-size: 7px;
-  letter-spacing: 3px;
-  color: #c8a030;
-  text-shadow: 0 0 6px rgba(200,160,48,0.5);
-}
-#coin-return {
-  font-size: 6px;
-  letter-spacing: 2px;
-  color: #2e2660;
-  border: 1px solid #1e1840;
-  border-radius: 2px;
-  padding: 1px 8px;
-}
-
-/* ⑥ KICKPLATE ──────────────────────────────────────────────────── */
-#kickplate {
-  width: 100%;
-  height: 18px;
-  background: linear-gradient(to bottom, #181438, #0c0a20);
-  border-top: 2px solid #2a2258;
-  border-radius: 0 0 2px 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#kickplate-text {
-  font-size: 6px;
-  letter-spacing: 4px;
-  color: #2a2050;
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   FLOOR GLOW
-───────────────────────────────────────────────────────────────── */
-#floor-glow {
-  width: 70%;
-  height: 18px;
-  margin-top: 6px;
-  background: radial-gradient(ellipse, rgba(120,60,255,0.28) 0%, transparent 70%);
-  filter: blur(10px);
-}
-
-/* ─────────────────────────────────────────────────────────────────
-   OVERLAYS
-───────────────────────────────────────────────────────────────── */
-.overlay {
-  position: absolute; inset: 0;
-  background: rgba(3,2,12,0.94);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  font-size: 4.5px;
+  color: #80ffcc;
   text-align: center;
-  padding: 20px;
-  z-index: 20;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
 }
-.overlay h1 {
-  font-size: clamp(13px, 4vw, 20px);
-  letter-spacing: 4px;
-  color: #c0e0a0;
+#coin-return { font-size: 4.5px; color: #4a5e4a; text-align: center; }
+
+/* Kickplate */
+#kickplate {
+  background: linear-gradient(to bottom, #3e503e, #20261e);
+  border-top: 1px solid #00aa55;
+  padding: 4px;
+  border-radius: 0 0 8px 8px;
+  text-align: center;
 }
-.overlay p {
-  font-size: clamp(9px, 2vw, 11px);
-  color: #708860;
-  max-width: 210px;
-  line-height: 1.9;
-  letter-spacing: 1px;
+#kickplate-text { font-size: 5.5px; color: #00aa55; letter-spacing: 1px; }
+
+#floor-glow {
+  width: 320px; height: 18px;
+  background: radial-gradient(ellipse, rgba(0,255,100,0.12), transparent 70%);
+  margin-top: 4px;
 }
-.hidden { display: none !important; }
-.overlay button {
-  background: #50901e;
-  color: #040d02;
-  border: none;
-  padding: 9px 22px;
-  font-family: inherit;
-  font-size: 10px;
-  font-weight: bold;
-  letter-spacing: 3px;
-  cursor: pointer;
-  border-radius: 5px;
-  box-shadow: 0 3px 0 #285010;
-  transition: transform .08s, background .15s;
-}
-.overlay button:hover  { background: #68b828; }
-.overlay button:active { transform: translateY(2px); box-shadow: 0 1px 0 #285010; }
-#hub-btn, #hub-btn-timeout {
-  background: transparent;
-  color: #3a2e68;
-  border: 1px solid #221a48;
-  box-shadow: none;
-  font-size: 8px;
-}
-#hub-btn:hover, #hub-btn-timeout:hover { background: #0c0a20; color: #7060b0; }
-
-/* ─────────────────────────────────────────────────────────────────
-   QUARTER COIN ANIMATIONS
-───────────────────────────────────────────────────────────────── */
-
-/* Big spinning quarter on start screen */
-#coin-anim-wrap {
-  perspective: 500px;
-  width: 64px; height: 64px;
-}
-.big-quarter {
-  width: 64px; height: 64px;
-  background: radial-gradient(circle at 36% 30%, #f8e870, #d4a018, #7a4e00, #c09010);
-  border-radius: 50%;
-  border: 3px solid #a07810;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow:
-    0 6px 18px rgba(0,0,0,0.7),
-    inset 0 2px 5px rgba(255,230,80,0.6),
-    inset 0 -2px 4px rgba(80,40,0,0.4);
-  animation: quarter-spin 2.2s ease-in-out infinite;
-}
-.bq-face {
-  font-size: 14px;
-  font-weight: bold;
-  color: #4a2e00;
-  text-shadow: 0 1px 2px rgba(255,200,0,0.5);
-  letter-spacing: 1px;
-}
-@keyframes quarter-spin {
-  0%   { transform: rotateY(0deg)    translateY(0);    }
-  20%  { transform: rotateY(90deg)   translateY(-10px); }
-  50%  { transform: rotateY(180deg)  translateY(0);    }
-  70%  { transform: rotateY(270deg)  translateY(-10px); }
-  100% { transform: rotateY(360deg)  translateY(0);    }
-}
-
-/* "25¢ TO PLAY" badge */
-.price-badge {
-  background: radial-gradient(circle at 38% 32%, #f8e870, #c89010, #7a4e00);
-  color: #3a1e00;
-  font-size: 16px;
-  font-weight: bold;
-  letter-spacing: 4px;
-  padding: 6px 20px;
-  border-radius: 20px;
-  border: 2px solid #a07010;
-  box-shadow: 0 4px 12px rgba(200,160,20,0.4), inset 0 1px 3px rgba(255,240,100,0.5);
-  text-shadow: 0 1px 1px rgba(255,200,0,0.4);
-}
-
-/* Win screen: small quarters raining down */
-.win-coins { display: flex; gap: 12px; }
-.sm-quarter {
-  width: 38px; height: 38px;
-  background: radial-gradient(circle at 36% 30%, #f8e870, #c89010, #7a4e00);
-  border-radius: 50%;
-  border: 2px solid #a07010;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-weight: bold;
-  color: #4a2c00;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 1px 3px rgba(255,220,80,0.5);
-  animation: quarter-spin 1.8s ease-in-out infinite;
-}
-.sm-quarter.delay1 { animation-delay: 0.4s; }
-.sm-quarter.delay2 { animation-delay: 0.8s; }
-
-/* Birthday note */
-.bday-note {
-  color: #c8a030 !important;
-  font-size: 11px !important;
-  text-shadow: 0 0 8px rgba(200,160,48,0.4);
-  letter-spacing: 2px !important;
-}
-
-/* ── game4 overrides ── */
-#restart-btn, #back-btn {
-  flex: 1; padding: 9px 0;
-  font-family: inherit; font-size: 10px; font-weight: bold;
-  letter-spacing: 2px; cursor: pointer; border-radius: 6px; border: none;
-  transition: transform .08s, box-shadow .08s;
-}
-#restart-btn { background:#28204a; color:#a090d8; box-shadow:0 4px 0 #100c24; }
-#restart-btn:not(:disabled):hover  { background:#382e60; }
-#restart-btn:not(:disabled):active { transform:translateY(3px); box-shadow:0 1px 0 #100c24; }
-#restart-btn:disabled { background:#16123a; color:#302858; cursor:not-allowed; }
-#back-btn { background:#1e1838; color:#6050a0; box-shadow:0 4px 0 #0c0820; }
-#back-btn:hover  { background:#2a2450; color:#9080d0; }
-#back-btn:active { transform:translateY(3px); box-shadow:0 1px 0 #0c0820; }
-.bday-note { color:#c8a030 !important; text-shadow:0 0 8px rgba(200,160,48,.4); }
-
-/* ════════════════════════════════════════════════════
-   FONT ASSIGNMENTS
-   Press Start 2P — overlay titles, kickplate, scores
-   Bungee          — buttons, marquee text, price badges
-   Orbitron        — HUD, descriptions, labels
-════════════════════════════════════════════════════ */
-body   { font-family: 'Orbitron', sans-serif; }
-
-/* Overlay headings */
-.overlay h1    { font-family: 'Press Start 2P', monospace; font-size: clamp(12px, 4vw, 18px); letter-spacing: 2px; line-height: 1.6; }
-.overlay p     { font-family: 'Orbitron', sans-serif; }
-.overlay button { font-family: 'Bungee', sans-serif; letter-spacing: 2px; }
-
-/* Marquee */
-#marquee-text  { font-family: 'Bungee', sans-serif; font-size: 14px; letter-spacing: 3px; }
-#marquee-sub   { font-family: 'Orbitron', sans-serif; }
-
-/* HUD */
-#hud-row,
-#moves-display, #timer-display,
-#lives-display, #score-display,
-#progress-display, #streak-display,
-#miss-display  { font-family: 'Orbitron', sans-serif; }
-
-/* Control panel buttons */
-#undo-btn, #addtime-btn,
-#restart-btn, #back-btn { font-family: 'Bungee', sans-serif; letter-spacing: 2px; }
-
-/* Price / coin labels */
-.price-badge   { font-family: 'Bungee', sans-serif; }
-.bday-note     { font-family: 'Bungee', sans-serif; }
-#coin-door-label { font-family: 'Orbitron', sans-serif; }
-#coin-return   { font-family: 'Orbitron', sans-serif; }
-
-/* Kickplate — tiny pixel text */
-#kickplate-text { font-family: 'Press Start 2P', monospace; font-size: 5px; letter-spacing: 2px; }
-
-/* Brand / small labels */
-#brand-plate   { font-family: 'Orbitron', sans-serif; }
-#p1-start      { font-family: 'Press Start 2P', monospace; font-size: 6px; }

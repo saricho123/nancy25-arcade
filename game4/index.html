@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Chutes & Memories — Nancy's 25th</title>
+  <title>Flute Face-Off — Nancy's 25th</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,11 +18,9 @@
     <div id="cab-face">
 
       <div id="marquee-wrap">
-        <div id="marquee-body">
-          <div id="marquee-rainbow"></div>
-          <div id="marquee-text">🎲 &nbsp; CHUTES &amp; MEMORIES &nbsp; 🎲</div>
-          <div id="marquee-sub">✦ THE WHEELER BOARD ✦</div>
-        </div>
+        <div id="marquee-rainbow"></div>
+        <div id="marquee-text">♩ FLUTE FACE-OFF ♪</div>
+        <div id="marquee-sub">✦ NANKY'S 25TH ✦</div>
         <div class="bolt tl"></div><div class="bolt tr"></div>
         <div class="bolt bl"></div><div class="bolt br"></div>
       </div>
@@ -39,19 +37,19 @@
             <canvas id="canvas"></canvas>
 
             <div id="start-overlay" class="overlay">
-              <div style="font-size:36px">🎲</div>
-              <h1>CHUTES &amp; MEMORIES</h1>
+              <div class="overlay-icon">♩</div>
+              <h1>FLUTE FACE-OFF</h1>
               <div class="price-badge">25¢ TO PLAY</div>
-              <p>Place 20 memories on the board<br>in the right order. Land on a<br>🪜 ladder to climb ahead —<br>wrong answers slide you back down! 🐍</p>
+              <p>Whack the opps — spare the friends!<br>3 lives · 60 seconds · gets faster!</p>
               <button id="play-btn">INSERT QUARTER ⬤</button>
             </div>
 
-            <div id="win-overlay" class="overlay hidden">
-              <h1>BOARD CLEARED! 🎉</h1>
-              <p id="win-msg"></p>
-              <p class="bday-note">Happy 25th, Nancy! 🎂🪙</p>
+            <div id="end-overlay" class="overlay hidden">
+              <h1 id="end-title">TIME'S UP!</h1>
+              <p id="end-score" class="end-score-line"></p>
+              <p id="end-msg" class="bday-note"></p>
               <button id="replay-btn">PLAY AGAIN</button>
-              <button id="hub-btn">BACK TO ARCADE</button>
+              <button id="back-btn">← ARCADE</button>
             </div>
           </div>
         </div>
@@ -61,12 +59,12 @@
         <div id="ctrl-inner">
           <div class="screw sl"></div><div class="screw sr"></div>
           <div id="hud-row">
-            <span id="progress-display">0 / 20</span>
-            <span id="miss-display">MISSES: 0</span>
+            <span>SCORE <span id="score-disp">0</span></span>
+            <span id="lives-disp">♩ ♩ ♩</span>
           </div>
           <div id="real-btns">
-            <button id="restart-btn" disabled>↺ NEW GAME</button>
-            <button id="back-btn">← ARCADE</button>
+            <button id="menu-btn">↺ MENU</button>
+            <button id="back-btn2">← ARCADE</button>
           </div>
           <div id="deco-controls">
             <div id="joystick-assy"><div id="j-base"></div><div id="j-shaft"></div><div id="j-ball"></div></div>
@@ -82,12 +80,15 @@
 
       <div id="coin-door">
         <div id="coin-door-panel">
-          <div class="quarter-slot-row"><div class="q-slot"><span>25¢</span></div><div class="q-slot"><span>25¢</span></div></div>
+          <div class="quarter-slot-row">
+            <div class="q-slot"><span>25¢</span></div>
+            <div class="q-slot"><span>25¢</span></div>
+          </div>
           <div id="coin-door-label">INSERT QUARTER — 25¢ PER PLAY</div>
           <div id="coin-return">COIN RETURN</div>
         </div>
       </div>
-      <div id="kickplate"><span id="kickplate-text">CHUTES &amp; MEMORIES © 25¢</span></div>
+      <div id="kickplate"><span id="kickplate-text">FLUTE FACE-OFF © 25¢</span></div>
     </div>
     <div class="cab-side right"><div class="side-stripe"></div></div>
   </div>
