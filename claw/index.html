@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prize Claw — Nanky's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #06001a;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Press Start 2P', monospace;
+      overflow: hidden;
+    }
+    canvas { display: block; image-rendering: pixelated; }
+    .overlay {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      background: rgba(6,0,26,0.93);
+      gap: 12px; text-align: center; padding: 20px;
+    }
+    .overlay.hidden { display: none; }
+    .overlay h1 { font-size: 16px; color: #ff44cc; text-shadow: 0 0 14px #ff44cc; line-height: 1.5; }
+    .overlay p  { font-size: 7.5px; color: #cc88ff; line-height: 2.0; max-width: 300px; }
+    .btn {
+      background: #ff44cc; color: #000;
+      border: none; font-family: 'Press Start 2P', monospace;
+      font-size: 9px; padding: 10px 20px; cursor: pointer; border-radius: 4px;
+      transition: background 0.12s; margin: 2px;
+    }
+    .btn:hover { background: #ff88ee; }
+    .btn-back {
+      background: transparent; color: #884488;
+      border: 1px solid #551155; font-family: 'Press Start 2P', monospace;
+      font-size: 7px; padding: 6px 12px; cursor: pointer; border-radius: 3px;
+      transition: all 0.12s; margin: 2px;
+    }
+    .btn-back:hover { background: #220033; color: #cc88ff; border-color: #cc44ff; }
+    #prize-banner {
+      font-size: 15px; color: #ffd700;
+      text-shadow: 0 0 14px #ffd700;
+      line-height: 1.7;
+    }
+    #result-emoji { font-size: 52px; line-height: 1; }
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<!-- Start overlay -->
+<div class="overlay" id="start-overlay">
+  <div style="font-size:46px">🕹️</div>
+  <h1>PRIZE CLAW</h1>
+  <p>← → to aim the claw<br>SPACE or tap to drop!</p>
+  <p style="color:#ff88ee;font-size:7px">Grab a birthday prize from Nanky's arcade!</p>
+  <button class="btn" id="start-btn">INSERT COIN</button>
+  <button class="btn-back" onclick="window.location.href='../index.html'">← BACK TO ARCADE</button>
+</div>
+
+<!-- Result overlay -->
+<div class="overlay hidden" id="result-overlay">
+  <div id="result-emoji">🎉</div>
+  <h1 id="result-title">YOU GOT IT!</h1>
+  <div id="prize-banner"></div>
+  <p id="result-msg"></p>
+  <button class="btn" id="retry-btn">PLAY AGAIN</button>
+  <button class="btn-back" onclick="window.location.href='../index.html'">← BACK TO ARCADE</button>
+</div>
+
+<script>
+'use strict';
+
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+// Logical canvas size
+const CW = 500, CH = 580;
+canvas.width = CW; canvas.height = CH;
+
+function resizeCanvas() {
+  const s = Math.min((innerWidth - 8) / CW, (innerHeight - 8) / CH);
+  canvas.style.width  = Math.round(CW * s) + 'px';
+  canvas.style.height = Math.round(CH * s) + 'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// Layout
+const RAIL_Y    = 88;
+const CASE_L    = 24, CASE_R = 424, CASE_T = 92, CASE_B = 440;
+const RAIL_L    = CASE_L + 14, RAIL_R = CASE_R - 14;
+const CHUTE_X   = CASE_R,  CHUTE_W = 54, CHUTE_T = CASE_B - 90;
+
+const PRIZES = [
+  { x:82,  y:375, r:27, col:'#ff4488', hi:'#ff99cc', emoji:'🤗', name:'FREE HUG!',      msg:'Collect IRL from Nanky!' },
+  { x:180, y:390, r:26, col:'#ffc200', hi:'#ffe87a', emoji:'⭐', name:'BIRTHDAY STAR!', msg:"You're a star, Nanky! 🌟" },
+  { x:278, y:380, r:28, col:'#aa44ff', hi:'#dd99ff', emoji:'✨', name:'WISH GRANTED!',  msg:'Happy 25th — make it count!' },
+  { x:130, y:325, r:25, col:'#22cc88', hi:'#88ffcc', emoji:'🎉', name:'PARTY PASS!',    msg:'VIP access to the good life!' },
+  { x:235, y:330, r:26, col:'#ff7722', hi:'#ffbb88', emoji:'🎀', name:'NANKY APPROVED!',msg:'Official seal of excellence!' },
+  { x:342, y:382, r:27, col:'#33aaff', hi:'#99ddff', emoji:'🌸', name:'LUCKY CHARM!',   msg:'Good luck in med school, Dr. Park! 🩺' },
+];
+
+let toys = [];
+
+function resetToys() {
+  toys = PRIZES.map(p => ({ ...p, grabbed: false, falling: false, vy: 0 }));
+}
+
+// Game state
+const S = {
+  phase: 'start',   // start | idle | dropping | grabbing | rising | delivering | result
+  cx: CW / 2,       // claw center x
+  cy: RAIL_Y,       // claw tip y
+  openFrac: 1,      // 1=open 0=closed
+  grabbedIdx: -1,
+  drops: 0,
+  grabTimer: 0,
+};
+
+const MOVE_SPD  = 4.5;
+const DROP_SPD  = 3.0;
+const RISE_SPD  = 4.0;
+const DELIV_SPD = 4.0;
+const GRAB_RADIUS = 36;
+const GRAB_FRAMES = 28;
+
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === ' ' || e.key === 'Spacebar') && S.phase === 'idle') {
+    startDrop(); e.preventDefault();
+  }
+});
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+canvas.addEventListener('click', () => { if (S.phase === 'idle') startDrop(); });
+
+function startDrop() {
+  S.phase = 'dropping';
+  S.openFrac = 1;
+  S.grabbedIdx = -1;
+  S.grabTimer = 0;
+  S.drops++;
+}
+
+function startGame() {
+  resetToys();
+  Object.assign(S, {
+    phase: 'idle', cx: CW / 2, cy: RAIL_Y,
+    openFrac: 1, grabbedIdx: -1, drops: 0, grabTimer: 0,
+  });
+  document.getElementById('start-overlay').classList.add('hidden');
+  document.getElementById('result-overlay').classList.add('hidden');
+}
+
+function showResult(won, idx) {
+  S.phase = 'result';
+  const p = idx >= 0 ? PRIZES[idx] : null;
+  document.getElementById('result-emoji').textContent  = won ? (p ? p.emoji : '🏆') : '😅';
+  document.getElementById('result-title').textContent  = won ? 'YOU GOT IT!' : 'SO CLOSE!';
+  document.getElementById('prize-banner').textContent  = won && p ? p.name : '';
+  document.getElementById('result-msg').textContent    = won && p ? p.msg
+    : 'The claw giveth and the claw taketh… try again!';
+  document.getElementById('result-overlay').classList.remove('hidden');
+}
+
+// ── update ──────────────────────────────────────────────────────────────────
+function update() {
+  if (S.phase === 'idle') {
+    if (keys['ArrowLeft']  || keys['a'] || keys['A']) S.cx = Math.max(RAIL_L + 6, S.cx - MOVE_SPD);
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) S.cx = Math.min(RAIL_R - 6, S.cx + MOVE_SPD);
+    S.cy = RAIL_Y; S.openFrac = 1;
+
+  } else if (S.phase === 'dropping') {
+    S.cy += DROP_SPD;
+    // Check toy proximity mid-drop
+    let hit = -1;
+    for (let i = 0; i < toys.length; i++) {
+      if (toys[i].grabbed) continue;
+      const dx = S.cx - toys[i].x, dy = S.cy - toys[i].y;
+      if (Math.sqrt(dx*dx + dy*dy) < GRAB_RADIUS + toys[i].r * 0.4) { hit = i; break; }
+    }
+    if (hit >= 0 || S.cy >= CASE_B - 18) {
+      S.grabbedIdx = hit;
+      S.grabTimer  = 0;
+      S.phase = 'grabbing';
+    }
+
+  } else if (S.phase === 'grabbing') {
+    S.grabTimer++;
+    S.openFrac = Math.max(0, 1 - S.grabTimer / GRAB_FRAMES);
+    if (S.grabTimer >= GRAB_FRAMES) {
+      if (S.grabbedIdx >= 0) toys[S.grabbedIdx].grabbed = true;
+      S.phase = 'rising';
+    }
+
+  } else if (S.phase === 'rising') {
+    S.cy -= RISE_SPD;
+    if (S.grabbedIdx >= 0) {
+      toys[S.grabbedIdx].x = S.cx;
+      toys[S.grabbedIdx].y = S.cy + toys[S.grabbedIdx].r + 2;
+    }
+    if (S.cy <= RAIL_Y) {
+      S.cy = RAIL_Y;
+      if (S.grabbedIdx >= 0) {
+        S.phase = 'delivering';
+      } else {
+        S.phase = S.drops >= 6 ? 'result' : 'idle';
+        if (S.phase === 'result') setTimeout(() => showResult(false, -1), 300);
+      }
+    }
+
+  } else if (S.phase === 'delivering') {
+    const target = CHUTE_X + CHUTE_W / 2;
+    if (S.cx < target - 2) {
+      S.cx += DELIV_SPD;
+      if (S.grabbedIdx >= 0) {
+        toys[S.grabbedIdx].x = S.cx;
+        toys[S.grabbedIdx].y = S.cy + toys[S.grabbedIdx].r + 2;
+      }
+    } else {
+      if (S.grabbedIdx >= 0) {
+        const idx = S.grabbedIdx;
+        toys[idx].falling = true;
+        toys[idx].vy = 0;
+        setTimeout(() => showResult(true, idx), 900);
+      }
+      S.grabbedIdx = -1;
+      S.phase = 'idle';
+      S.openFrac = 1;
+    }
+  }
+}
+
+// ── draw helpers ────────────────────────────────────────────────────────────
+function drawBg() {
+  const g = ctx.createLinearGradient(0,0,0,CH);
+  g.addColorStop(0,'#07001c'); g.addColorStop(1,'#10002e');
+  ctx.fillStyle = g; ctx.fillRect(0,0,CW,CH);
+
+  // Title
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.shadowColor = '#ff44cc'; ctx.shadowBlur = 18;
+  ctx.fillStyle = '#ff44cc';
+  ctx.font = 'bold 15px "Press Start 2P", monospace';
+  ctx.fillText('PRIZE CLAW', CW/2, 28);
+  ctx.shadowBlur = 0;
+
+  // Controls hint
+  ctx.fillStyle = '#884488';
+  ctx.font = '5.5px "Press Start 2P", monospace';
+  ctx.fillText('← → MOVE   SPACE / TAP DROP', CW/2, 52);
+
+  // Drop counter (top right)
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#ff88cc';
+  ctx.font = '6.5px "Press Start 2P", monospace';
+  ctx.fillText(`DROPS: ${S.drops}`, CW - 16, 52);
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function drawCase() {
+  // Side walls
+  ctx.fillStyle = '#1e1238'; ctx.fillRect(CASE_L, CASE_T, 10, CASE_B - CASE_T);
+  ctx.fillRect(CASE_R - 10, CASE_T, 10, CASE_B - CASE_T);
+  // Bottom
+  ctx.fillStyle = '#160c28'; ctx.fillRect(CASE_L, CASE_B, CASE_R - CASE_L + CHUTE_W, 10);
+  // Back wall of case
+  ctx.fillStyle = '#0e0820'; ctx.fillRect(CASE_L + 10, CASE_T, CASE_R - CASE_L - 20, CASE_B - CASE_T);
+  // Grid lines on back wall (depth cues)
+  ctx.strokeStyle = 'rgba(80,30,130,0.2)'; ctx.lineWidth = 1;
+  for (let y = CASE_T + 30; y < CASE_B; y += 40) {
+    ctx.beginPath(); ctx.moveTo(CASE_L+10,y); ctx.lineTo(CASE_R-10,y); ctx.stroke();
+  }
+  for (let x = CASE_L + 50; x < CASE_R; x += 60) {
+    ctx.beginPath(); ctx.moveTo(x,CASE_T); ctx.lineTo(x,CASE_B); ctx.stroke();
+  }
+
+  // Glass overlay
+  ctx.fillStyle = 'rgba(100,60,200,0.04)';
+  ctx.fillRect(CASE_L + 10, CASE_T, CASE_R - CASE_L - 20, CASE_B - CASE_T);
+  // Glass shine strips
+  ctx.save(); ctx.globalAlpha = 0.06;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(CASE_L + 16, CASE_T + 10, 18, CASE_B - CASE_T - 20);
+  ctx.fillRect(CASE_L + 44, CASE_T + 10, 10, CASE_B - CASE_T - 20);
+  ctx.restore();
+
+  // LED strip at top of case
+  const led = ctx.createLinearGradient(CASE_L,0,CASE_R,0);
+  led.addColorStop(0,'#cc0088'); led.addColorStop(0.5,'#ff88ee'); led.addColorStop(1,'#cc0088');
+  ctx.fillStyle = led;
+  ctx.shadowColor = '#ff44cc'; ctx.shadowBlur = 10;
+  ctx.fillRect(CASE_L, CASE_T, CASE_R - CASE_L, 5);
+  ctx.shadowBlur = 0;
+
+  // Exit chute
+  ctx.fillStyle = '#16082c';
+  ctx.fillRect(CHUTE_X, CHUTE_T, CHUTE_W, CASE_B - CHUTE_T);
+  ctx.strokeStyle = '#aa44cc'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(CHUTE_X, CHUTE_T, CHUTE_W, CASE_B - CHUTE_T);
+  ctx.fillStyle = '#cc44ff'; ctx.font = '5px "Press Start 2P"';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('PRIZE', CHUTE_X + CHUTE_W/2, CHUTE_T - 9);
+  ctx.textBaseline = 'alphabetic';
+
+  // Case frame top corners
+  ctx.fillStyle = '#2a1a44';
+  ctx.fillRect(CASE_L, CASE_T - 5, CASE_R - CASE_L, 5);
+}
+
+function drawRail() {
+  // Rail track
+  const rg = ctx.createLinearGradient(0, RAIL_Y - 14, 0, RAIL_Y);
+  rg.addColorStop(0,'#9a9ab8'); rg.addColorStop(0.4,'#c0c0dd'); rg.addColorStop(1,'#505060');
+  ctx.fillStyle = rg;
+  ctx.fillRect(RAIL_L, RAIL_Y - 14, RAIL_R - RAIL_L, 14);
+  // Rail end stops
+  ctx.fillStyle = '#444456';
+  ctx.fillRect(RAIL_L - 4, RAIL_Y - 16, 8, 18);
+  ctx.fillRect(RAIL_R - 4, RAIL_Y - 16, 8, 18);
+  // Sliding housing block
+  ctx.fillStyle = '#7878a0';
+  ctx.fillRect(S.cx - 16, RAIL_Y - 12, 32, 14);
+  ctx.fillStyle = 'rgba(255,255,255,0.14)';
+  ctx.fillRect(S.cx - 15, RAIL_Y - 12, 30, 6);
+  // Vertical arm
+  const ag = ctx.createLinearGradient(S.cx - 5, 0, S.cx + 5, 0);
+  ag.addColorStop(0,'#505060'); ag.addColorStop(0.5,'#8888a0'); ag.addColorStop(1,'#404050');
+  ctx.fillStyle = ag;
+  ctx.fillRect(S.cx - 4, RAIL_Y, 8, Math.max(0, S.cy - RAIL_Y));
+}
+
+function drawClaw() {
+  const cx = S.cx, cy = S.cy;
+  const open = S.openFrac;
+  const FINGERS = 3;
+  const maxSpread = 0.68, minSpread = 0.12;
+  const spread = minSpread + (maxSpread - minSpread) * open;
+  const FLEN = 26;
+
+  // Finger shadows
+  for (let f = 0; f < FINGERS; f++) {
+    const angle = (f - 1) * spread;
+    const ex = cx + Math.sin(angle) * FLEN + 2;
+    const ey = cy + Math.cos(angle) * FLEN + 2;
+    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx+2, cy+2); ctx.lineTo(ex, ey); ctx.stroke();
+  }
+
+  // Fingers
+  for (let f = 0; f < FINGERS; f++) {
+    const angle = (f - 1) * spread;
+    const ex = cx + Math.sin(angle) * FLEN;
+    const ey = cy + Math.cos(angle) * FLEN;
+    ctx.strokeStyle = '#555568'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx, cy+5); ctx.lineTo(ex, ey); ctx.stroke();
+    ctx.strokeStyle = '#9090b0'; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(cx, cy+5); ctx.lineTo(ex, ey); ctx.stroke();
+    // Claw tip curve
+    ctx.strokeStyle = '#445566'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(ex + Math.sin(angle)*3, ey - 2, 7,
+      angle + Math.PI*0.15, angle + Math.PI*0.75, false);
+    ctx.stroke();
+  }
+
+  // Hub
+  const hg = ctx.createRadialGradient(cx-3, cy-3, 1, cx, cy, 11);
+  hg.addColorStop(0,'#c0c0d8'); hg.addColorStop(1,'#444458');
+  ctx.fillStyle = hg;
+  ctx.beginPath(); ctx.arc(cx, cy, 10, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#22223a'; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+function drawToys() {
+  toys.forEach(toy => {
+    if (toy.grabbed && S.phase !== 'delivering') return;
+    if (toy.falling) {
+      toy.vy = (toy.vy || 0) + 0.55;
+      toy.y = Math.min(toy.y + toy.vy, CH + 60);
+    }
+
+    // Glow halo
+    ctx.save();
+    ctx.shadowColor = toy.col; ctx.shadowBlur = 16;
+    // Body gradient
+    const g = ctx.createRadialGradient(
+      toy.x - toy.r*0.35, toy.y - toy.r*0.35, toy.r*0.08,
+      toy.x, toy.y, toy.r
+    );
+    g.addColorStop(0, toy.hi || '#ffffff'); g.addColorStop(1, toy.col);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(toy.x, toy.y, toy.r, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.restore();
+
+    // Emoji
+    ctx.font = `${toy.r * 1.15}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(toy.emoji, toy.x, toy.y + 1);
+
+    // Ground shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath();
+    ctx.ellipse(toy.x, toy.y + toy.r + 2, toy.r * 0.65, 5, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.textBaseline = 'alphabetic';
+  });
+}
+
+function drawGrabFlash() {
+  if (S.phase !== 'grabbing' || S.openFrac > 0.4) return;
+  const alpha = (0.4 - S.openFrac) * 1.5;
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.35;
+  ctx.fillStyle = '#ffe050';
+  ctx.beginPath(); ctx.arc(S.cx, S.cy, 48, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+}
+
+// ── main loop ────────────────────────────────────────────────────────────────
+function loop() {
+  requestAnimationFrame(loop);
+  if (S.phase !== 'start' && S.phase !== 'result') update();
+  ctx.save();
+  drawBg();
+  drawCase();
+  drawToys();
+  drawRail();
+  drawGrabFlash();
+  drawClaw();
+  ctx.restore();
+}
+
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('retry-btn').addEventListener('click', startGame);
+
+loop();
+</script>
+</body>
+</html>

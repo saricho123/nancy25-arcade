@@ -878,6 +878,13 @@
     /* ════════════════════════════════════════════════════
        COIN SYSTEM
        ════════════════════════════════════════════════════ */
+
+    // Extra interactive machines (not game cabinets)
+    const EXTRAS = [
+      {x:-12, z:-8, name:'PRIZE CLAW', url:'claw/index.html'},
+    ];
+    const ALL_MACHINES = [...GAME_DATA, ...EXTRAS];
+
     let coins = 5;
     let nearIdx = -1;
 
@@ -892,7 +899,7 @@
 
     function checkProximity() {
       let closest=-1, closestDist=Infinity;
-      GAME_DATA.forEach((g,i)=>{
+      ALL_MACHINES.forEach((g,i)=>{
         const dx=camera.position.x-g.x, dz=camera.position.z-g.z;
         const d=Math.sqrt(dx*dx+dz*dz);
         if(d<5.5 && d<closestDist){ closest=i; closestDist=d; }
@@ -904,7 +911,7 @@
       if(closest<0){
         promptEl.classList.remove('visible');
       } else {
-        const g=GAME_DATA[closest];
+        const g=ALL_MACHINES[closest];
         const pn=el('prompt-game-name'); if(pn) pn.textContent=g.name;
         const ps=el('prompt-sub');       if(ps) ps.textContent=g.url?'Press [E] or click to play':'Not yet available';
         updateCoinDisplay();
@@ -914,7 +921,7 @@
 
     function insertCoin() {
       if(nearIdx<0) return;
-      const g=GAME_DATA[nearIdx];
+      const g=ALL_MACHINES[nearIdx];
       if(!g.url){ flashMessage('COMING SOON!'); return; }
       if(coins<=0){ flashMessage('NO QUARTERS!'); return; }
 
