@@ -12,15 +12,39 @@
 </head>
 <body>
 
+  <!-- ══ BACKGROUND MUSIC ══ -->
+  <audio id="bgm" loop preload="auto">
+    <source src="Mastered-Final_TESLA TUFF.m4a" type="audio/mp4">
+  </audio>
+  <script>
+    (function(){
+      const bgm = document.getElementById('bgm');
+      bgm.volume = 0.55;
+      // Try immediate autoplay
+      const tryPlay = () => bgm.play().catch(()=>{});
+      tryPlay();
+      // Browsers often block autoplay until first gesture — catch that too
+      const onGesture = () => { tryPlay(); document.removeEventListener('pointerdown', onGesture); document.removeEventListener('keydown', onGesture); };
+      document.addEventListener('pointerdown', onGesture);
+      document.addEventListener('keydown', onGesture);
+    })();
+  </script>
+
   <!-- ══ CANVAS element (Three.js renders into this) ══ -->
   <canvas id="room-canvas" aria-hidden="true"></canvas>
 
   <!-- ══ THREE.JS 3D ARCADE ROOM ══ -->
   <script>
   (function() {
-    if(typeof THREE==='undefined') return;
+    // Catch any JS errors and show them on screen
+    const errDiv=document.createElement('div');
+    errDiv.style.cssText='position:fixed;top:50px;left:8px;z-index:99999;background:rgba(0,0,0,.9);color:#f44;font:11px monospace;padding:8px;max-width:90vw;pointer-events:none;';
+    document.body.appendChild(errDiv);
+    window.addEventListener('error',e=>{ errDiv.textContent+='ERR: '+e.message+' (L'+e.lineno+')\n'; });
+
+    if(typeof THREE==='undefined') { errDiv.textContent='THREE not loaded'; return; }
     const canvas = document.getElementById('room-canvas');
-    if(!canvas) return;
+    if(!canvas) { errDiv.textContent='canvas not found'; return; }
     canvas.style.zIndex = '2';
 
     /* ── Renderer ── */
@@ -78,10 +102,374 @@
     sgn.position.set(0,5.8,-RD/2+0.1); scene.add(sgn);
     const sgnL=new THREE.PointLight(0xcc44ff,5,18); sgnL.position.set(0,5.8,-RD/2+1.5); scene.add(sgnL);
 
-    const db=new THREE.Mesh(new THREE.SphereGeometry(0.5,14,14),
-      new THREE.MeshLambertMaterial({color:0xffffff,emissive:0xaaaaaa}));
-    db.position.set(0,RH-0.9,0); scene.add(db);
-    const dbl=new THREE.PointLight(0xffffff,3,22); scene.add(dbl);
+    /* ═══ MIRROR DISCO BALL — silver tiles, rotating ═══ */
+    const db=new THREE.Group(); db.position.set(0,RH-1.2,0); scene.add(db);
+    // Dark base sphere (fills gaps between tiles)
+    db.add(new THREE.Mesh(new THREE.SphereGeometry(1.05,24,24),
+      new THREE.MeshStandardMaterial({color:0x111118,metalness:0.4,roughness:0.6})));
+    // Hanging rod
+    const dbRod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.1,8),
+      new THREE.MeshStandardMaterial({color:0x888899,metalness:0.8,roughness:0.2}));
+    dbRod.position.set(0,RH-0.5-(-1.2),0); scene.add(dbRod);
+    // Mirror tiles — InstancedMesh for full dense coverage (1 draw call)
+    const tileMat=new THREE.MeshStandardMaterial({color:0xe0ecff,metalness:1.0,roughness:0.0});
+    const TILES=900;
+    const tileGeo=new THREE.BoxGeometry(0.118,0.118,0.018);
+    const discoInst=new THREE.InstancedMesh(tileGeo,tileMat,TILES);
+    const _dmmy=new THREE.Object3D();
+    for(let i=0;i<TILES;i++){
+      const phi=Math.acos(1-2*(i+0.5)/TILES);
+      const theta=Math.PI*(1+Math.sqrt(5))*(i+0.5);
+      const nx=Math.sin(phi)*Math.cos(theta), ny=Math.cos(phi), nz=Math.sin(phi)*Math.sin(theta);
+      _dmmy.position.set(nx*1.07,ny*1.07,nz*1.07);
+      _dmmy.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),new THREE.Vector3(nx,ny,nz));
+      _dmmy.updateMatrix();
+      discoInst.setMatrixAt(i,_dmmy.matrix);
+    }
+    discoInst.instanceMatrix.needsUpdate=true;
+    db.add(discoInst);
+    const discoLights=[];
+    for(let i=0;i<8;i++){
+      const pl=new THREE.PointLight(0xffffff,5,36); scene.add(pl); discoLights.push({pl,off:i/8});
+    }
+
+    /* ═══ DANCE FLOOR — animated coloured tiles ═══ */
+    const danceFloorTiles=[];
+    const DFCOLS=14, DFROWS=6, TW=RW/DFCOLS, TD=2.2;
+    for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
+      const tile=new THREE.Mesh(
+        new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07),
+        new THREE.MeshStandardMaterial({color:0x111111,metalness:0.55,roughness:0.2,emissive:0x000000})
+      );
+      tile.position.set(-RW/2+(c+0.5)*TW, 0.025, 2+(r+0.5)*TD);
+      tile.userData={r,c};
+      scene.add(tile); danceFloorTiles.push(tile);
+    }
+
+    /* ═══ PENNANT BANNER + streamers ═══ */
+    (function(){
+      // Pennant garland across room
+      const PCOLS=[0x7BDFF2,0xB2F7EF,0xEFF7F6,0xF7D6E0,0xF2B5D4,0x7BDFF2,0xB2F7EF,0xF7D6E0];
+      const BW=28, DROOP=1.4, BZ=8;
+      // Drooping rope — catenary sag
+      const ropePoints=[];
+      for(let ri=0;ri<=50;ri++){
+        const rt=ri/50;
+        ropePoints.push(new THREE.Vector3(
+          -BW/2+rt*BW,
+          RH-0.5-Math.sin(rt*Math.PI)*DROOP,
+          BZ
+        ));
+      }
+      scene.add(new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(ropePoints),
+        new THREE.LineBasicMaterial({color:0xcc9922})
+      ));
+
+      // Lettered pennants — "HAPPY BIRTHDAY NANKY" spread across the droop
+      const letters=['✦','H','A','P','P','Y',' ','B','I','R','T','H','D','A','Y',' ','N','A','N','K','Y','✦'];
+      const NP=letters.length;
+      for(let i=0;i<NP;i++){
+        const rt=(i+0.5)/NP;
+        const px=-BW/2+rt*BW;
+        const py=RH-0.5-Math.sin(rt*Math.PI)*DROOP; // follows the droop
+        const letter=letters[i].trim();
+        const col=PCOLS[i%8];
+
+        // Canvas: transparent bg + triangle fill + letter
+        const C2=document.createElement('canvas'); C2.width=128; C2.height=170;
+        const c2=C2.getContext('2d');
+        c2.clearRect(0,0,128,170);
+        // Triangle
+        c2.fillStyle='#'+col.toString(16).padStart(6,'0');
+        c2.beginPath(); c2.moveTo(2,2); c2.lineTo(126,2); c2.lineTo(64,168); c2.closePath(); c2.fill();
+        // Subtle inner highlight
+        c2.strokeStyle='rgba(255,255,255,0.35)'; c2.lineWidth=2.5;
+        c2.beginPath(); c2.moveTo(2,2); c2.lineTo(126,2); c2.lineTo(64,168); c2.closePath(); c2.stroke();
+        // Letter
+        if(letter){
+          c2.shadowColor='rgba(0,0,0,0.6)'; c2.shadowBlur=6;
+          c2.fillStyle='#fff';
+          c2.font='bold 68px "Bungee",Impact,sans-serif';
+          c2.textAlign='center'; c2.textBaseline='top';
+          c2.fillText(letter,64,12);
+        }
+        const ptex=new THREE.CanvasTexture(C2); ptex.needsUpdate=true;
+        const pnt=new THREE.Mesh(
+          new THREE.PlaneGeometry(1.05,1.38),
+          new THREE.MeshBasicMaterial({map:ptex,side:THREE.DoubleSide,transparent:true,alphaTest:0.05})
+        );
+        pnt.position.set(px, py-0.69, BZ);
+        scene.add(pnt);
+      }
+      // Text below pennants
+      // Soft ambient light for the banner area
+      {const _bl=new THREE.PointLight(0x93E5AB,3,12); _bl.position.set(0,RH-0.2,BZ+1); scene.add(_bl);}
+
+      // ── QUARTER CENTURY ARCADE sign (above, arcade style) ──
+      (function(){
+        const C2=document.createElement('canvas'); C2.width=1024; C2.height=160;
+        const cx2=C2.getContext('2d');
+        // Dark arcade cabinet look
+        cx2.fillStyle='#02000e'; cx2.fillRect(0,0,1024,160);
+        // Border glow
+        cx2.strokeStyle='#4400cc'; cx2.lineWidth=6; cx2.strokeRect(6,6,1012,148);
+        cx2.strokeStyle='rgba(100,0,255,0.4)'; cx2.lineWidth=16; cx2.strokeRect(6,6,1012,148);
+        // Corner stars
+        ['#ff3355','#ffcc00','#33ddaa','#4488ff'].forEach((col,i)=>{
+          const x=[40,984,40,984][i], y=[32,32,128,128][i];
+          cx2.fillStyle=col; cx2.font='22px serif'; cx2.textAlign='center'; cx2.textBaseline='middle';
+          cx2.fillText('✦',x,y);
+        });
+        // Main text — Orbitron/futuristic feel
+        cx2.shadowColor='#8800ff'; cx2.shadowBlur=20;
+        // Use Orbitron (web font) with Impact as non-Courier fallback
+        cx2.fillStyle='#cc88ff'; cx2.font='bold 36px "Orbitron",Impact,Arial,sans-serif';
+        cx2.textAlign='center'; cx2.textBaseline='middle';
+        cx2.fillText('QUARTER CENTURY ARCADE',512,68);
+        cx2.shadowBlur=0;
+        // Sub-text
+        cx2.fillStyle='rgba(180,140,255,0.7)'; cx2.font='16px "Orbitron",Impact,Arial,sans-serif';
+        cx2.fillText('★  EST. 2001  ·  25¢ PER GAME  ★',512,116);
+        const tex2=new THREE.CanvasTexture(C2); tex2.needsUpdate=true;
+        const sign=new THREE.Mesh(new THREE.PlaneGeometry(15,2.2),new THREE.MeshBasicMaterial({map:tex2}));
+        sign.position.set(0,6.5,-RD/2+0.2); scene.add(sign);
+        const sl=new THREE.PointLight(0x8833ff,4,14); sl.position.set(0,6.5,-RD/2+1.5); scene.add(sl);
+      })();
+    })();
+
+    /* ═══ STREAMERS — thick coily TubeGeometry, like real paper streamers ═══ */
+    (function(){
+      const SCOLS=[0xff3355,0xffcc00,0x33ddaa,0x4488ff,0xcc33ff,0xff7722,0xff55aa,0x33ffcc];
+
+      function addCoilyStreamer(x,z,col,phase,dropLen,curls,radius){
+        const pts=[]; const N=60;
+        for(let i=0;i<=N;i++){
+          const t=i/N, ang=t*Math.PI*2*curls+phase;
+          const cr=radius*(1-t*0.35);
+          pts.push(new THREE.Vector3(x+Math.cos(ang)*cr, RH-0.1-t*dropLen, z+Math.sin(ang)*cr));
+        }
+        const curve=new THREE.CatmullRomCurve3(pts);
+        // Flat ribbon cross-section (6 segments, small radius = papery look)
+        const geo=new THREE.TubeGeometry(curve,60,0.038,5,false);
+        const mat=new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide});
+        scene.add(new THREE.Mesh(geo,mat));
+      }
+
+      // Dense field of streamers across whole room ceiling
+      const spots=[
+        [-12,4,0],[- 9,5,3],[-6,6,1],[-3,7,5],[0,0,8],[3,1,2],[6,2,6],[9,3,4],[12,4,7],
+        [-11,5,10],[-7,6,0],[-4,7,9],[-1,0,3],[2,1,7],[5,2,1],[8,3,5],[11,4,8],
+        [-10,5,0],[-5,6,4],[1,7,6],[4,0,2],[7,1,9],[10,2,3]
+      ];
+      spots.forEach(([x,ci,seed],i)=>{
+        const zFront=2+Math.sin(i*1.3)*8;
+        const zBack= -8+Math.cos(i*1.1)*6;
+        addCoilyStreamer(x,zFront,SCOLS[ci%8], i*0.55, 2.5+Math.sin(i)*2, 3+i%4, 0.18+Math.sin(i*0.7)*0.10);
+        addCoilyStreamer(x,zBack, SCOLS[(ci+3)%8], i*0.8+1.5, 3+Math.cos(i)*1.5, 2+i%5, 0.22+Math.cos(i*0.5)*0.08);
+      });
+    })();
+
+    /* ═══ 3D CLAW MACHINE ═══ */
+    (function(){
+      const g=new THREE.Group();
+      // Glass case
+      g.add(Object.assign(new THREE.Mesh(new THREE.BoxGeometry(2.2,3.2,1.9),
+        new THREE.MeshStandardMaterial({color:0x334466,metalness:0.4,roughness:0.6})),{}));
+      // Glass front
+      const gls=new THREE.Mesh(new THREE.BoxGeometry(2.0,2.4,0.06),
+        new THREE.MeshStandardMaterial({color:0x99ccff,transparent:true,opacity:0.22,metalness:0.1,roughness:0.0}));
+      gls.position.set(0,0.2,0.97); g.add(gls);
+      // LED header
+      const hdr=new THREE.Mesh(new THREE.BoxGeometry(2.2,0.55,1.9),
+        new THREE.MeshStandardMaterial({color:0x110022,metalness:0.5,roughness:0.3}));
+      hdr.position.y=1.88; g.add(hdr);
+      const ledStrip=new THREE.Mesh(new THREE.BoxGeometry(2.0,0.08,0.06),
+        new THREE.MeshBasicMaterial({color:0xff44cc}));
+      ledStrip.position.set(0,1.63,0.97); g.add(ledStrip);
+      const ledL=new THREE.PointLight(0xff44cc,2,5); ledL.position.set(0,1.8,1.3); g.add(ledL);
+      // Title strip
+      (function(){
+        const C=document.createElement('canvas'); C.width=256; C.height=64;
+        const cx=C.getContext('2d');
+        cx.fillStyle='#220033'; cx.fillRect(0,0,256,64);
+        cx.fillStyle='#ff88ff'; cx.font='bold 28px monospace'; cx.textAlign='center'; cx.textBaseline='middle';
+        cx.fillText('PRIZE CLAW',128,34);
+        const tex=new THREE.CanvasTexture(C); tex.needsUpdate=true;
+        const lbl=new THREE.Mesh(new THREE.PlaneGeometry(1.8,0.45),new THREE.MeshBasicMaterial({map:tex}));
+        lbl.position.set(0,1.86,0.97); g.add(lbl);
+      })();
+      // Stuffed animals (colored spheres)
+      [[0xff8899,-.4,-.55,.3],[0x88ccff,.3,-.45,.2],[0xffcc66,-.1,-.65,.35],
+       [0xcc88ff,.45,-.5,.1],[0x88ff99,-.5,-.4,.25],[0xffaa44,.1,-.3,.3]].forEach(([col,tx,ty,tz])=>{
+        const r=0.18+Math.random()*0.06;
+        const toy=new THREE.Mesh(new THREE.SphereGeometry(r,10,10),
+          new THREE.MeshLambertMaterial({color:col}));
+        toy.position.set(tx,ty,tz); g.add(toy);
+      });
+      // Claw arm
+      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.9,6),
+        new THREE.MeshStandardMaterial({color:0x888899,metalness:0.8,roughness:0.2}));
+      arm.position.set(0,1.05,.25); g.add(arm);
+      // Control panel
+      const cp=new THREE.Mesh(new THREE.BoxGeometry(2.0,0.45,1.0),
+        new THREE.MeshLambertMaterial({color:0x222234}));
+      cp.position.set(0,-1.35,.65); cp.rotation.x=-0.2; g.add(cp);
+      // Joystick
+      const js=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,8),
+        new THREE.MeshBasicMaterial({color:0xff3333}));
+      js.position.set(-0.35,-1.25,.9); g.add(js);
+      // Slot
+      const slot=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.04,0.04),
+        new THREE.MeshBasicMaterial({color:0x050510}));
+      slot.position.set(0,-1.58,.97); g.add(slot);
+      const slotL=new THREE.PointLight(0x4488ff,1,3); slotL.position.set(0,-1.3,1.2); g.add(slotL);
+      g.position.set(-12,1.6,-8); scene.add(g);
+    })();
+
+    /* ═══ 3D PINBALL MACHINE ═══ */
+    (function(){
+      const g=new THREE.Group();
+      // Cabinet
+      g.add(new THREE.Mesh(new THREE.BoxGeometry(1.9,3.8,1.3),
+        new THREE.MeshStandardMaterial({color:0x1a0838,metalness:0.2,roughness:0.8})));
+      // Backglass
+      (function(){
+        const C=document.createElement('canvas'); C.width=256; C.height=192;
+        const cx=C.getContext('2d');
+        const gr=cx.createLinearGradient(0,0,0,192);
+        gr.addColorStop(0,'#0a0230'); gr.addColorStop(1,'#030010');
+        cx.fillStyle=gr; cx.fillRect(0,0,256,192);
+        cx.fillStyle='#cc44ff'; cx.font='bold 26px monospace'; cx.textAlign='center';
+        cx.shadowColor='#cc44ff'; cx.shadowBlur=12;
+        cx.fillText('SPACE 25',128,55);
+        cx.shadowBlur=0; cx.fillStyle='#ff88ee'; cx.font='12px monospace';
+        cx.fillText('QUARTER CENTURY',128,80);
+        for(let i=0;i<40;i++){
+          cx.fillStyle=`rgba(255,255,220,${Math.random()})`;
+          cx.fillRect(Math.random()*256,Math.random()*120,2,2);
+        }
+        // Planet
+        cx.fillStyle='#6040c0'; cx.beginPath(); cx.arc(190,30,22,0,Math.PI*2); cx.fill();
+        cx.strokeStyle='rgba(200,160,255,0.5)'; cx.lineWidth=3;
+        cx.beginPath(); cx.ellipse(190,30,35,8,0.3,0,Math.PI*2); cx.stroke();
+        const tex=new THREE.CanvasTexture(C); tex.needsUpdate=true;
+        const bg=new THREE.Mesh(new THREE.PlaneGeometry(1.7,1.28),new THREE.MeshBasicMaterial({map:tex}));
+        bg.position.set(0,1.2,.67); g.add(bg);
+      })();
+      // Playfield
+      const pf=new THREE.Mesh(new THREE.BoxGeometry(1.7,0.06,1.2),
+        new THREE.MeshLambertMaterial({color:0x040215}));
+      pf.position.set(0,-0.1,.1); pf.rotation.x=-0.22; g.add(pf);
+      // Bumpers
+      [{x:-.3,z:-.15,c:0xff2255},{x:.3,z:-.2,c:0xffcc00},{x:0,z:-.35,c:0xcc44ff},{x:-.45,z:-.05,c:0x33ddff}]
+        .forEach(({x:bx,z:bz,c})=>{
+          const bump=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,8),
+            new THREE.MeshBasicMaterial({color:c}));
+          bump.position.set(bx,-0.04+bz*Math.sin(0.22),.12+bz*Math.cos(0.22)); g.add(bump);
+          const bl=new THREE.PointLight(c,1.2,2); bl.position.copy(bump.position); g.add(bl);
+        });
+      // Flippers
+      [{x:-.38,rx:0.25},{x:.38,rx:-0.25}].forEach(({x:fx,rx})=>{
+        const fl=new THREE.Mesh(new THREE.BoxGeometry(0.4,0.05,0.12),
+          new THREE.MeshLambertMaterial({color:0x555566}));
+        fl.position.set(fx,-0.62,.48); fl.rotation.z=rx; g.add(fl);
+      });
+      // Legs
+      [-0.8,0.8].forEach(lx=>{
+        const leg=new THREE.Mesh(new THREE.BoxGeometry(0.12,0.9,0.12),
+          new THREE.MeshLambertMaterial({color:0x333333}));
+        leg.position.set(lx,-2.35,0); g.add(leg);
+      });
+      // Coin slot
+      const sl=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.05,0.05),
+        new THREE.MeshBasicMaterial({color:0x050510}));
+      sl.position.set(0,-1.75,.68); g.add(sl);
+      const slL=new THREE.PointLight(0x6600ff,1.5,4); slL.position.set(0,-1.5,1); g.add(slL);
+      g.position.set(12,1.9,-8); g.rotation.y=Math.PI; scene.add(g);
+    })();
+
+    /* ═══ HELIUM BALLOONS — shiny metallic, curly strings ═══ */
+    const balloons=[];
+    const BCOLS=[0x78C0E0,0x9684A1,0x1B065E,0xC8CC92,0xC6DEA6,0x78C0E0,0x9684A1,0xC8CC92,0xC6DEA6,0x1B065E];
+
+    function curlyString(r,phase){
+      const pts=[]; const sLen=3.2+r*2.0;
+      for(let i=0;i<=32;i++){
+        const u=i/32, ang=u*Math.PI*7+phase, curl=0.14*(1-u*0.6);
+        pts.push(new THREE.Vector3(Math.cos(ang)*curl, -r*1.1-u*sLen, Math.sin(ang)*curl));
+      }
+      return new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints(pts),
+        new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.5})
+      );
+    }
+
+    function addHeliumBalloon(x,y,z,col,r,phase){
+      const g=new THREE.Group();
+      const body=new THREE.Mesh(new THREE.SphereGeometry(r,16,16),
+        new THREE.MeshStandardMaterial({color:col,metalness:0.75,roughness:0.12,emissive:col,emissiveIntensity:0.18}));
+      body.scale.y=1.2; g.add(body);
+      const knot=new THREE.Mesh(new THREE.SphereGeometry(r*0.11,6,6),
+        new THREE.MeshStandardMaterial({color:col,metalness:0.5,roughness:0.3}));
+      knot.position.y=-r*1.22; g.add(knot);
+      g.add(curlyString(r,phase));
+      const pt=new THREE.PointLight(col,r*1.8,r*6); g.add(pt);
+      g.position.set(x,y,z);
+      g.userData={baseY:y,phase,r};
+      scene.add(g); balloons.push(g);
+    }
+
+    // Gold "25" special balloon
+    (function(){
+      const C=document.createElement('canvas'); C.width=256; C.height=256;
+      const cx=C.getContext('2d');
+      const gr2=cx.createRadialGradient(100,90,8,128,128,128);
+      gr2.addColorStop(0,'#fffde0'); gr2.addColorStop(0.5,'#f8d060'); gr2.addColorStop(1,'#b87800');
+      cx.fillStyle=gr2; cx.beginPath(); cx.ellipse(128,128,118,122,0,0,Math.PI*2); cx.fill();
+      cx.fillStyle='rgba(80,40,0,0.75)'; cx.font='bold 96px Arial Black';
+      cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('25',128,134);
+      const tex=new THREE.CanvasTexture(C); tex.needsUpdate=true;
+      const g=new THREE.Group();
+      const body=new THREE.Mesh(new THREE.SphereGeometry(0.9,20,20),
+        new THREE.MeshStandardMaterial({map:tex,metalness:0.8,roughness:0.08,emissive:0xc89010,emissiveIntensity:0.35}));
+      body.scale.y=1.18; g.add(body);
+      const knot=new THREE.Mesh(new THREE.SphereGeometry(0.10,6,6),
+        new THREE.MeshStandardMaterial({color:0xc89010,metalness:0.7,roughness:0.2}));
+      knot.position.y=-1.08; g.add(knot);
+      g.add(curlyString(0.9, 1.5));
+      const pt=new THREE.PointLight(0xf8d060,3,8); g.add(pt);
+      g.position.set(0,RH-1.0,7);
+      g.userData={baseY:RH-1.0,phase:0.5,r:0.9};
+      scene.add(g); balloons.push(g);
+    })();
+
+    // Entrance cluster — big, different sizes
+    [[  -7,RH-0.5,10,0,0.44],[  -5,RH-0.9,11,1,0.58],[  -3,RH-0.4,10,2,0.36],
+     [   3,RH-0.5,10,3,0.48],[   6,RH-0.8,11,4,0.54],[   8,RH-0.4, 9,5,0.38]]
+      .forEach(([x,y,z,ci,r],i)=>addHeliumBalloon(x,y,z,BCOLS[ci],r,i*0.9));
+    // Over machines
+    [[-10,RH-0.6,-3,6,0.52],[ -5,RH-0.8,-6,7,0.40],[  0,RH-0.5,-5,8,0.58],
+     [  5,RH-0.7,-6,9,0.46],[  9,RH-0.5,-3,0,0.36]]
+      .forEach(([x,y,z,ci,r],i)=>addHeliumBalloon(x,y,z,BCOLS[ci],r,i*1.2+3));
+    // Sides + back
+    [[-13,RH-0.6,-8,1,0.46],[-13,RH-0.4,2,2,0.54],[13,RH-0.5,-8,3,0.42],[13,RH-0.7,2,4,0.50],
+     [ -5,RH-0.6,-16,5,0.52],[ 5,RH-0.5,-16,6,0.44]]
+      .forEach(([x,y,z,ci,r],i)=>addHeliumBalloon(x,y,z,BCOLS[ci],r,i*0.8+6));
+
+    /* ═══ CONFETTI — 280 pieces falling from ceiling ═══ */
+    const confetti=[];
+    const CCOLS=[0x7BDFF2,0xB2F7EF,0xEFF7F6,0xF7D6E0,0xF2B5D4,0x7BDFF2,0xB2F7EF,0xEFF7F6,0xF7D6E0,0xF2B5D4];
+    for(let i=0;i<280;i++){
+      const w=0.06+Math.random()*0.10, h=0.04+Math.random()*0.08;
+      const c=new THREE.Mesh(new THREE.PlaneGeometry(w,h),
+        new THREE.MeshBasicMaterial({color:CCOLS[i%10],side:THREE.DoubleSide}));
+      c.position.set((Math.random()-0.5)*RW*0.9, Math.random()*RH, (Math.random()-0.5)*RD*0.9);
+      c.rotation.set(Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2);
+      c.userData={vy:-(0.018+Math.random()*0.028),vx:(Math.random()-0.5)*0.006,vz:(Math.random()-0.5)*0.006,
+                  rx:(Math.random()-0.5)*0.07,rz:(Math.random()-0.5)*0.07};
+      scene.add(c); confetti.push(c);
+    }
 
     function addWallMon(x,z,ry,col){
       const g=new THREE.Group();
@@ -296,7 +684,7 @@
       scrTex.needsUpdate = true;
       const scrMesh=new THREE.Mesh(new THREE.PlaneGeometry(W*0.76,H*0.34),
         new THREE.MeshBasicMaterial({map:scrTex, side:THREE.FrontSide}));
-      scrMesh.position.set(0,H*0.10,D/2+0.04); g.add(scrMesh);
+      scrMesh.position.set(0,H*0.10,D/2+0.06); g.add(scrMesh); // in front of bezel
       const sl=new THREE.PointLight(screen,2.2,5);
       sl.position.set(0,H*0.10,D/2+0.6); g.add(sl);
 
@@ -388,6 +776,7 @@
     }
 
     function flashMessage(msg) {
+      const promptNone=el('prompt-no-coins');
       if(!promptNone) return;
       promptNone.textContent=msg; promptNone.style.display='block';
       setTimeout(()=>{ promptNone.style.display='none'; }, 2000);
@@ -430,13 +819,13 @@
       keys[e.key]=true;
       if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) e.preventDefault();
       if(e.key==='e'||e.key==='E') insertCoin();
-      if(e.key==='Escape' && overlayEl&&overlayEl.classList.contains('active')) exitGame();
+      if(e.key==='Escape'){ const ov=el('game-overlay'); if(ov&&ov.classList.contains('active')) exitGame(); }
     });
     window.addEventListener('keyup',e=>keys[e.key]=false);
 
     const SPEED=0.10;
     function handleMovement(){
-      if(overlayEl&&overlayEl.classList.contains('active')) return; // freeze while game is open
+      const _ov=el('game-overlay'); if(_ov&&_ov.classList.contains('active')) return; // freeze while game is open
       const fwd=new THREE.Vector3(-Math.sin(rotY),0,-Math.cos(rotY));
       const rgt=new THREE.Vector3( Math.cos(rotY),0,-Math.sin(rotY));
       if(keys['w']||keys['W']) camera.position.addScaledVector(fwd, SPEED);
@@ -473,9 +862,37 @@
       requestAnimationFrame(loop); t+=0.016;
       handleMovement();
       checkProximity();  // every frame so prompt appears even when standing still
-      db.rotation.y=t*0.6;
-      dbl.position.set(Math.sin(t*0.55)*10,RH-1.5,Math.cos(t*0.55)*7);
-      dbl.color.setHSL((t*0.07)%1,1,0.65);
+      // Giant disco ball spin + 6 sweeping coloured lights
+      db.rotation.y=t*1.1;
+      const flash=Math.max(0,Math.sin(t*4)>0.96?1.0:0.0);
+      
+      discoLights.forEach(({pl,off},i)=>{
+        const a=t*0.9+off*Math.PI*2;
+        const sr=12+Math.sin(t*0.3+i)*4;
+        pl.position.set(Math.sin(a)*sr, RH-1.8+Math.sin(t*0.7+i)*0.8, Math.cos(a)*sr);
+        pl.color.setHSL((t*0.09+off)%1,1,0.7);
+        pl.intensity=3.5+flash*5;
+      });
+      // Dance floor wave
+      danceFloorTiles.forEach(tile=>{
+        const {r,c}=tile.userData;
+        const wave=Math.sin(c*0.6-t*3.5+r*0.4);
+        const hue=(c*0.07+r*0.13+t*0.15)%1;
+        const bright=Math.max(0,wave)*0.6+flash*0.5;
+        tile.material.emissive.setHSL(hue,1,bright);
+        tile.material.color.setHSL(hue,0.4,0.06+bright*0.25);
+      });
+      // Balloons bob + slow sway
+      balloons.forEach(b=>{
+        b.position.y=b.userData.baseY+Math.sin(t*0.85+b.userData.phase)*0.20;
+        b.rotation.z=Math.sin(t*0.4+b.userData.phase)*0.05;
+      });
+      // Confetti falling and spinning
+      confetti.forEach(c=>{
+        c.position.x+=c.userData.vx; c.position.y+=c.userData.vy; c.position.z+=c.userData.vz;
+        c.rotation.x+=c.userData.rx; c.rotation.z+=c.userData.rz;
+        if(c.position.y<-0.2){ c.position.y=RH; c.position.x=(Math.random()-0.5)*RW*0.9; c.position.z=(Math.random()-0.5)*RD*0.9; }
+      });
       renderer.render(scene,camera);
 
       // Update debug every 20 frames
@@ -483,8 +900,9 @@
         const px=camera.position.x.toFixed(1), py=camera.position.y.toFixed(1), pz=camera.position.z.toFixed(1);
         let html='<b>CAM</b> x:'+px+' y:'+py+' z:'+pz+'<br>';
         html+='<b>nearIdx:</b> '+nearIdx+'<br>';
-        html+='<b>promptEl:</b> '+(promptEl?'found':'NULL')+'<br>';
-        html+='<b>prompt.class:</b> '+(promptEl?promptEl.className:'—')+'<br>';
+        const _pe=el('machine-prompt');
+        html+='<b>promptEl:</b> '+(_pe?'found':'NULL')+'<br>';
+        html+='<b>prompt.class:</b> '+(_pe?_pe.className:'—')+'<br>';
         html+='<b>GAME_DATA distances:</b><br>';
         GAME_DATA.forEach((g,i)=>{
           const d=Math.sqrt((camera.position.x-g.x)**2+(camera.position.z-g.z)**2);
