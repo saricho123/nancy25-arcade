@@ -50,8 +50,8 @@ function init() {
 }
 
 function resize() {
-  canvas.width  = Math.min(window.innerWidth  - 106, 350)
-  canvas.height = Math.min(window.innerHeight - 340, 370)
+  canvas.width  = Math.min(window.innerWidth  - 106, 520)
+  canvas.height = Math.min(window.innerHeight - 340, 560)
   state.planeY  = state.targetY = canvas.height / 2
   generateBgClouds()
   generateRainStreaks()
