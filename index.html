@@ -67,14 +67,9 @@
   <script>
   (function() {
     // Catch any JS errors and show them on screen
-    const errDiv=document.createElement('div');
-    errDiv.style.cssText='position:fixed;top:50px;left:8px;z-index:99999;background:rgba(0,0,0,.9);color:#f44;font:11px monospace;padding:8px;max-width:90vw;pointer-events:none;';
-    document.body.appendChild(errDiv);
-    window.addEventListener('error',e=>{ errDiv.textContent+='ERR: '+e.message+' (L'+e.lineno+')\n'; });
-
-    if(typeof THREE==='undefined') { errDiv.textContent='THREE not loaded'; return; }
+    if(typeof THREE==='undefined') return;
     const canvas = document.getElementById('room-canvas');
-    if(!canvas) { errDiv.textContent='canvas not found'; return; }
+    if(!canvas) return;
     canvas.style.zIndex = '2';
 
     /* ── Renderer ── */
@@ -1023,12 +1018,6 @@
     document.body.appendChild(hint);
     setTimeout(()=>{ hint.style.transition='opacity 2s'; hint.style.opacity='0'; },10000);
 
-    /* ── Live debug overlay ── */
-    const dbg = document.createElement('div');
-    dbg.style.cssText='position:fixed;top:50px;left:8px;z-index:999999;background:rgba(0,0,0,.88);color:#0f0;font:10px monospace;padding:8px;border:1px solid #0f0;pointer-events:none;min-width:280px;line-height:1.6';
-    document.body.appendChild(dbg);
-    window.addEventListener('error',e=>{ dbg.innerHTML+='<br><span style="color:#f44">ERR: '+e.message+'</span>'; });
-
     let t=0;
     (function loop(){
       requestAnimationFrame(loop); t+=0.016;
@@ -1066,24 +1055,6 @@
         if(c.position.y<-0.2){ c.position.y=RH; c.position.x=(Math.random()-0.5)*RW*0.9; c.position.z=(Math.random()-0.5)*RD*0.9; }
       });
       renderer.render(scene,camera);
-
-      // Update debug every 20 frames
-      if(Math.round(t*60)%20===0){
-        const px=camera.position.x.toFixed(1), py=camera.position.y.toFixed(1), pz=camera.position.z.toFixed(1);
-        let html='<b>CAM</b> x:'+px+' y:'+py+' z:'+pz+'<br>';
-        html+='<b>nearIdx:</b> '+nearIdx+'<br>';
-        const _pe=el('machine-prompt');
-        html+='<b>promptEl:</b> '+(_pe?'found':'NULL')+'<br>';
-        html+='<b>prompt.class:</b> '+(_pe?_pe.className:'—')+'<br>';
-        html+='<b>GAME_DATA distances:</b><br>';
-        GAME_DATA.forEach((g,i)=>{
-          const d=Math.sqrt((camera.position.x-g.x)**2+(camera.position.z-g.z)**2);
-          html+='  ['+i+'] '+g.name.substring(0,14)+' d='+d.toFixed(2)+'<br>';
-        });
-        html+='<b>scrTex test:</b> ';
-        try{ const tx=makeScreenTexture(0); html+=(tx?'ok ('+tx.image.width+'px)':'null'); }catch(e){ html+='ERR:'+e.message; }
-        dbg.innerHTML=html;
-      }
     })();
   })();
   </script>
