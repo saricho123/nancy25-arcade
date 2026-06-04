@@ -16,9 +16,33 @@
   <audio id="bgm" loop preload="auto">
     <source src="Mastered-Final_TESLA TUFF.m4a" type="audio/mp4">
   </audio>
+  <button id="mute-btn" title="Toggle music">🔊</button>
+  <style>
+    #mute-btn {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      z-index: 9999;
+      background: rgba(20,5,30,0.82);
+      border: 1px solid rgba(180,80,200,0.5);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s;
+      line-height: 1;
+    }
+    #mute-btn:hover { background: rgba(40,10,60,0.95); border-color: rgba(220,100,255,0.8); }
+  </style>
   <script>
     (function(){
       const bgm = document.getElementById('bgm');
+      const btn = document.getElementById('mute-btn');
       bgm.volume = 0.55;
       // Try immediate autoplay
       const tryPlay = () => bgm.play().catch(()=>{});
@@ -27,6 +51,12 @@
       const onGesture = () => { tryPlay(); document.removeEventListener('pointerdown', onGesture); document.removeEventListener('keydown', onGesture); };
       document.addEventListener('pointerdown', onGesture);
       document.addEventListener('keydown', onGesture);
+      // Mute toggle
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        bgm.muted = !bgm.muted;
+        btn.textContent = bgm.muted ? '🔇' : '🔊';
+      });
     })();
   </script>
 
