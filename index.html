@@ -541,8 +541,8 @@
       woodGrad.addColorStop(0, '#2e1200'); woodGrad.addColorStop(0.3,'#5a2e00');
       woodGrad.addColorStop(0.7,'#4a2600'); woodGrad.addColorStop(1,'#2e1200');
       cx.fillStyle = woodGrad; cx.fillRect(0,0,320,420);
-      // Inner mat (cream)
-      cx.fillStyle = '#f2ece0'; cx.fillRect(14,14,292,392);
+      // Inner mat (deep navy — makes white coat stand out)
+      cx.fillStyle = '#0d1a2e'; cx.fillRect(14,14,292,392);
       // White coat area
       cx.fillStyle = '#f9f9f9'; cx.fillRect(28,28,264,330);
 
@@ -620,11 +620,11 @@
       cx.fillStyle='#999';
       cx.beginPath(); cx.arc(160,182,5,0,Math.PI*2); cx.fill();
 
-      // Bottom plaque area (cream mat below coat)
-      cx.fillStyle='#ede5cc';
+      // Bottom plaque area (gold plate on navy mat)
+      cx.fillStyle='#c8a84a';
       cx.beginPath(); cx.roundRect(36,366,248,34,4); cx.fill();
-      cx.strokeStyle='#c0a870'; cx.lineWidth=1.5; cx.stroke();
-      cx.fillStyle='#3a2200'; cx.font='bold 11px "Courier New",monospace';
+      cx.strokeStyle='#8a6c20'; cx.lineWidth=1.5; cx.stroke();
+      cx.fillStyle='#1a0c00'; cx.font='bold 11px "Courier New",monospace';
       cx.textAlign='center'; cx.textBaseline='middle';
       cx.fillText('DR. PARK  ·  COMING SOON  ✦', 160, 383);
 
