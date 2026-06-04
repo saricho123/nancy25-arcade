@@ -55,8 +55,8 @@ function init() {
 
 function resize() {
   // Horizontal: sides(30×2) + face-borders(3×2) + housing-pad(10×2) + bezel-pad(9×2) = 104px
-  canvas.width  = Math.min(window.innerWidth  - 106, 520)
-  canvas.height = Math.min(window.innerHeight - 360, 560)
+  canvas.width  = Math.min(window.innerWidth  - 106, 900)
+  canvas.height = Math.min(window.innerHeight - 360, 900)
 }
 
 // ── Grass ─────────────────────────────────────────────────────────────────────

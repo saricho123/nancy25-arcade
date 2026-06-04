@@ -78,8 +78,8 @@ function init() {
 }
 
 function resize() {
-  canvas.width  = Math.min(window.innerWidth  - 106, 520)
-  canvas.height = Math.min(window.innerHeight - 360, 560)
+  canvas.width  = Math.min(window.innerWidth  - 106, 900)
+  canvas.height = Math.min(window.innerHeight - 360, 900)
   computeLayout()
 }
 
