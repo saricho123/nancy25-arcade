@@ -36,8 +36,8 @@ const RUNG_COUNT = TOTAL
 // ─────────────────────────────────────────────────────────────────────────────
 const state = {
   phase:      'start',    // 'start' | 'playing' | 'wrong' | 'win'
-  deck:       [],         // shuffled indices into PHOTOS, presented one at a time
-  deckPos:    0,          // which card in the deck we're currently showing
+  remaining:  [],         // photo indices not yet placed (browse pool)
+  browseIdx:  0,          // which entry in remaining is currently shown
   placed:     [],         // placed[rungIndex] = photoIndex, or null
   streak:     0,          // correct placements this run (for display)
   bestStreak: 0,
@@ -66,6 +66,12 @@ function init() {
   canvas.addEventListener('pointermove', onPointerMove)
   canvas.addEventListener('pointerdown', onPointerDown)
   canvas.addEventListener('pointerleave', () => { state.hoverRung = -1 })
+
+  document.addEventListener('keydown', e => {
+    if (state.phase !== 'playing') return
+    if (e.key === 'ArrowLeft')  { navigateBrowse(-1); e.preventDefault() }
+    if (e.key === 'ArrowRight') { navigateBrowse(1);  e.preventDefault() }
+  })
 
   document.getElementById('play-btn').addEventListener('click',    startGame)
   document.getElementById('replay-btn').addEventListener('click',  startGame)
@@ -122,11 +128,11 @@ function preloadImages() {
 // GAME FLOW
 // ─────────────────────────────────────────────────────────────────────────────
 function startGame() {
-  state.deck    = shuffle(PHOTOS.map((_, i) => i))
-  state.deckPos = 0
-  state.placed  = Array(RUNG_COUNT).fill(null)
-  state.streak  = 0
-  state.phase   = 'playing'
+  state.remaining = PHOTOS.map((_, i) => i)   // all photos available to browse
+  state.browseIdx = 0
+  state.placed    = Array(RUNG_COUNT).fill(null)
+  state.streak    = 0
+  state.phase     = 'playing'
   state.flashTimer = 0
   state.hoverRung  = -1
   state.shakeTimer = 0
@@ -139,19 +145,24 @@ function startGame() {
 }
 
 function resetRound() {
-  // Wrong answer — reshuffle and start over
-  state.deck    = shuffle(PHOTOS.map((_, i) => i))
-  state.deckPos = 0
-  state.placed  = Array(RUNG_COUNT).fill(null)
-  state.streak  = 0
-  state.phase   = 'playing'
+  // Wrong answer — restore all photos and start over
+  state.remaining = PHOTOS.map((_, i) => i)
+  state.browseIdx = 0
+  state.placed    = Array(RUNG_COUNT).fill(null)
+  state.streak    = 0
+  state.phase     = 'playing'
   state.flashTimer = 0
   state.hoverRung  = -1
   updateHUD()
 }
 
 function currentPhotoIndex() {
-  return state.deck[state.deckPos]
+  return state.remaining[state.browseIdx]
+}
+
+function navigateBrowse(dir) {
+  if (state.remaining.length === 0) return
+  state.browseIdx = (state.browseIdx + dir + state.remaining.length) % state.remaining.length
 }
 
 // Correct rung for a photo is its index in PHOTOS (0 = oldest = rung 0 = top)
@@ -168,7 +179,16 @@ function onPointerMove(e) {
 function onPointerDown(e) {
   if (state.phase !== 'playing') return
   e.preventDefault()
-  const { row } = canvasCoords(e)
+  const { x, y, row } = canvasCoords(e)
+
+  // Arrow click zones on the polaroid card
+  const { cardX, cardY, cardW, cardH } = LAYOUT
+  const arrowW = 38
+  if (y >= cardY && y <= cardY + cardH) {
+    if (x >= cardX && x <= cardX + arrowW) { navigateBrowse(-1); return }
+    if (x >= cardX + cardW - arrowW && x <= cardX + cardW) { navigateBrowse(1); return }
+  }
+
   const rung = rungAtRow(row)
   if (rung < 0 || rung >= RUNG_COUNT) return
   if (state.placed[rung] !== null) return   // rung already occupied
@@ -177,15 +197,16 @@ function onPointerDown(e) {
   const correct  = correctRungFor(photoIdx)
 
   if (rung === correct) {
-    // ✓ Correct
+    // ✓ Correct — remove from remaining pool
     state.placed[rung] = photoIdx
     state.streak++
     if (state.streak > state.bestStreak) state.bestStreak = state.streak
     state.flashType  = 'correct'
     state.flashTimer = 40
-    state.deckPos++
+    state.remaining.splice(state.browseIdx, 1)
+    if (state.browseIdx >= state.remaining.length) state.browseIdx = Math.max(0, state.remaining.length - 1)
 
-    if (state.deckPos >= PHOTOS.length) {
+    if (state.remaining.length === 0) {
       state.phase = 'win'
       document.getElementById('win-overlay').classList.remove('hidden')
     }
@@ -220,8 +241,9 @@ function rungAtRow(y) {
 }
 
 function updateHUD() {
+  const placed = PHOTOS.length - state.remaining.length
   document.getElementById('progress-display').textContent =
-    `PHOTO ${state.deckPos} / ${PHOTOS.length || TOTAL}`
+    `PLACED ${placed} / ${PHOTOS.length || TOTAL}`
   document.getElementById('streak-display').textContent =
     `STREAK: ${state.streak}`
 }
@@ -496,7 +518,7 @@ const STICKERS   = ['⭐','🌸','💖','🌟','✨','🎀','🦋','🌈','💅'
 const LBL_COLORS = ['#e91e8c','#9c27b0','#1976d2','#d32f2f','#00796b','#f57c00','#7b1fa2','#c2185b']
 
 function drawCurrentPhoto() {
-  if (state.phase === 'win' || state.deckPos >= PHOTOS.length) return
+  if (state.phase === 'win' || state.remaining.length === 0) return
   const { cardX, cardY, cardW, cardH, polPad, polBase } = LAYOUT
 
   const photoIdx = currentPhotoIndex()
@@ -561,14 +583,35 @@ function drawCurrentPhoto() {
 
   // Instruction nudge
   ctx.fillStyle = '#f4d03f'
-  ctx.font = 'bold 8px Courier New'
+  ctx.font = 'bold 7px Courier New'
   ctx.textAlign = 'center'
-  ctx.fillText('← TAP A RUNG', cardX + cardW / 2, cardY + cardH + 11)
+  ctx.fillText('◀ ▶ BROWSE  ·  TAP RUNG TO PLACE', cardX + cardW / 2, cardY + cardH + 11)
 
-  // Counter
+  // Browse counter (top-left of card)
+  const placed = PHOTOS.length - state.remaining.length
   ctx.fillStyle = 'rgba(255,255,255,0.55)'
   ctx.font = '8px Courier New'; ctx.textAlign = 'left'
-  ctx.fillText(`${state.deckPos + 1} / ${PHOTOS.length}`, cardX + 2, cardY - 9)
+  ctx.fillText(`${placed} / ${PHOTOS.length} placed`, cardX + 2, cardY - 9)
+
+  // Browse position (top-right of card)
+  ctx.textAlign = 'right'
+  ctx.fillText(`${state.browseIdx + 1} of ${state.remaining.length}`, cardX + cardW - 2, cardY - 9)
+
+  // ◀ arrow button (left side of card)
+  const arrowW = 38, arrowH = Math.min(70, cardH * 0.35)
+  const arrowY = cardY + cardH / 2 - arrowH / 2
+  ctx.fillStyle = 'rgba(0,0,0,0.38)'
+  roundRect(ctx, cardX, arrowY, arrowW, arrowH, 6); ctx.fill()
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'
+  ctx.font = 'bold 18px Courier New'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText('◀', cardX + arrowW / 2, cardY + cardH / 2)
+
+  // ▶ arrow button (right side of card)
+  ctx.fillStyle = 'rgba(0,0,0,0.38)'
+  roundRect(ctx, cardX + cardW - arrowW, arrowY, arrowW, arrowH, 6); ctx.fill()
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'
+  ctx.fillText('▶', cardX + cardW - arrowW / 2, cardY + cardH / 2)
+  ctx.textBaseline = 'alphabetic'
 }
 
 function drawPhotoOnRung(photoIdx, rx, ry, rw, rh) {
