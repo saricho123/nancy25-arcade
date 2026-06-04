@@ -7,12 +7,12 @@ const CW = 480, CH = 460;
 canvas.width = CW;
 canvas.height = CH;
 
-// Rack layout: 2 rows × 6 cols
-const COLS = 6, ROWS = 2;
-const SLOT_W = 72, SLOT_H = 100;
-const RACK_X = 12;
-const RACK_Y = 72;
-const GAP_X = 5, GAP_Y = 22;
+// Rack layout: 3 rows × 4 cols
+const COLS = 4, ROWS = 3;
+const SLOT_W = 100, SLOT_H = 90;
+const RACK_X = 28;   // centered: (480 - 4*100 - 3*8 - 2*10) / 2 + 10
+const RACK_Y = 35;
+const GAP_X = 8, GAP_Y = 10;
 const TOTAL_SLOTS = COLS * ROWS;
 
 // Rack outer frame
@@ -179,25 +179,29 @@ function drawFlashOverlay(t) {
 }
 
 function drawMemorizeOverlay(secsLeft) {
+  // Text goes below the rack — rack stays fully visible
+  const textTop = FRAME_Y + FRAME_H + 10;
   ctx.save();
-  ctx.globalAlpha = 0.62;
-  ctx.fillStyle = '#0a020a';
-  ctx.fillRect(0, 0, CW, CH);
-  ctx.globalAlpha = 1;
 
-  ctx.fillStyle = '#ff55bb';
-  ctx.font = 'bold 18px "Press Start 2P", monospace';
+  // subtle dark band only in the text area below the rack
+  ctx.fillStyle = 'rgba(14, 2, 10, 0.78)';
+  ctx.fillRect(0, textTop - 2, CW, CH - textTop + 2);
+
   ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = '#ff55bb';
-  ctx.shadowBlur = 18;
-  ctx.fillText('MEMORIZE!', CW / 2, CH / 2 - 30);
+  ctx.textBaseline = 'top';
 
-  ctx.font = 'bold 48px "Press Start 2P", monospace';
+  ctx.font = '11px "Press Start 2P", monospace';
+  ctx.fillStyle = '#ff55bb';
+  ctx.shadowColor = '#ff55bb';
+  ctx.shadowBlur = 12;
+  ctx.fillText('MEMORIZE!', CW / 2, textTop + 6);
+
+  ctx.font = 'bold 38px "Press Start 2P", monospace';
   ctx.fillStyle = '#ffffff';
   ctx.shadowColor = '#ff55bb';
-  ctx.shadowBlur = 30;
-  ctx.fillText(Math.ceil(secsLeft), CW / 2, CH / 2 + 28);
+  ctx.shadowBlur = 24;
+  ctx.fillText(Math.ceil(secsLeft), CW / 2, textTop + 30);
+
   ctx.restore();
 }
 
@@ -212,9 +216,7 @@ function drawHUD() {
   // Phase label (top-left)
   ctx.fillStyle = '#ff55bb';
   ctx.textAlign = 'left';
-  if (phase === 'memorize') {
-    ctx.fillText('MEMORIZE!', 10, 10);
-  } else if (phase === 'play') {
+  if (phase === 'play') {
     ctx.fillStyle = '#ffaadd';
     ctx.fillText('DRAG TO SORT', 10, 10);
   } else if (phase === 'flash') {
