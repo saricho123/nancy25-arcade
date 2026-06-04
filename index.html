@@ -308,7 +308,8 @@
       const g=new THREE.Group();
       const cakeMat=(col)=>new THREE.MeshStandardMaterial({color:col,roughness:0.75,metalness:0.0});
       // Bottom tier
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,32),cakeMat(0xff88bb)),{position:{x:0,y:0.36,z:0}}));
+      const t1=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,32),cakeMat(0xff88bb));
+      t1.position.set(0,0.36,0); g.add(t1);
       // Frosting blobs around top rim of bottom tier
       for(let i=0;i<14;i++){
         const a=i/14*Math.PI*2;
@@ -316,22 +317,25 @@
         blob.position.set(Math.cos(a)*0.95,0.70,Math.sin(a)*0.95); g.add(blob);
       }
       // Top tier
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,32),cakeMat(0xffcc44)),{position:{x:0,y:1.01,z:0}}));
+      const t2=new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,32),cakeMat(0xffcc44));
+      t2.position.set(0,1.01,0); g.add(t2);
       // Top frosting disc
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.69,0.69,0.07,32),cakeMat(0xffffff)),{position:{x:0,y:1.33,z:0}}));
+      const td=new THREE.Mesh(new THREE.CylinderGeometry(0.69,0.69,0.07,32),cakeMat(0xffffff));
+      td.position.set(0,1.33,0); g.add(td);
       // Candles
       const CCAND=[0xff3366,0xff8800,0xffee00,0x44ff88,0x4488ff,0xcc44ff,0xff55aa];
       for(let i=0;i<7;i++){
         const a=i===0?0:((i-1)/6*Math.PI*2), r=i===0?0:0.40;
-        const cx=Math.cos(a)*r, cz=Math.sin(a)*r;
+        const cndx=Math.cos(a)*r, cndz=Math.sin(a)*r;
         const candle=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.38,8),cakeMat(CCAND[i]));
-        candle.position.set(cx,1.52,cz); g.add(candle);
+        candle.position.set(cndx,1.52,cndz); g.add(candle);
         const flame=new THREE.Mesh(new THREE.SphereGeometry(0.065,8,8),new THREE.MeshBasicMaterial({color:0xffee88}));
-        flame.scale.y=1.6; flame.position.set(cx,1.74,cz); g.add(flame);
-        const fl=new THREE.PointLight(0xffcc55,1.4,2.2); fl.position.set(cx,1.78,cz); g.add(fl);
+        flame.scale.y=1.6; flame.position.set(cndx,1.74,cndz); g.add(flame);
+        const fl=new THREE.PointLight(0xffcc55,1.4,2.2); fl.position.set(cndx,1.78,cndz); g.add(fl);
       }
       // Cake stand
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.25,0.06,32),new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.5,roughness:0.3})),{position:{x:0,y:0.03,z:0}}));
+      const stand=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.25,0.06,32),new THREE.MeshStandardMaterial({color:0xffffff,metalness:0.5,roughness:0.3}));
+      stand.position.set(0,0.03,0); g.add(stand);
       g.position.set(6,0,6); scene.add(g);
       // Warm glow above cake
       const ck=new THREE.PointLight(0xffcc88,2.5,6); ck.position.set(6,3,6); scene.add(ck);
