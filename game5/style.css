@@ -1,0 +1,376 @@
+/* SHOE SHUFFLE — Pink & Gold Closet Arcade Cabinet */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; touch-action: none; }
+
+body {
+  background: radial-gradient(ellipse at center, #1a041a 0%, #0a020a 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Press Start 2P', monospace;
+}
+
+#scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 0 36px rgba(255,85,187,0.2));
+}
+
+/* Cabinet lid */
+#cab-lid {
+  width: 640px;
+  height: 18px;
+  background: linear-gradient(to bottom, #6b3060, #4a1f44);
+  border-radius: 6px 6px 0 0;
+  transform: perspective(600px) rotateX(-38deg);
+  transform-origin: bottom center;
+  position: relative;
+  overflow: hidden;
+}
+#lid-shine {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, transparent 60%);
+}
+
+/* Cabinet body */
+#cab {
+  display: flex;
+  width: 640px;
+  background: linear-gradient(180deg, #2a0d2a 0%, #180818 100%);
+  border-radius: 0 0 10px 10px;
+  box-shadow:
+    inset -4px 0 12px rgba(0,0,0,0.5),
+    inset 4px 0 12px rgba(0,0,0,0.5),
+    0 8px 24px rgba(0,0,0,0.7);
+}
+
+.cab-side {
+  width: 22px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.side-stripe {
+  width: 7px;
+  height: 82%;
+  background: linear-gradient(to bottom, #ff55bb, #aa0066, #ff55bb);
+  border-radius: 4px;
+  box-shadow: 0 0 10px #ff55bb, 0 0 20px rgba(255,85,187,0.4);
+}
+
+#cab-face {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 6px;
+}
+
+/* Marquee */
+#marquee-wrap {
+  position: relative;
+  background: linear-gradient(to bottom, #1a0018, #110012);
+  border: 2px solid #cc0077;
+  border-radius: 4px;
+  margin: 8px 0 6px;
+  padding: 7px 6px;
+  box-shadow: 0 0 18px rgba(255,85,187,0.28), inset 0 0 8px rgba(0,0,0,0.6);
+}
+#marquee-rainbow {
+  height: 3px;
+  background: linear-gradient(to right, #ff55bb, #ffaadd, #ffffff, #ffaadd, #ff55bb);
+  margin-bottom: 5px;
+  border-radius: 2px;
+}
+#marquee-text {
+  font-family: 'Bungee', 'Press Start 2P', monospace;
+  font-size: 13px;
+  color: #ff55bb;
+  text-align: center;
+  text-shadow: 0 0 10px #ff55bb, 0 0 22px #cc0066;
+  letter-spacing: 1px;
+}
+#marquee-sub {
+  font-size: 6.5px;
+  color: #ffaadd;
+  text-align: center;
+  margin-top: 3px;
+  letter-spacing: 2px;
+  opacity: 0.8;
+}
+.bolt {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: #aaa;
+  border-radius: 50%;
+  border: 1px solid #666;
+}
+.bolt.tl { top: 4px; left: 4px; }
+.bolt.tr { top: 4px; right: 4px; }
+.bolt.bl { bottom: 4px; left: 4px; }
+.bolt.br { bottom: 4px; right: 4px; }
+
+/* Speaker */
+#speaker-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+.grille {
+  flex: 1;
+  height: 13px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent, transparent 3px,
+    #2a1028 3px, #2a1028 4px
+  );
+  border-radius: 2px;
+  border: 1px solid #3a1a36;
+}
+#brand-plate {
+  font-size: 6px;
+  color: #ffaadd;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  text-shadow: 0 0 4px #ff55bb;
+}
+
+/* Monitor */
+#monitor-housing {
+  background: #18040e;
+  border: 3px solid #22081a;
+  border-radius: 6px;
+  padding: 7px;
+  box-shadow: 0 0 22px rgba(255,85,187,0.1), inset 0 0 10px rgba(0,0,0,0.9);
+}
+#monitor-bezel {
+  background: #0a020a;
+  border: 2px solid #3a1030;
+  border-radius: 4px;
+  padding: 4px;
+}
+#screen-area {
+  position: relative;
+  width: 560px;
+  height: 560px;
+  background: #000;
+  border-radius: 2px;
+  overflow: hidden;
+}
+#canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+#canvas.dragging { cursor: grabbing; }
+
+/* Overlays */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8,0,6,0.92);
+  gap: 9px;
+  padding: 14px;
+  text-align: center;
+}
+.overlay.hidden { display: none; }
+.overlay-icon {
+  font-size: 30px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.9); }
+}
+.overlay h1 {
+  font-size: 10px;
+  color: #ff55bb;
+  text-shadow: 0 0 12px #ff55bb;
+  line-height: 1.6;
+}
+.overlay p {
+  font-size: 6.5px;
+  color: #ffaadd;
+  line-height: 1.9;
+  max-width: 260px;
+}
+.price-badge {
+  background: #cc0077;
+  color: #fff;
+  font-size: 7px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+}
+.end-score-line {
+  color: #ffd700 !important;
+  font-size: 8px !important;
+  text-shadow: 0 0 8px #ffd700;
+}
+.bday-note {
+  color: #ffccee !important;
+  font-size: 6.5px !important;
+}
+.overlay button {
+  background: #ff55bb;
+  color: #000;
+  border: none;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 7px;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin: 2px;
+  transition: all 0.12s;
+}
+.overlay button:hover { background: #ffaadd; transform: scale(1.05); }
+
+/* Control panel */
+#ctrl-panel {
+  background: linear-gradient(to bottom, #3a1034, #200820);
+  border-radius: 0 0 6px 6px;
+  padding: 7px;
+  margin-top: 5px;
+}
+#ctrl-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.screw {
+  position: absolute;
+  width: 7px; height: 7px;
+  background: radial-gradient(circle at 35% 35%, #ccc, #888);
+  border-radius: 50%;
+  top: 2px;
+}
+.screw.sl { left: 2px; }
+.screw.sr { right: 2px; }
+#hud-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+#hud-row span {
+  font-size: 6.5px;
+  color: #ff55bb;
+  text-shadow: 0 0 4px #ff55bb;
+}
+#real-btns {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+#real-btns button {
+  background: #18040e;
+  color: #ff55bb;
+  border: 1px solid #cc0077;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 5.5px;
+  padding: 4px 7px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.12s;
+}
+#real-btns button:hover { background: #cc0077; color: #fff; }
+
+/* Deco controls */
+#deco-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 6px;
+}
+#joystick-assy { position: relative; width: 34px; height: 34px; }
+#j-base {
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 30px; height: 13px;
+  background: radial-gradient(ellipse, #333, #111);
+  border-radius: 50%;
+}
+#j-shaft {
+  position: absolute; bottom: 9px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 20px;
+  background: linear-gradient(to right, #555, #aaa, #555);
+  border-radius: 3px;
+}
+#j-ball {
+  position: absolute; top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 13px; height: 13px;
+  background: radial-gradient(circle at 35% 35%, #ffaadd, #cc0077);
+  border-radius: 50%;
+  box-shadow: 0 0 6px #ff55bb;
+}
+#p1-start {
+  font-size: 5px;
+  color: #ffaadd;
+  border: 1px solid #cc0077;
+  padding: 3px 5px;
+  border-radius: 2px;
+}
+#action-assy { display: flex; gap: 4px; align-items: center; }
+.a-btn {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.5);
+  box-shadow: 0 3px 0 rgba(0,0,0,0.4);
+}
+#btn-red    { background: radial-gradient(circle at 35% 35%, #ff6666, #cc0000); }
+#btn-blue   { background: radial-gradient(circle at 35% 35%, #66aaff, #0044cc); }
+#btn-yellow { background: radial-gradient(circle at 35% 35%, #ffee66, #ccaa00); }
+
+/* Coin door */
+#coin-door {
+  margin-top: 5px;
+  background: linear-gradient(to bottom, #280c24, #160810);
+  border: 1px solid #44103a;
+  border-radius: 4px;
+  padding: 5px 8px;
+}
+.quarter-slot-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 3px; }
+.q-slot {
+  width: 34px; height: 12px;
+  background: #111;
+  border: 1px solid #44103a;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.q-slot span { font-size: 5px; color: #ffaadd; }
+#coin-door-label {
+  font-size: 4.5px;
+  color: #ffaadd;
+  text-align: center;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+#coin-return { font-size: 4.5px; color: #4a1040; text-align: center; }
+
+/* Kickplate */
+#kickplate {
+  background: linear-gradient(to bottom, #3a1030, #18080e);
+  border-top: 1px solid #cc0077;
+  padding: 4px;
+  border-radius: 0 0 8px 8px;
+  text-align: center;
+}
+#kickplate-text { font-size: 5.5px; color: #cc0077; letter-spacing: 1px; }
+
+#floor-glow {
+  width: 600px; height: 18px;
+  background: radial-gradient(ellipse, rgba(255,85,187,0.14), transparent 70%);
+  margin-top: 4px;
+}

@@ -622,22 +622,35 @@
         cx.fillText('FLUTE FACE-OFF',128,22);
 
       } else {
-        // Coming Soon — mystery screen
-        cx.fillStyle='#030210'; cx.fillRect(0,0,256,200);
-        // stars
-        for(let i=0;i<40;i++){
-          cx.fillStyle=`rgba(255,255,220,${Math.random()*.8+.2})`;
-          cx.fillRect(Math.random()*256,Math.random()*200,1,1);
+        // Shoe Shuffle — mini shoe rack
+        cx.fillStyle='#12040e'; cx.fillRect(0,0,256,200);
+        // rack frame
+        cx.fillStyle='#1e0818';
+        cx.beginPath(); cx.roundRect(14,34,228,140,6); cx.fill();
+        cx.strokeStyle='#4a1840'; cx.lineWidth=2; cx.stroke();
+        // shelf planks
+        const shelfColors=['#5a3520','#3d2414'];
+        [94,154].forEach((sy,ri)=>{
+          const g2=cx.createLinearGradient(0,sy,0,sy+8);
+          g2.addColorStop(0,shelfColors[0]); g2.addColorStop(1,shelfColors[1]);
+          cx.fillStyle=g2; cx.fillRect(18,sy,220,8);
+        });
+        // shoe slots — 2 rows × 6 cols
+        const shoeColors=['#ff88cc','#ffaadd','#cc66aa','#ff55bb','#dd4499','#ffbbee',
+                          '#aa3388','#ff99cc','#cc4488','#ff66aa','#dd77bb','#ff44aa'];
+        for(let row=0;row<2;row++){
+          for(let col=0;col<6;col++){
+            const sx=22+col*37, sy=44+row*58, sw=32, sh=46;
+            cx.fillStyle='#200a14'; cx.fillRect(sx,sy,sw,sh);
+            const c=shoeColors[row*6+col];
+            cx.fillStyle=c; cx.globalAlpha=0.7;
+            cx.fillRect(sx+3,sy+8,sw-6,sh-14);
+            cx.globalAlpha=1;
+          }
         }
-        cx.fillStyle='rgba(200,60,220,.3)';
-        cx.beginPath(); cx.arc(128,100,60,0,Math.PI*2); cx.fill();
-        cx.fillStyle='rgba(200,60,220,.15)';
-        cx.beginPath(); cx.arc(128,100,80,0,Math.PI*2); cx.fill();
-        cx.fillStyle='#cc44ff'; cx.font='bold 48px monospace'; cx.textAlign='center';
-        cx.fillText('?',128,120);
-        cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,256,32);
-        cx.fillStyle='#ff88ee'; cx.font='bold 11px monospace'; cx.textAlign='center';
-        cx.fillText('COMING SOON',128,22);
+        cx.fillStyle='rgba(0,0,0,.5)'; cx.fillRect(0,0,256,32);
+        cx.fillStyle='#ff55bb'; cx.font='bold 11px monospace'; cx.textAlign='center';
+        cx.fillText('SHOE SHUFFLE',128,22);
       }
 
       return new THREE.CanvasTexture(C);
@@ -651,7 +664,7 @@
       {url:'game2/index.html', name:'FEAR OF FLYING',    x:-4.0, z:-6,  body:0x081830, screen:0x2299ff, marq:0x0a3060, accent:0x55aaff},
       {url:'game3/index.html', name:'WHEELER CLIMB',     x: 0.0, z:-7,  body:0x2a0a04, screen:0xff4422, marq:0x601808, accent:0xff6644},
       {url:'game4/index-v2.html', name:'FLUTE FACE-OFF',  x: 4.0, z:-6,  body:0x1a2e1e, screen:0x00ff88, marq:0x0a2010, accent:0x44ffaa},
-      {url:null,               name:'COMING SOON',       x: 8.5, z:-3,  body:0x1e0428, screen:0xff44cc, marq:0x501040, accent:0xff88ee},
+      {url:'game5/index.html', name:'SHOE SHUFFLE',       x: 8.5, z:-3,  body:0x1c0818, screen:0xff55bb, marq:0x500030, accent:0xffaadd},
     ];
 
     function addGameMachine({x,z,body,screen,marq,accent}, idx) {

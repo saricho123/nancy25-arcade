@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shoe Shuffle — Nanky's 25th</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Bungee&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="scene">
+  <!-- Lid -->
+  <div id="cab-lid"><div id="lid-shine"></div></div>
+
+  <!-- Cabinet body -->
+  <div id="cab">
+    <div class="cab-side left"><div class="side-stripe"></div></div>
+
+    <div id="cab-face">
+      <!-- Marquee -->
+      <div id="marquee-wrap">
+        <div class="bolt tl"></div><div class="bolt tr"></div>
+        <div class="bolt bl"></div><div class="bolt br"></div>
+        <div id="marquee-rainbow"></div>
+        <div id="marquee-text">♡ SHOE SHUFFLE ♡</div>
+        <div id="marquee-sub">✦ NANKY'S 25TH ✦</div>
+      </div>
+
+      <!-- Speaker grille -->
+      <div id="speaker-bar">
+        <div class="grille"></div>
+        <div id="brand-plate">25¢ ARCADE</div>
+        <div class="grille"></div>
+      </div>
+
+      <!-- Monitor -->
+      <div id="monitor-housing">
+        <div id="monitor-bezel">
+          <div id="screen-area">
+            <canvas id="canvas"></canvas>
+
+            <!-- Start overlay -->
+            <div class="overlay" id="start-overlay">
+              <div class="overlay-icon">👟</div>
+              <h1>SHOE SHUFFLE</h1>
+              <p>Nanky's shoes are on the rack.<br>Memorize the order — then put them back!</p>
+              <p class="price-badge">INSERT QUARTER</p>
+              <button id="play-btn">PLAY</button>
+              <button id="back-btn">← ARCADE</button>
+            </div>
+
+            <!-- End overlay -->
+            <div class="overlay hidden" id="end-overlay">
+              <div class="overlay-icon" id="end-icon">👟</div>
+              <h1 id="end-title">TIME'S UP!</h1>
+              <p class="end-score-line" id="end-score">12/12 CORRECT!</p>
+              <p id="end-msg" class="bday-note"></p>
+              <button id="replay-btn">PLAY AGAIN</button>
+              <button id="menu-btn">← ARCADE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control panel -->
+      <div id="ctrl-panel">
+        <div id="ctrl-inner">
+          <div class="screw sl"></div><div class="screw sr"></div>
+          <div id="hud-row">
+            <span id="hud-phase">SHOE SHUFFLE</span>
+            <span id="hud-time">TIME: --</span>
+          </div>
+          <div id="real-btns">
+            <button id="done-btn">✓ DONE</button>
+            <button id="back-btn2">← MENU</button>
+          </div>
+          <div id="deco-controls">
+            <div id="joystick-assy">
+              <div id="j-base"></div>
+              <div id="j-shaft"></div>
+              <div id="j-ball"></div>
+            </div>
+            <div id="p1-start">P1 START</div>
+            <div id="action-assy">
+              <div class="a-btn" id="btn-red"></div>
+              <div class="a-btn" id="btn-blue"></div>
+              <div class="a-btn" id="btn-yellow"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coin door -->
+      <div id="coin-door">
+        <div id="coin-door-label">INSERT COIN</div>
+        <div class="quarter-slot-row">
+          <div class="q-slot"><span>25¢</span></div>
+          <div class="q-slot"><span>25¢</span></div>
+        </div>
+        <div id="coin-return">COIN RETURN</div>
+      </div>
+
+      <!-- Kickplate -->
+      <div id="kickplate">
+        <div id="kickplate-text">© NANKY'S 25TH ARCADE · 2025</div>
+      </div>
+    </div>
+
+    <div class="cab-side right"><div class="side-stripe"></div></div>
+  </div>
+
+  <div id="floor-glow"></div>
+</div>
+<script src="game.js"></script>
+</body>
+</html>
