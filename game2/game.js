@@ -25,7 +25,7 @@ const state = {
   frame:        0
 }
 
-let canvas, ctx
+let canvas, ctx, skyGrad = null
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
@@ -55,6 +55,7 @@ function resize() {
   state.planeY  = state.targetY = canvas.height / 2
   generateBgClouds()
   generateRainStreaks()
+  skyGrad = null  // invalidate cached gradient
 }
 
 // ── Background clouds (decorative, no collision) ──────────────────────────────
@@ -94,6 +95,7 @@ function startGame() {
   updateHUD()
   generateBgClouds()
   generateRainStreaks()
+  _lastFrameTime = performance.now()
 }
 
 function onPointer(e) {
@@ -105,34 +107,41 @@ function onPointer(e) {
 
 // ── Update ────────────────────────────────────────────────────────────────────
 
-function loop() { update(); draw(); requestAnimationFrame(loop) }
+let _lastFrameTime = 0
+function loop(now) {
+  const dt = Math.min((now - _lastFrameTime) / 1000 * 60, 4)  // normalized to 60fps, capped
+  _lastFrameTime = now
+  update(dt)
+  draw()
+  requestAnimationFrame(loop)
+}
 
-function update() {
+function update(dt) {
   if (state.phase !== 'playing') return
 
-  state.frame++
-  state.score++
+  state.frame += dt
+  state.score += dt
   state.speed = Math.min(9, 2.8 + state.score / 380)
 
   // Rain overlay countdown
   if (state.rainTimer > 0) {
-    state.rainTimer--
-  } else if (--state.rainNextIn <= 0) {
-    state.rainTimer  = 210 + Math.floor(Math.random() * 90)  // 3.5–5 s
+    state.rainTimer -= dt
+  } else if ((state.rainNextIn -= dt) <= 0) {
+    state.rainTimer  = 210 + Math.floor(Math.random() * 90)
     state.rainNextIn = 380 + Math.floor(Math.random() * 260)
   }
 
   // Enemy plane spawn
-  if (--state.enemyNextIn <= 0) {
+  if ((state.enemyNextIn -= dt) <= 0) {
     spawnEnemyPlane()
     state.enemyNextIn = Math.max(140, 300 - Math.floor(state.score / 120)) + Math.floor(Math.random() * 80)
   }
 
   // Move enemy planes + collision
   for (const ep of state.enemyPlanes) {
-    ep.x -= ep.vx
-    ep.y += ep.vy
-    if (ep.y < 10 || ep.y > canvas.height - 10) ep.vy *= -1  // bounce vertically
+    ep.x -= ep.vx * dt
+    ep.y += ep.vy * dt
+    if (ep.y < 10 || ep.y > canvas.height - 10) ep.vy *= -1
     if (!ep.hit &&
         PLANE_X + PLANE_RX - 8 > ep.x         &&
         PLANE_X - PLANE_RX + 8 < ep.x + ep.w  &&
@@ -144,18 +153,18 @@ function update() {
   }
   state.enemyPlanes = state.enemyPlanes.filter(ep => ep.x + ep.w > -60)
 
-  // Smooth plane follow
+  // Tight plane follow — snaps closely to cursor
   const cy = Math.max(PLANE_RY + 5, Math.min(canvas.height - PLANE_RY - 5, state.targetY))
-  state.planeY += (cy - state.planeY) * 0.13
+  state.planeY += (cy - state.planeY) * Math.min(1, 0.35 * dt)
 
   // Move bg clouds
   for (const c of state.bgClouds) {
-    c.x -= c.speed
+    c.x -= c.speed * dt
     if (c.x + c.w < 0) { c.x = canvas.width + 50; c.y = 10 + Math.random() * (canvas.height - 20) }
   }
 
   // Spawn obstacles
-  if (--state.spawnIn <= 0) {
+  if ((state.spawnIn -= dt) <= 0) {
     spawnPair()
     const base = Math.max(36, 78 - Math.floor(state.score / 160))
     state.spawnIn = base + Math.floor(Math.random() * 20)
@@ -163,9 +172,8 @@ function update() {
 
   // Move and test obstacles
   for (const o of state.obstacles) {
-    o.x -= state.speed
+    o.x -= state.speed * dt
 
-    // Dodged (passed the plane)
     if (!o.passed && o.x + o.w < PLANE_X - PLANE_RX - 6) {
       o.passed = true
       if (!o.dodgeDone) {
@@ -175,7 +183,6 @@ function update() {
       }
     }
 
-    // Collision
     if (!o.passed && !o.hit) {
       if (PLANE_X + PLANE_RX - 10 > o.x        &&
           PLANE_X - PLANE_RX + 10 < o.x + o.w  &&
@@ -189,9 +196,9 @@ function update() {
   }
 
   state.obstacles = state.obstacles.filter(o => o.x + o.w > -80)
-  if (state.chat.timer > 0) state.chat.timer--
-  if (state.shake > 0)      state.shake--
-  if (state.frame % 6 === 0) updateHUD()
+  if (state.chat.timer > 0) state.chat.timer -= dt
+  if (state.shake > 0)      state.shake -= dt
+  if (Math.floor(state.frame / 6) !== Math.floor((state.frame - dt) / 6)) updateHUD()
 }
 
 function spawnPair() {
@@ -417,11 +424,13 @@ function draw() {
 }
 
 function drawSky() {
-  const g = ctx.createLinearGradient(0, 0, 0, canvas.height)
-  g.addColorStop(0,   '#1255a0')
-  g.addColorStop(0.5, '#3a9ed8')
-  g.addColorStop(1,   '#a8dff2')
-  ctx.fillStyle = g
+  if (!skyGrad) {
+    skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height)
+    skyGrad.addColorStop(0,   '#1255a0')
+    skyGrad.addColorStop(0.5, '#3a9ed8')
+    skyGrad.addColorStop(1,   '#a8dff2')
+  }
+  ctx.fillStyle = skyGrad
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 }
 
