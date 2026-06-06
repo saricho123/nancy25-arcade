@@ -59,6 +59,7 @@
     </div>
   </div>
 
+  <div id="gift-flash"></div>
   <!-- Note card (appears after machine reveals) -->
   <div id="tex-note">
     <div id="tex-note-inner">
@@ -239,59 +240,114 @@
 }
 
 /* ── Shimmy → Shake → Explode keyframes ── */
+/* ── Suspense animation keyframes ── */
+
+/* Phase 1: gentle curious wobble */
 @keyframes shimmy {
-  0%,100%{ transform:rotate(0deg); }
-  20%{ transform:rotate(-3deg); }
-  40%{ transform:rotate(3deg); }
-  60%{ transform:rotate(-2deg); }
-  80%{ transform:rotate(2deg); }
+  0%,100%{ transform:rotate(0deg) translateY(0); }
+  25%{ transform:rotate(-2.5deg) translateY(-2px); }
+  75%{ transform:rotate(2.5deg) translateY(-2px); }
 }
-@keyframes hardShake {
+
+/* Phase 2: box bounces like something inside is jumping */
+@keyframes bounce {
+  0%,100%{ transform:translateY(0) scaleX(1) scaleY(1); }
+  20%{ transform:translateY(-14px) scaleX(0.95) scaleY(1.05); }
+  40%{ transform:translateY(4px) scaleX(1.05) scaleY(0.95); }
+  60%{ transform:translateY(-10px) scaleX(0.97) scaleY(1.03); }
+  80%{ transform:translateY(2px) scaleX(1.03) scaleY(0.97); }
+}
+
+/* Phase 3: lid peeks open and snaps back */
+@keyframes lidPeek {
+  0%,100%{ transform:rotateX(0deg); }
+  40%{ transform:rotateX(-22deg); }
+  60%{ transform:rotateX(-18deg); }
+}
+
+/* Phase 4: violent rattling — machine REALLY wants out */
+@keyframes rattle {
   0%,100%{ transform:translate(0,0) rotate(0deg); }
-  10%{ transform:translate(-5px,0) rotate(-5deg); }
-  20%{ transform:translate(5px,-2px) rotate(5deg); }
-  30%{ transform:translate(-8px,0) rotate(-7deg); }
-  40%{ transform:translate(8px,-2px) rotate(7deg); }
-  50%{ transform:translate(-10px,-3px) rotate(-8deg); }
-  60%{ transform:translate(10px,0) rotate(8deg); }
-  70%{ transform:translate(-7px,0) rotate(-5deg); }
-  80%{ transform:translate(7px,-2px) rotate(5deg); }
-  90%{ transform:translate(-4px,0) rotate(-3deg); }
+  8%{ transform:translate(-6px,0) rotate(-4deg); }
+  16%{ transform:translate(6px,-2px) rotate(4deg); }
+  24%{ transform:translate(-9px,0) rotate(-6deg); }
+  32%{ transform:translate(9px,-3px) rotate(6deg); }
+  40%{ transform:translate(-12px,-2px) rotate(-7deg); }
+  48%{ transform:translate(12px,0) rotate(7deg); }
+  56%{ transform:translate(-10px,0) rotate(-5deg); }
+  64%{ transform:translate(10px,-2px) rotate(5deg); }
+  72%{ transform:translate(-7px,0) rotate(-4deg); }
+  80%{ transform:translate(7px,-1px) rotate(4deg); }
+  90%{ transform:translate(-4px,0) rotate(-2deg); }
 }
+
+/* Inner glow pulses through lid seams */
+@keyframes innerGlow {
+  0%,100%{ box-shadow:0 -4px 16px rgba(0,0,0,0.3); }
+  50%{ box-shadow:0 -4px 30px rgba(131,188,255,0.9), 0 0 60px rgba(182,208,148,0.5); }
+}
+
+/* Whole box pulses/swells */
+@keyframes swell {
+  0%,100%{ transform:scale(1); filter:brightness(1); }
+  50%{ transform:scale(1.04); filter:brightness(1.3); }
+}
+
+/* Flash overlay before explosion */
+@keyframes flashBurst {
+  0%{ opacity:0; }
+  30%{ opacity:1; }
+  100%{ opacity:0; }
+}
+
+/* Explosion animations */
 @keyframes lidExplode {
   0%  { transform:translateY(0) rotate(0deg); opacity:1; }
-  100%{ transform:translateY(-280px) rotate(-45deg) translateX(-30px); opacity:0; }
+  15% { transform:translateY(-20px) rotate(-5deg); }
+  100%{ transform:translateY(-320px) rotate(-50deg) translateX(-40px); opacity:0; }
 }
 @keyframes machineReveal {
-  0%  { transform:scale(0.3) translateY(20px); opacity:0; }
-  60% { transform:scale(1.12) translateY(-5px); opacity:1; }
-  80% { transform:scale(0.95); }
-  100%{ transform:scale(1) translateY(0); opacity:1; }
+  0%  { transform:scale(0.2) translateY(30px) rotate(-3deg); opacity:0; }
+  50% { transform:scale(1.15) translateY(-8px) rotate(2deg); opacity:1; }
+  75% { transform:scale(0.97) rotate(-1deg); }
+  100%{ transform:scale(1) translateY(0) rotate(0deg); opacity:1; }
 }
 @keyframes sparkleOut {
-  0%  { opacity:0; transform:scale(0.5); }
-  40% { opacity:1; transform:scale(1.8); }
-  100%{ opacity:0; transform:scale(2.5); }
+  0%  { opacity:0; transform:scale(0.3); }
+  35% { opacity:1; transform:scale(2.2); }
+  100%{ opacity:0; transform:scale(3.5); }
 }
 @keyframes bodyShatter {
-  0%  { opacity:1; transform:scaleX(1); }
-  100%{ opacity:0; transform:scaleX(1.4) scaleY(0.2) translateY(30px); }
+  0%  { opacity:1; transform:scaleX(1) scaleY(1); }
+  30% { transform:scaleX(1.2) scaleY(0.8); }
+  100%{ opacity:0; transform:scaleX(1.6) scaleY(0.1) translateY(40px); }
 }
 
-#tex-gift.shimmy  { animation:shimmy 0.6s ease-in-out 2; }
-#tex-gift.shake   { animation:hardShake 0.12s linear infinite; }
+/* Phase class bindings */
+#tex-gift.shimmy  { animation:shimmy 0.7s ease-in-out 2; }
+#tex-gift.bounce  { animation:bounce 0.5s ease-in-out 3; }
+#tex-gift.bounce #gift-lid { animation:lidPeek 0.5s ease-in-out 3; }
+#tex-gift.rattle  { animation:rattle 0.1s linear infinite; }
+#tex-gift.rattle #gift-lid { animation:innerGlow 0.3s ease-in-out infinite; }
+#tex-gift.swell   { animation:swell 0.2s ease-in-out infinite; }
 
-#tex-gift.explode #gift-lid       { animation:lidExplode 0.7s ease-out forwards; }
-#tex-gift.explode #gift-box-body  { animation:bodyShatter 0.5s 0.15s ease-out forwards; }
-#tex-gift.explode #gift-machine   { animation:machineReveal 0.8s 0.3s cubic-bezier(0.2,1.4,0.4,1) forwards; }
-#tex-gift.explode #gift-sparkle   { animation:sparkleOut 0.9s 0.2s ease-out forwards; }
+#tex-gift.explode #gift-lid      { animation:lidExplode 0.8s cubic-bezier(0.3,0,0.2,1) forwards; }
+#tex-gift.explode #gift-box-body { animation:bodyShatter 0.55s 0.1s ease-out forwards; }
+#tex-gift.explode #gift-machine  { animation:machineReveal 0.9s 0.25s cubic-bezier(0.2,1.5,0.4,1) forwards; }
+#tex-gift.explode #gift-sparkle  { animation:sparkleOut 1s 0.15s ease-out forwards; }
+
+/* Flash element */
+#gift-flash {
+  position:fixed; inset:0; z-index:99998;
+  background:#fff; opacity:0; pointer-events:none;
+}
 
 /* ── Note card ── */
 #tex-note {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   pointer-events:none;
-  opacity:0; animation:noteIn 0.9s 5.8s ease forwards;
+  opacity:0; animation:noteIn 0.9s 8.2s ease forwards;
 }
 @keyframes noteIn { to { opacity:1; } }
 #tex-note-inner {
@@ -322,7 +378,7 @@
   font-size:15px; letter-spacing:3px;
   cursor:pointer; border-radius:3px;
   transition:background 0.2s,border-color 0.2s;
-  opacity:0; animation:btnIn 0.5s 7.2s ease forwards;
+  opacity:0; animation:btnIn 0.5s 9.6s ease forwards;
 }
 @keyframes btnIn { to { opacity:1; } }
 #tex-enter-btn:hover { background:#3A506B; border-color:#83BCFF; }
@@ -400,18 +456,39 @@ document.addEventListener('DOMContentLoaded', function(){
     bc.fillStyle='rgba(255,255,255,0.25)'; bc.fill();
   }
 
-  // Shimmy → shake → explode sequence
-  setTimeout(function(){
-    gift.classList.add('shimmy');
-  }, 1400);
+  var flash = document.getElementById('gift-flash');
+
+  // Phase 1 — gentle shimmy (something's in there...)
+  setTimeout(function(){ gift.classList.add('shimmy'); }, 1200);
+
+  // Phase 2 — bouncing (it really wants out)
   setTimeout(function(){
     gift.classList.remove('shimmy');
-    gift.classList.add('shake');
-  }, 2800);
+    gift.classList.add('bounce');
+  }, 2600);
+
+  // Phase 3 — violent rattle
   setTimeout(function(){
-    gift.classList.remove('shake');
-    gift.classList.add('explode');
-  }, 4400);
+    gift.classList.remove('bounce');
+    gift.classList.add('rattle');
+  }, 4200);
+
+  // Phase 4 — swelling glow (about to blow)
+  setTimeout(function(){
+    gift.classList.remove('rattle');
+    gift.classList.add('swell');
+  }, 5800);
+
+  // White flash + EXPLOSION
+  setTimeout(function(){
+    gift.classList.remove('swell');
+    if(flash){
+      flash.style.animation='flashBurst 0.5s ease-out forwards';
+    }
+    setTimeout(function(){
+      gift.classList.add('explode');
+    }, 120);
+  }, 6600);
 
   btn.addEventListener('click', function(){
     document.getElementById('tex-note').style.opacity='0';
