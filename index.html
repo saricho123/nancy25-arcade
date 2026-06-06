@@ -243,36 +243,44 @@
       // Soft ambient light for the banner area
       {const _bl=new THREE.PointLight(0x93E5AB,3,12); _bl.position.set(0,RH-0.2,BZ+1); scene.add(_bl);}
 
-      // ── QUARTER CENTURY ARCADE sign (above, arcade style) ──
+      // ── QUARTER CENTURY ARCADE sign (back wall) ──
       (function(){
         const C2=document.createElement('canvas'); C2.width=1024; C2.height=160;
         const cx2=C2.getContext('2d');
-        // Background with gradient
-        const bgG=cx2.createLinearGradient(0,0,0,160);
-        bgG.addColorStop(0,'#0a0020'); bgG.addColorStop(1,'#04000e');
-        cx2.fillStyle=bgG; cx2.fillRect(0,0,1024,160);
-        // Rainbow border
-        const brd=cx2.createLinearGradient(0,0,1024,0);
-        ['#ff3366','#ff8800','#ffee00','#44ff88','#00ccff','#cc44ff','#ff3366'].forEach((c,i)=>brd.addColorStop(i/6,c));
-        cx2.strokeStyle=brd; cx2.lineWidth=5; cx2.strokeRect(4,4,1016,152);
-        cx2.strokeStyle='rgba(255,255,255,0.08)'; cx2.lineWidth=12; cx2.strokeRect(4,4,1016,152);
-        // Corner emojis
-        ['🎉','🎂','🎊','⭐'].forEach((e,i)=>{
-          cx2.font='28px serif'; cx2.textAlign='center'; cx2.textBaseline='middle';
-          cx2.fillText(e,[48,976,48,976][i],[34,34,126,126][i]);
+        // Deep black background
+        cx2.fillStyle='#050008'; cx2.fillRect(0,0,1024,160);
+        // Scanline texture
+        for(let y=0;y<160;y+=3){
+          cx2.fillStyle='rgba(0,0,0,0.18)'; cx2.fillRect(0,y,1024,1);
+        }
+        // Sharp neon border — double rule
+        cx2.strokeStyle='#cc00ff'; cx2.lineWidth=4; cx2.strokeRect(3,3,1018,154);
+        cx2.strokeStyle='#6600aa'; cx2.lineWidth=1; cx2.strokeRect(8,8,1008,144);
+        // Corner brackets
+        [
+          [3,3,40,0],[984,3,40,0],  // top-left, top-right
+          [3,157,-40,0],[984,157,-40,0]  // bottom-left, bottom-right
+        ].forEach(([x,y,dx])=>{
+          cx2.strokeStyle='#ff00cc'; cx2.lineWidth=3;
+          cx2.beginPath(); cx2.moveTo(x+dx,y); cx2.lineTo(x,y); cx2.lineTo(x,y+(y<80?30:-30)); cx2.stroke();
         });
-        // Main text — Bungee with rainbow gradient
-        const tg=cx2.createLinearGradient(80,0,944,0);
-        tg.addColorStop(0,'#ff4488'); tg.addColorStop(0.2,'#ffcc00'); tg.addColorStop(0.4,'#44ff88');
-        tg.addColorStop(0.6,'#44aaff'); tg.addColorStop(0.8,'#cc44ff'); tg.addColorStop(1,'#ff4488');
-        cx2.shadowColor='rgba(200,100,255,0.7)'; cx2.shadowBlur=22;
-        cx2.fillStyle=tg; cx2.font='bold 44px "Bungee","Impact",Arial,sans-serif';
+        // Main title — two lines, stacked for impact
+        cx2.shadowColor='#cc00ff'; cx2.shadowBlur=28;
+        cx2.fillStyle='#ffffff';
+        cx2.font='bold 56px "Impact","Arial Black",Arial,sans-serif';
         cx2.textAlign='center'; cx2.textBaseline='middle';
-        cx2.fillText('QUARTER CENTURY ARCADE',512,65);
+        cx2.letterSpacing='8px';
+        cx2.fillText('QUARTER  CENTURY  ARCADE', 512, 58);
+        // Shadow pass for depth
         cx2.shadowBlur=0;
-        // Sub-text — fun & bright
-        cx2.fillStyle='#ffee88'; cx2.font='bold 15px "Bungee","Impact",Arial,sans-serif';
-        cx2.fillText('🎈  NANKY\'S 25TH  ·  EST. 2001  ·  25¢ PER PLAY  🎈',512,118);
+        cx2.fillStyle='rgba(180,0,255,0.35)';
+        cx2.fillText('QUARTER  CENTURY  ARCADE', 514, 60);
+        // Subtext — tight monospace
+        cx2.fillStyle='#aa44ff';
+        cx2.shadowColor='#8800cc'; cx2.shadowBlur=10;
+        cx2.font='bold 16px "Courier New",monospace';
+        cx2.fillText("NANKY'S  25TH  //  EST. 2001  //  25c PER PLAY", 512, 118);
+        cx2.shadowBlur=0;
         const tex2=new THREE.CanvasTexture(C2); tex2.needsUpdate=true;
         const sign=new THREE.Mesh(new THREE.PlaneGeometry(15,2.2),new THREE.MeshBasicMaterial({map:tex2}));
         sign.position.set(0,6.5,-RD/2+0.2); scene.add(sign);
