@@ -905,73 +905,42 @@
         _dormScr.src='game3/assets/dorm.png';
 
       } else if (idx === 3) {
-        // Flute Face-Off — dark bg with a clear silver flute illustration
-        const fluteGrad=cx.createLinearGradient(0,0,256,200);
-        fluteGrad.addColorStop(0,'#0a0a1a'); fluteGrad.addColorStop(1,'#0d1a0d');
-        cx.fillStyle=fluteGrad; cx.fillRect(0,0,256,200);
-        // floating music notes background
-        cx.font='22px serif'; cx.textAlign='center';
-        [['♩',38,60,0.18],['♪',200,80,0.22],['♫',60,160,0.20],['♬',190,150,0.25],['♪',128,55,0.15]].forEach(([n,x,y,a])=>{
-          cx.globalAlpha=a; cx.fillStyle='#88ffcc'; cx.fillText(n,x,y);
-        });
+        // Flute Face-Off — dark bg + clear silver flute
+        cx.fillStyle='#080818'; cx.fillRect(0,0,256,200);
+        // music notes
+        cx.globalAlpha=0.2; cx.fillStyle='#88ffcc'; cx.font='20px serif'; cx.textAlign='left';
+        cx.fillText('♩',20,55); cx.fillText('♪',190,75); cx.fillText('♫',50,165); cx.fillText('♬',185,155);
         cx.globalAlpha=1;
-        // Draw flute diagonally across screen
-        cx.save();
-        cx.translate(128,110); cx.rotate(-0.22);
-        // Main tube body — silver gradient
-        const tubeG=cx.createLinearGradient(0,-9,0,9);
-        tubeG.addColorStop(0,'#f0f0f0'); tubeG.addColorStop(0.3,'#d0d0d8');
-        tubeG.addColorStop(0.55,'#a8a8b8'); tubeG.addColorStop(0.8,'#e0e0e8');
-        tubeG.addColorStop(1,'#b0b0be');
-        // tube body — pill shape using rect + semicircle caps
-        cx.fillStyle=tubeG;
-        cx.beginPath(); cx.rect(-110,-8,220,16); cx.fill();
-        cx.beginPath(); cx.arc(-110,0,8,Math.PI*0.5,Math.PI*1.5); cx.fill();
-        cx.beginPath(); cx.arc(110,0,8,Math.PI*1.5,Math.PI*0.5); cx.fill();
-        // Tube highlight stripe
-        cx.fillStyle='rgba(255,255,255,0.55)';
-        cx.fillRect(-108,-6,216,4);
-        // Head joint (left end) — slightly wider pill
-        const headG=cx.createLinearGradient(0,-11,0,11);
-        headG.addColorStop(0,'#e8e8e8'); headG.addColorStop(0.5,'#b0b0c0'); headG.addColorStop(1,'#d8d8e8');
-        cx.fillStyle=headG;
-        cx.beginPath(); cx.rect(-118,-10,22,20); cx.fill();
-        cx.beginPath(); cx.arc(-118,0,10,Math.PI*0.5,Math.PI*1.5); cx.fill();
-        cx.beginPath(); cx.arc(-96,0,10,Math.PI*1.5,Math.PI*0.5); cx.fill();
-        cx.strokeStyle='#888898'; cx.lineWidth=1;
-        cx.beginPath(); cx.arc(-118,0,10,Math.PI*0.5,Math.PI*1.5); cx.stroke();
-        // Embouchure hole (the oval you blow into)
-        cx.fillStyle='#1a1a2a';
-        cx.beginPath(); cx.ellipse(-104,0,6,4,0,0,Math.PI*2); cx.fill();
-        cx.strokeStyle='#aaa'; cx.lineWidth=0.8; cx.stroke();
-        // Tone holes — 6 main keys
-        const holeXs=[-60,-38,-18,10,36,58];
-        holeXs.forEach(hx=>{
-          // Key pad cup
-          const padG=cx.createRadialGradient(hx-1,-1,1,hx,0,8);
-          padG.addColorStop(0,'#d8d8e8'); padG.addColorStop(1,'#888898');
-          cx.beginPath(); cx.arc(hx,0,8,0,Math.PI*2); cx.fillStyle=padG; cx.fill();
-          cx.strokeStyle='#666676'; cx.lineWidth=0.8; cx.stroke();
-          // Tone hole opening
-          cx.beginPath(); cx.arc(hx,0,4,0,Math.PI*2); cx.fillStyle='#1a1a2a'; cx.fill();
-        });
-        // Foot joint (right end) — extra keys
-        cx.fillStyle=tubeG;
-        cx.beginPath(); cx.rect(96,-9,22,18); cx.fill();
-        cx.beginPath(); cx.arc(118,0,9,Math.PI*1.5,Math.PI*0.5); cx.fill();
-        cx.strokeStyle='#888898'; cx.lineWidth=1;
-        cx.beginPath(); cx.arc(118,0,9,Math.PI*1.5,Math.PI*0.5); cx.stroke();
-        [104,112].forEach(fx=>{
-          const padG2=cx.createRadialGradient(fx-1,-1,1,fx,0,6);
-          padG2.addColorStop(0,'#d8d8e8'); padG2.addColorStop(1,'#888898');
-          cx.beginPath(); cx.arc(fx,0,6,0,Math.PI*2); cx.fillStyle=padG2; cx.fill();
-          cx.strokeStyle='#666676'; cx.lineWidth=0.7; cx.stroke();
-          cx.beginPath(); cx.arc(fx,0,3,0,Math.PI*2); cx.fillStyle='#1a1a2a'; cx.fill();
-        });
+        // draw flute: rotated pill body
+        cx.save(); cx.translate(128,112); cx.rotate(-0.18);
+        // body
+        cx.fillStyle='#d8d8e0'; cx.fillRect(-108,-7,216,14);
+        cx.beginPath(); cx.arc(-108,0,7,0,Math.PI*2); cx.fill();
+        cx.beginPath(); cx.arc(108,0,7,0,Math.PI*2); cx.fill();
+        // highlight
+        cx.fillStyle='rgba(255,255,255,0.6)'; cx.fillRect(-106,-5,212,4);
+        // shadow
+        cx.fillStyle='rgba(0,0,0,0.25)'; cx.fillRect(-106,4,212,3);
+        // head joint (left, wider)
+        cx.fillStyle='#c0c0cc'; cx.fillRect(-118,-9,20,18);
+        cx.beginPath(); cx.arc(-118,0,9,0,Math.PI*2); cx.fill();
+        // embouchure hole
+        cx.fillStyle='#111'; cx.beginPath(); cx.ellipse(-106,0,5,3,0,0,Math.PI*2); cx.fill();
+        // 6 key pads
+        var kx=[-65,-45,-25,5,30,55];
+        for(var ki=0;ki<kx.length;ki++){
+          cx.fillStyle='#aaaabc'; cx.beginPath(); cx.arc(kx[ki],-8,5,0,Math.PI*2); cx.fill();
+          cx.fillStyle='#111';    cx.beginPath(); cx.arc(kx[ki],-8,2.5,0,Math.PI*2); cx.fill();
+        }
+        // foot joint
+        cx.fillStyle='#b8b8c8'; cx.fillRect(100,-9,20,18);
+        cx.beginPath(); cx.arc(120,0,9,0,Math.PI*2); cx.fill();
+        cx.fillStyle='#aaaabc'; cx.beginPath(); cx.arc(107,-8,4,0,Math.PI*2); cx.fill();
+        cx.fillStyle='#111';    cx.beginPath(); cx.arc(107,-8,2,0,Math.PI*2); cx.fill();
         cx.restore();
-        // Label
-        cx.fillStyle='rgba(0,0,0,.55)'; cx.fillRect(0,0,256,34);
-        cx.fillStyle='#00ff88'; cx.font='bold 12px monospace'; cx.textAlign='center';
+        // label
+        cx.fillStyle='rgba(0,0,0,0.5)'; cx.fillRect(0,0,256,32);
+        cx.fillStyle='#00ff88'; cx.font='bold 11px monospace'; cx.textAlign='center';
         cx.fillText('FLUTE FACE-OFF',128,22);
 
       } else {
