@@ -37,9 +37,26 @@
   <!-- Gift on doorstep -->
   <div id="tex-step">
     <div id="tex-gift">
-      <img id="tex-present-img" src="present.jpg" alt="Gift">
-      <div id="tex-machine-img">
+      <!-- Lid with bow (flies off on explode) -->
+      <div id="gift-lid">
+        <div class="lid-rib-h"></div>
+        <div class="lid-rib-v"></div>
+        <div id="gift-bow">
+          <div class="loop l1"></div><div class="loop l2"></div>
+          <div class="loop l3"></div><div class="loop l4"></div>
+          <div class="bow-tail t1"></div><div class="bow-tail t2"></div>
+          <div class="bow-knot"></div>
+        </div>
+      </div>
+      <!-- Box body -->
+      <div id="gift-box-body">
+        <div class="body-rib-h"></div>
+        <div class="body-rib-v"></div>
+      </div>
+      <!-- Machine reveal (hidden until explode) -->
+      <div id="gift-machine">
         <img src="singa.png" alt="Sewing Machine">
+        <div id="gift-sparkle"></div>
       </div>
     </div>
   </div>
@@ -161,34 +178,137 @@
 
 #tex-gift { position:relative; margin-bottom:0; }
 
+/* ── Gift box ── */
 #tex-gift {
-  position:relative; width:220px; height:220px;
+  position:relative; width:200px; display:flex; flex-direction:column; align-items:center;
 }
-#tex-present-img {
-  width:100%; height:100%; object-fit:contain;
-  filter:drop-shadow(0 10px 30px rgba(0,0,0,0.7));
-  transition:opacity 0.6s ease, transform 0.6s ease;
+
+/* Lid */
+#gift-lid {
+  width:210px; height:55px;
+  background:linear-gradient(160deg,#f5f0e8,#ede8d8);
+  border:2px solid #c8bfa8;
+  border-radius:4px 4px 0 0;
+  position:relative; z-index:3;
+  box-shadow:0 -4px 16px rgba(0,0,0,0.3);
+  transform-origin:top center;
 }
-#tex-present-img.open {
-  opacity:0; transform:scale(1.15) translateY(-15px);
+.lid-rib-h,.lid-rib-v { position:absolute; background:#7a9a6a; }
+.lid-rib-h { height:12px; width:100%; top:50%; transform:translateY(-50%); }
+.lid-rib-v { width:12px; height:100%; left:50%; transform:translateX(-50%); }
+
+/* Bow */
+#gift-bow { position:absolute; top:-42px; left:50%; transform:translateX(-50%); width:100px; height:48px; }
+.loop {
+  position:absolute;
+  width:38px; height:30px;
+  background:#7a9a6a;
+  border-radius:50%;
+  border:2px solid #5a7a4a;
+  opacity:0.92;
 }
-#tex-machine-img {
-  position:absolute; inset:0;
-  opacity:0; transition:opacity 0.8s ease;
+.l1 { top:0; left:5px;  transform:rotate(-30deg); }
+.l2 { top:0; right:5px; transform:rotate(30deg); }
+.l3 { top:8px; left:0;  transform:rotate(-55deg) scaleX(0.75); opacity:0.7; }
+.l4 { top:8px; right:0; transform:rotate(55deg)  scaleX(0.75); opacity:0.7; }
+.bow-tail {
+  position:absolute; bottom:-10px;
+  width:14px; height:22px;
+  background:#7a9a6a;
+  border-radius:0 0 6px 6px;
+  border:1px solid #5a7a4a;
+}
+.bow-tail.t1 { left:30px; transform:rotate(-15deg); }
+.bow-tail.t2 { right:30px; transform:rotate(15deg); }
+.bow-knot {
+  position:absolute; width:16px; height:16px;
+  background:#5a7a4a; border-radius:50%;
+  top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:4; border:2px solid #3a5a2a;
+  box-shadow:0 0 8px rgba(90,122,74,0.6);
+}
+
+/* Body */
+#gift-box-body {
+  width:200px; height:150px;
+  background:linear-gradient(160deg,#f5f0e8,#e8e2d0);
+  border:2px solid #c8bfa8;
+  border-top:none;
+  border-radius:0 0 6px 6px;
+  position:relative; z-index:2;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+.body-rib-h,.body-rib-v { position:absolute; background:#7a9a6a; }
+.body-rib-h { height:12px; width:100%; top:38%; }
+.body-rib-v { width:12px; height:100%; left:50%; transform:translateX(-50%); }
+
+/* Machine (hidden until explode) */
+#gift-machine {
+  position:absolute; top:55px; left:0; right:0; bottom:0;
   display:flex; align-items:center; justify-content:center;
+  opacity:0; z-index:10; pointer-events:none;
 }
-#tex-machine-img.visible { opacity:1; }
-#tex-machine-img img {
-  width:100%; height:100%; object-fit:contain;
-  filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6));
+#gift-machine img { width:180px; height:auto; object-fit:contain; filter:drop-shadow(0 0 20px rgba(131,188,255,0.8)); }
+#gift-sparkle {
+  position:absolute; inset:-40px; pointer-events:none;
+  background:radial-gradient(circle, rgba(131,188,255,0.4) 0%, transparent 70%);
+  opacity:0;
 }
+
+/* ── Shimmy → Shake → Explode keyframes ── */
+@keyframes shimmy {
+  0%,100%{ transform:rotate(0deg); }
+  20%{ transform:rotate(-3deg); }
+  40%{ transform:rotate(3deg); }
+  60%{ transform:rotate(-2deg); }
+  80%{ transform:rotate(2deg); }
+}
+@keyframes hardShake {
+  0%,100%{ transform:translate(0,0) rotate(0deg); }
+  10%{ transform:translate(-5px,0) rotate(-5deg); }
+  20%{ transform:translate(5px,-2px) rotate(5deg); }
+  30%{ transform:translate(-8px,0) rotate(-7deg); }
+  40%{ transform:translate(8px,-2px) rotate(7deg); }
+  50%{ transform:translate(-10px,-3px) rotate(-8deg); }
+  60%{ transform:translate(10px,0) rotate(8deg); }
+  70%{ transform:translate(-7px,0) rotate(-5deg); }
+  80%{ transform:translate(7px,-2px) rotate(5deg); }
+  90%{ transform:translate(-4px,0) rotate(-3deg); }
+}
+@keyframes lidExplode {
+  0%  { transform:translateY(0) rotate(0deg); opacity:1; }
+  100%{ transform:translateY(-280px) rotate(-45deg) translateX(-30px); opacity:0; }
+}
+@keyframes machineReveal {
+  0%  { transform:scale(0.3) translateY(20px); opacity:0; }
+  60% { transform:scale(1.12) translateY(-5px); opacity:1; }
+  80% { transform:scale(0.95); }
+  100%{ transform:scale(1) translateY(0); opacity:1; }
+}
+@keyframes sparkleOut {
+  0%  { opacity:0; transform:scale(0.5); }
+  40% { opacity:1; transform:scale(1.8); }
+  100%{ opacity:0; transform:scale(2.5); }
+}
+@keyframes bodyShatter {
+  0%  { opacity:1; transform:scaleX(1); }
+  100%{ opacity:0; transform:scaleX(1.4) scaleY(0.2) translateY(30px); }
+}
+
+#tex-gift.shimmy  { animation:shimmy 0.6s ease-in-out 2; }
+#tex-gift.shake   { animation:hardShake 0.12s linear infinite; }
+
+#tex-gift.explode #gift-lid       { animation:lidExplode 0.7s ease-out forwards; }
+#tex-gift.explode #gift-box-body  { animation:bodyShatter 0.5s 0.15s ease-out forwards; }
+#tex-gift.explode #gift-machine   { animation:machineReveal 0.8s 0.3s cubic-bezier(0.2,1.4,0.4,1) forwards; }
+#tex-gift.explode #gift-sparkle   { animation:sparkleOut 0.9s 0.2s ease-out forwards; }
 
 /* ── Note card ── */
 #tex-note {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   pointer-events:none;
-  opacity:0; animation:noteIn 0.9s 4.4s ease forwards;
+  opacity:0; animation:noteIn 0.9s 5.8s ease forwards;
 }
 @keyframes noteIn { to { opacity:1; } }
 #tex-note-inner {
@@ -219,7 +339,7 @@
   font-size:15px; letter-spacing:3px;
   cursor:pointer; border-radius:3px;
   transition:background 0.2s,border-color 0.2s;
-  opacity:0; animation:btnIn 0.5s 5.8s ease forwards;
+  opacity:0; animation:btnIn 0.5s 7.2s ease forwards;
 }
 @keyframes btnIn { to { opacity:1; } }
 #tex-enter-btn:hover { background:#3A506B; border-color:#83BCFF; }
@@ -230,17 +350,21 @@ document.addEventListener('DOMContentLoaded', function(){
   var btn    = document.getElementById('tex-enter-btn');
   var door   = document.getElementById('tex-door');
   var overlay= document.getElementById('teaser-overlay');
-  var presentImg = document.getElementById('tex-present-img');
-  var machineDiv = document.getElementById('tex-machine-img');
+  var gift = document.getElementById('tex-gift');
   if(!btn) return;
 
-  // Auto-open gift after 2.4s
+  // Shimmy → shake → explode sequence
   setTimeout(function(){
-    if(presentImg) presentImg.classList.add('open');
-    setTimeout(function(){
-      if(machineDiv) machineDiv.classList.add('visible');
-    }, 600);
-  }, 2400);
+    gift.classList.add('shimmy');
+  }, 1400);
+  setTimeout(function(){
+    gift.classList.remove('shimmy');
+    gift.classList.add('shake');
+  }, 2800);
+  setTimeout(function(){
+    gift.classList.remove('shake');
+    gift.classList.add('explode');
+  }, 4400);
 
   btn.addEventListener('click', function(){
     document.getElementById('tex-note').style.opacity='0';
