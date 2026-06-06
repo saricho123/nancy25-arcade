@@ -134,7 +134,12 @@ function preloadImages() {
 // GAME FLOW
 // ─────────────────────────────────────────────────────────────────────────────
 function startGame() {
-  state.remaining = PHOTOS.map((_, i) => i)   // all photos available to browse
+  // Shuffle carousel so it's not in answer order
+  state.remaining = PHOTOS.map((_, i) => i)
+  for (let i = state.remaining.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.remaining[i], state.remaining[j]] = [state.remaining[j], state.remaining[i]];
+  }
   state.browseIdx = 0
   state.placed    = Array(RUNG_COUNT).fill(null)
   state.streak    = 0
@@ -151,8 +156,12 @@ function startGame() {
 }
 
 function resetRound() {
-  // Wrong answer — restore all photos and start over
+  // Wrong answer — restore all photos shuffled
   state.remaining = PHOTOS.map((_, i) => i)
+  for (let i = state.remaining.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [state.remaining[i], state.remaining[j]] = [state.remaining[j], state.remaining[i]];
+  }
   state.browseIdx = 0
   state.placed    = Array(RUNG_COUNT).fill(null)
   state.streak    = 0
