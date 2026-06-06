@@ -966,9 +966,17 @@
 
       const scrTex = makeScreenTexture(idx);
       scrTex.needsUpdate = true;
-      const scrMesh=new THREE.Mesh(new THREE.PlaneGeometry(W*0.76,H*0.34),
-        new THREE.MeshBasicMaterial({map:scrTex, side:THREE.FrontSide}));
-      scrMesh.position.set(0,H*0.10,D/2+0.06); g.add(scrMesh); // in front of bezel
+      const scrMat=new THREE.MeshBasicMaterial({map:scrTex, side:THREE.FrontSide});
+      const scrMesh=new THREE.Mesh(new THREE.PlaneGeometry(W*0.76,H*0.34),scrMat);
+      scrMesh.position.set(0,H*0.10,D/2+0.06); g.add(scrMesh);
+      // For photo-based screens load directly via TextureLoader (reliable)
+      const _photoMap={1:'game2/koreanair.png',2:'game3/assets/dorm.png',
+                       3:'game4/flute.png',4:'game5/shoe_rack_cover.png'};
+      if(_photoMap[idx]){
+        new THREE.TextureLoader().load(_photoMap[idx],function(t){
+          scrMat.map=t; scrMat.needsUpdate=true;
+        });
+      }
       const sl=new THREE.PointLight(screen,2.2,5);
       sl.position.set(0,H*0.10,D/2+0.6); g.add(sl);
 
