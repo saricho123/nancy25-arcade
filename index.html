@@ -75,7 +75,7 @@
     // Preload cabinet photo textures — applied to screen meshes as they load
     const _tl = new THREE.TextureLoader();
     const _cabinetPhotos = {};
-    [{idx:1,src:'game2/koreanair.png'},{idx:2,src:'game3/assets/dorm.png'},
+    [{idx:1,src:'game2/koreanair.jpg'},{idx:2,src:'game3/assets/dorm.png'},
      {idx:3,src:'game4/flute.png'},{idx:4,src:'game5/shoe_rack_cover.png'}
     ].forEach(function(p){
       _tl.load(p.src, function(t){ _cabinetPhotos[p.idx]=t; });
@@ -981,8 +981,10 @@
       // Apply preloaded photo texture once ready
       if([1,2,3,4].indexOf(idx)>=0){
         (function waitForPhoto(){
-          if(_cabinetPhotos[idx]){ scrMat.map=_cabinetPhotos[idx]; scrMat.needsUpdate=true; }
-          else { setTimeout(waitForPhoto,100); }
+          if(_cabinetPhotos[idx]){
+            // Replace entire material to guarantee Three.js picks up the new texture
+            scrMesh.material=new THREE.MeshBasicMaterial({map:_cabinetPhotos[idx],side:THREE.FrontSide});
+          } else { setTimeout(waitForPhoto,50); }
         })();
       }
       const sl=new THREE.PointLight(screen,2.2,5);
