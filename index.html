@@ -889,35 +889,20 @@
         cx.fillText('FEAR OF FLYING',128,22);
 
       } else if (idx === 2) {
-        // Wheeler Climb — night brick building + fire escape
-        cx.fillStyle='#020810'; cx.fillRect(0,0,256,200);
-        // stars
-        [[20,18],[80,10],[150,25],[200,15],[230,40],[50,40],[120,8]].forEach(([x,y])=>{
-          cx.fillStyle='rgba(255,255,220,0.7)'; cx.fillRect(x,y,2,2);
-        });
-        // building
-        const brickPal=['#9a3c28','#8b3320','#a04030'];
-        for(let r=0;r<8;r++){
-          for(let c=0;c<7;c++){
-            cx.fillStyle=brickPal[(r*3+c)%3];
-            const bx=20+(c*(30+(r%2?0:15)))+((r%2)*15);
-            const by=70+r*16;
-            if(bx<236) cx.fillRect(bx,by,28,13);
-          }
-        }
-        // windows
-        [[50,80],[100,80],[150,80],[50,110],[100,110],[150,110]].forEach(([x,y])=>{
-          cx.fillStyle='rgba(255,220,100,0.7)'; cx.fillRect(x,y,22,18);
-          cx.strokeStyle='#c8b090'; cx.lineWidth=1; cx.strokeRect(x,y,22,18);
-        });
-        // fire escape
-        cx.strokeStyle='#1a1a1a'; cx.lineWidth=3;
-        cx.beginPath(); cx.moveTo(185,70); cx.lineTo(185,200); cx.stroke();
-        cx.beginPath(); cx.moveTo(200,70); cx.lineTo(200,200); cx.stroke();
-        for(let i=0;i<8;i++){ cx.beginPath(); cx.moveTo(185,78+i*16); cx.lineTo(200,78+i*16); cx.stroke(); }
-        cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,256,32);
+        // Wheeler Climb — actual dorm photo as background
+        cx.fillStyle='#8b6a55'; cx.fillRect(0,0,256,200);
         cx.fillStyle='#f4d03f'; cx.font='bold 11px monospace'; cx.textAlign='center';
-        cx.fillText('CLIMBING UP WHEELER',128,22);
+        cx.fillText('CLIMBING UP WHEELER',128,12);
+        // Load real dorm photo and update texture when ready
+        const _dormScr=new Image();
+        _dormScr.onload=function(){
+          cx.drawImage(_dormScr,0,0,256,200);
+          cx.fillStyle='rgba(0,0,0,0.45)'; cx.fillRect(0,0,256,32);
+          cx.fillStyle='#f4d03f'; cx.font='bold 11px monospace'; cx.textAlign='center';
+          cx.fillText('CLIMBING UP WHEELER',128,22);
+          if(_wheelerTex) _wheelerTex.needsUpdate=true;
+        };
+        _dormScr.src='game3/assets/dorm.png';
 
       } else if (idx === 3) {
         // Flute Face-Off — whack-a-mole holes on dark background
@@ -982,8 +967,11 @@
         cx.fillText('SHOE SHUFFLE',128,22);
       }
 
-      return new THREE.CanvasTexture(C);
+      const tex = new THREE.CanvasTexture(C);
+      if (idx === 2) _wheelerTex = tex;
+      return tex;
     }
+    let _wheelerTex = null;
 
     /* ════════════════════════════════════════════════════
        5 GAME MACHINES — position + game data bundled together
