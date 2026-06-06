@@ -3,21 +3,19 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const CW = 480, CH = 460;
+const CW = 560, CH = 560;
 const DPR = window.devicePixelRatio || 1;
-// Match canvas physical pixels to CSS display size so no upscaling occurs
-const CSS_W = 560, CSS_H = 560;
-canvas.width  = CSS_W * DPR;
-canvas.height = CSS_H * DPR;
-ctx.scale(CSS_W * DPR / CW, CSS_H * DPR / CH);
+canvas.width  = CW * DPR;
+canvas.height = CH * DPR;
+ctx.scale(DPR, DPR);
 ctx.imageSmoothingEnabled = true;
 ctx.imageSmoothingQuality = 'high';
 
 // Rack layout: 3 rows × 4 cols
 const COLS = 4, ROWS = 3;
-const SLOT_W = 100, SLOT_H = 90;
-const RACK_X = 28;   // centered: (480 - 4*100 - 3*8 - 2*10) / 2 + 10
-const RACK_Y = 35;
+const SLOT_W = 120, SLOT_H = 110;
+const RACK_X = 22;
+const RACK_Y = 40;
 const GAP_X = 8, GAP_Y = 10;
 const TOTAL_SLOTS = COLS * ROWS;
 
