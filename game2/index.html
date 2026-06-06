@@ -10,6 +10,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<audio id="game-bgm" src="turbulence.m4a" loop preload="auto"></audio>
+<script>
+  (function(){
+    const bgm = document.getElementById('game-bgm');
+    bgm.volume = 0.55;
+    const tryPlay = () => bgm.play().catch(()=>{});
+    tryPlay();
+    const onGesture = () => { tryPlay(); document.removeEventListener('pointerdown', onGesture); document.removeEventListener('keydown', onGesture); };
+    document.addEventListener('pointerdown', onGesture);
+    document.addEventListener('keydown', onGesture);
+  })();
+</script>
 
 <div id="scene">
   <div id="cab-lid"><div id="lid-shine"></div></div>
