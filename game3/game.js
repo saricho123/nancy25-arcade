@@ -223,6 +223,8 @@ function onPointerDown(e) {
     state.flashTimer = 60
     state.shakeTimer = 40
     state.phase      = 'wrong'
+    const sfx = document.getElementById('shart-sfx')
+    if (sfx) { sfx.currentTime = 0; sfx.play().catch(()=>{}) }
     setTimeout(resetRound, 1100)
   }
 
