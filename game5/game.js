@@ -438,7 +438,11 @@ function loadImages() {
         drawBg();
         drawRack(state.target);
         drawScreen();
-        if (window.self !== window.top) startGame();
+        if (window.self !== window.top) {
+          const btn = document.getElementById('play-btn');
+          if (btn) btn.style.display = 'none';
+          setTimeout(() => { if (btn) btn.style.display = ''; }, 5000);
+        }
       }
     };
     img.onerror = () => { imgsLoaded++; };

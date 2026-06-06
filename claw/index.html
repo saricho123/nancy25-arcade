@@ -438,7 +438,11 @@ function loop() {
 document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('retry-btn').addEventListener('click', startGame);
 
-if (window.self !== window.top) startGame();
+if (window.self !== window.top) {
+  const btn = document.getElementById('start-btn');
+  if (btn) btn.style.display = 'none';
+  setTimeout(() => { if (btn) btn.style.display = ''; }, 5000);
+}
 loop();
 </script>
 </body>
