@@ -336,5 +336,6 @@ window.addEventListener('load',async()=>{
   document.getElementById('menu-btn').addEventListener('click',resetGame);
   document.getElementById('back-btn').addEventListener('click',()=>window.location.href='../index.html');
   document.getElementById('back-btn2').addEventListener('click',()=>window.location.href='../index.html');
+  if (window.self !== window.top) startGame();
 });
 })();

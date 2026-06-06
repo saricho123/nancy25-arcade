@@ -389,4 +389,4 @@ function drawSheep(cx, cy, r, dir, wobble, hatColor) {
   ctx.restore()
 }
 
-window.addEventListener('DOMContentLoaded', init)
+window.addEventListener('DOMContentLoaded', () => { init(); if (window.self !== window.top) startGame(); })

@@ -679,4 +679,4 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath()
 }
 
-window.addEventListener('DOMContentLoaded', init)
+window.addEventListener('DOMContentLoaded', () => { init(); if (window.self !== window.top) startGame(); })

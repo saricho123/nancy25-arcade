@@ -435,10 +435,10 @@ function loadImages() {
       imgsLoaded++;
       if (imgsLoaded === SHOE_SRCS.length) {
         state.phase = 'start';
-        // Draw idle preview of the rack on canvas behind overlay
         drawBg();
         drawRack(state.target);
         drawScreen();
+        if (window.self !== window.top) startGame();
       }
     };
     img.onerror = () => { imgsLoaded++; };
