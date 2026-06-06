@@ -923,17 +923,23 @@
         tubeG.addColorStop(0,'#f0f0f0'); tubeG.addColorStop(0.3,'#d0d0d8');
         tubeG.addColorStop(0.55,'#a8a8b8'); tubeG.addColorStop(0.8,'#e0e0e8');
         tubeG.addColorStop(1,'#b0b0be');
+        // tube body — pill shape using rect + semicircle caps
         cx.fillStyle=tubeG;
-        cx.beginPath(); cx.roundRect(-110,-8,220,16,8); cx.fill();
+        cx.beginPath(); cx.rect(-110,-8,220,16); cx.fill();
+        cx.beginPath(); cx.arc(-110,0,8,Math.PI*0.5,Math.PI*1.5); cx.fill();
+        cx.beginPath(); cx.arc(110,0,8,Math.PI*1.5,Math.PI*0.5); cx.fill();
         // Tube highlight stripe
         cx.fillStyle='rgba(255,255,255,0.55)';
-        cx.beginPath(); cx.roundRect(-108,-6,216,4,3); cx.fill();
-        // Head joint (left end) — slightly wider
+        cx.fillRect(-108,-6,216,4);
+        // Head joint (left end) — slightly wider pill
         const headG=cx.createLinearGradient(0,-11,0,11);
         headG.addColorStop(0,'#e8e8e8'); headG.addColorStop(0.5,'#b0b0c0'); headG.addColorStop(1,'#d8d8e8');
         cx.fillStyle=headG;
-        cx.beginPath(); cx.roundRect(-118,-10,22,20,10); cx.fill();
-        cx.strokeStyle='#888898'; cx.lineWidth=1; cx.stroke();
+        cx.beginPath(); cx.rect(-118,-10,22,20); cx.fill();
+        cx.beginPath(); cx.arc(-118,0,10,Math.PI*0.5,Math.PI*1.5); cx.fill();
+        cx.beginPath(); cx.arc(-96,0,10,Math.PI*1.5,Math.PI*0.5); cx.fill();
+        cx.strokeStyle='#888898'; cx.lineWidth=1;
+        cx.beginPath(); cx.arc(-118,0,10,Math.PI*0.5,Math.PI*1.5); cx.stroke();
         // Embouchure hole (the oval you blow into)
         cx.fillStyle='#1a1a2a';
         cx.beginPath(); cx.ellipse(-104,0,6,4,0,0,Math.PI*2); cx.fill();
@@ -951,8 +957,10 @@
         });
         // Foot joint (right end) — extra keys
         cx.fillStyle=tubeG;
-        cx.beginPath(); cx.roundRect(96,-9,22,18,9); cx.fill();
-        cx.strokeStyle='#888898'; cx.lineWidth=1; cx.stroke();
+        cx.beginPath(); cx.rect(96,-9,22,18); cx.fill();
+        cx.beginPath(); cx.arc(118,0,9,Math.PI*1.5,Math.PI*0.5); cx.fill();
+        cx.strokeStyle='#888898'; cx.lineWidth=1;
+        cx.beginPath(); cx.arc(118,0,9,Math.PI*1.5,Math.PI*0.5); cx.stroke();
         [104,112].forEach(fx=>{
           const padG2=cx.createRadialGradient(fx-1,-1,1,fx,0,6);
           padG2.addColorStop(0,'#d8d8e8'); padG2.addColorStop(1,'#888898');
