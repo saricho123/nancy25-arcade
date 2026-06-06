@@ -14,222 +14,274 @@
 
 <!-- ══ BIRTHDAY TEASER OVERLAY ══ -->
 <div id="teaser-overlay">
-  <div id="teaser-scene">
 
-    <!-- Door -->
-    <div id="door-frame">
-      <div id="door">
-        <div class="door-panel top-left"></div>
-        <div class="door-panel top-right"></div>
-        <div class="door-panel bottom-left"></div>
-        <div class="door-panel bottom-right"></div>
-        <div id="door-knob"></div>
-        <div id="door-peephole"></div>
+  <!-- Exterior background (dark night) -->
+  <div id="tex-bg"></div>
+
+  <!-- Giant door + frame -->
+  <div id="tex-doorwrap">
+    <div id="tex-frame-left"></div>
+    <div id="tex-frame-right"></div>
+    <div id="tex-frame-top"></div>
+    <div id="tex-doorhinge">
+      <div id="tex-door">
+        <div class="dp tl"></div><div class="dp tr"></div>
+        <div class="dp bl"></div><div class="dp br"></div>
+        <div id="tex-knob"></div>
+        <div id="tex-peep"></div>
+        <div id="tex-welcome">WELCOME</div>
       </div>
     </div>
-
-    <!-- Gift box -->
-    <div id="gift-wrap">
-      <div id="box-lid">
-        <div class="ribbon-lid-h"></div>
-        <div class="ribbon-lid-v"></div>
-        <div id="bow">
-          <div class="bow-left"></div>
-          <div class="bow-right"></div>
-          <div class="bow-center"></div>
-        </div>
-      </div>
-      <div id="box-body">
-        <div class="ribbon-body-h"></div>
-        <div class="ribbon-body-v"></div>
-        <!-- Sewing machine inside -->
-        <div id="machine-reveal">
-          <img id="machine-img" src="singer.jpeg" alt="Sewing Machine">
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Note card -->
-  <div id="note-card">
-    <div id="note-inner">
-      <p id="note-text">Happy 25th birthday, Nankicho!! I got you this sewing machine for your birthday so that 25 can be a year of new art mediums and special creations for you. Because I couldn't bring you this in person physically, please accept this interim gift! Welcome to the Quarter Century Arcade, my love. You make everything in life 25x more special. Thank you for being my best friend in the entire world. Cheers to 25!</p>
-      <button id="enter-arcade-btn">ENTER THE ARCADE &rarr;</button>
+  <!-- Gift on doorstep -->
+  <div id="tex-step">
+    <div id="tex-gift">
+      <div id="tex-lid">
+        <div class="gl-h"></div><div class="gl-v"></div>
+        <div id="tex-bow">
+          <div class="bl"></div><div class="br"></div><div class="bc"></div>
+        </div>
+      </div>
+      <div id="tex-body">
+        <div class="gb-h"></div><div class="gb-v"></div>
+        <div id="tex-machine">
+          <img src="singer.jpeg" alt="Sewing Machine">
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Note card (appears after machine reveals) -->
+  <div id="tex-note">
+    <div id="tex-note-inner">
+      <p>Happy 25th birthday, Nankicho!! I got you this sewing machine for your birthday so that 25 can be a year of new art mediums and special creations for you. Because I couldn't bring you this in person physically, please accept this interim gift! Welcome to the Quarter Century Arcade, my love. You make everything in life 25x more special. Thank you for being my best friend in the entire world. Cheers to 25!</p>
+      <button id="tex-enter-btn">ENTER THE ARCADE &rarr;</button>
+    </div>
+  </div>
+
 </div>
 
 <style>
+/* ── Overlay ── */
 #teaser-overlay {
-  position: fixed; inset: 0; z-index: 99999;
-  background: #0a0812;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 32px;
-  font-family: 'Bungee', 'Impact', sans-serif;
-  opacity: 0; animation: teaserFadeIn 1s ease forwards;
-}
-@keyframes teaserFadeIn { to { opacity: 1; } }
-#teaser-overlay.fade-out {
-  opacity: 0; transition: opacity 1.2s ease; pointer-events: none;
+  position:fixed; inset:0; z-index:99999;
+  overflow:hidden;
+  font-family:'Georgia',serif;
 }
 
-/* ── Scene ── */
-#teaser-scene {
-  display: flex; align-items: flex-end; gap: 48px;
-  opacity: 0; animation: slideUp 0.8s 0.6s ease forwards;
+/* ── Night sky bg ── */
+#tex-bg {
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at 50% 0%, #1a1a3a 0%, #07070f 70%);
 }
-@keyframes slideUp { from { transform: translateY(30px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+
+/* ── Doorframe ── */
+#tex-doorwrap {
+  position:absolute;
+  left:50%; top:0;
+  transform:translateX(-50%);
+  width:55vw; max-width:600px;
+  height:100vh;
+}
+#tex-frame-top {
+  position:absolute; top:0; left:0; right:0; height:6vh;
+  background:linear-gradient(to bottom,#2e1200,#4a2008);
+  border-bottom:4px solid #6a3010;
+}
+#tex-frame-left {
+  position:absolute; left:0; top:0; bottom:0; width:5%;
+  background:linear-gradient(to right,#2e1200,#4a2008);
+  border-right:3px solid #6a3010;
+}
+#tex-frame-right {
+  position:absolute; right:0; top:0; bottom:0; width:5%;
+  background:linear-gradient(to left,#2e1200,#4a2008);
+  border-left:3px solid #6a3010;
+}
+
+/* ── Door hinge wrapper — perspective parent ── */
+#tex-doorhinge {
+  position:absolute;
+  top:6vh; left:5%; right:5%; bottom:0;
+  perspective:1400px;
+  perspective-origin:0% 50%;
+}
 
 /* ── Door ── */
-#door-frame {
-  width: 140px; height: 220px;
-  background: #3a1f0a;
-  border: 5px solid #5a3010;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  padding: 6px; box-sizing: border-box;
-  box-shadow: 4px 0 18px rgba(0,0,0,0.6);
+#tex-door {
+  width:100%; height:100%;
+  background:linear-gradient(160deg,#6b3612 0%,#3a1a08 45%,#5a2c10 100%);
+  position:relative;
+  transform-origin:left center;
+  transform:rotateY(0deg);
+  transition:transform 2.2s cubic-bezier(0.4,0,0.15,1);
+  box-shadow:inset -8px 0 24px rgba(0,0,0,0.5), 4px 0 30px rgba(0,0,0,0.8);
+  will-change:transform;
 }
-#door {
-  width: 100%; height: 100%;
-  background: linear-gradient(135deg,#5a3010 0%,#3a1a08 50%,#4a2410 100%);
-  border-radius: 4px 4px 0 0;
-  position: relative; overflow: hidden;
+#tex-door.open { transform:rotateY(-108deg); }
+
+/* Door panels */
+.dp {
+  position:absolute;
+  background:rgba(0,0,0,0.1);
+  border:1.5px solid rgba(255,255,255,0.07);
+  border-radius:3px;
 }
-.door-panel {
-  position: absolute; background: rgba(0,0,0,0.12);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 2px;
+.dp.tl { width:44%; height:30%; top:5%; left:4%; }
+.dp.tr { width:44%; height:30%; top:5%; right:4%; }
+.dp.bl { width:44%; height:44%; bottom:5%; left:4%; }
+.dp.br { width:44%; height:44%; bottom:5%; right:4%; }
+
+#tex-knob {
+  position:absolute; width:22px; height:22px;
+  right:8%; top:50%;
+  background:radial-gradient(circle at 35% 35%,#ffd700,#aa8800);
+  border-radius:50%;
+  box-shadow:0 0 12px rgba(255,200,0,0.6), inset 0 2px 4px rgba(255,255,255,0.3);
 }
-.top-left    { width:45%; height:38%; top:6%; left:5%; }
-.top-right   { width:45%; height:38%; top:6%; right:5%; }
-.bottom-left { width:45%; height:44%; bottom:6%; left:5%; }
-.bottom-right{ width:45%; height:44%; bottom:6%; right:5%; }
-#door-knob {
-  position:absolute; width:10px; height:10px;
-  background: radial-gradient(circle at 35% 35%, #ffd700, #aa8800);
-  border-radius:50%; right:12%; top:52%;
-  box-shadow: 0 0 6px rgba(255,215,0,0.5);
-}
-#door-peephole {
-  position:absolute; width:7px; height:7px;
+#tex-peep {
+  position:absolute; width:12px; height:12px;
+  left:50%; top:18%; transform:translateX(-50%);
   background:#111; border-radius:50%;
-  left:50%; top:22%; transform:translateX(-50%);
-  border: 1px solid #888;
+  border:2px solid #888;
+}
+#tex-welcome {
+  position:absolute; bottom:28%; left:50%; transform:translateX(-50%);
+  color:rgba(255,220,150,0.35);
+  font-family:'Courier New',monospace;
+  font-size:clamp(10px,1.4vw,18px);
+  letter-spacing:6px;
+  white-space:nowrap;
 }
 
-/* ── Gift Box ── */
-#gift-wrap {
-  position:relative; width:160px;
+/* ── Doorstep + gift ── */
+#tex-step {
+  position:absolute;
+  bottom:0; left:50%; transform:translateX(-50%);
+  width:55vw; max-width:600px;
+  display:flex; justify-content:center; align-items:flex-end;
+  pointer-events:none;
+  opacity:0; animation:giftAppear 0.8s 0.8s ease forwards;
 }
-#box-lid {
-  width:180px; height:48px;
-  background: #1C2541;
-  margin-left:-10px;
-  border-radius:4px 4px 0 0;
+@keyframes giftAppear { to { opacity:1; } }
+
+#tex-gift { position:relative; margin-bottom:0; }
+
+#tex-lid {
+  width:180px; height:52px;
+  background:#1C2541;
+  border-radius:5px 5px 0 0;
   position:relative;
-  transform-origin: top center;
-  animation: lidOpen 1s 2.5s cubic-bezier(0.4,0,0.2,1) forwards;
-  box-shadow: 0 -4px 12px rgba(131,188,255,0.3);
+  transform-origin:top center;
+  animation:lidPop 1s 2.4s cubic-bezier(0.4,0,0.2,1) forwards;
+  box-shadow:0 -4px 14px rgba(131,188,255,0.4);
 }
-@keyframes lidOpen {
-  0%   { transform: rotateX(0deg);   }
-  100% { transform: rotateX(-130deg); }
+@keyframes lidPop {
+  0%  { transform:rotateX(0); }
+  100%{ transform:rotateX(-140deg); }
 }
-.ribbon-lid-h, .ribbon-lid-v {
-  position:absolute; background:#83BCFF;
-}
-.ribbon-lid-h { height:8px; width:100%; top:50%; transform:translateY(-50%); }
-.ribbon-lid-v { width:8px; height:100%; left:50%; transform:translateX(-50%); }
-#bow { position:absolute; top:-12px; left:50%; transform:translateX(-50%); }
-.bow-left, .bow-right {
-  position:absolute; width:24px; height:18px;
+.gl-h,.gl-v { position:absolute; background:#83BCFF; }
+.gl-h { height:9px; width:100%; top:50%; transform:translateY(-50%); }
+.gl-v { width:9px; height:100%; left:50%; transform:translateX(-50%); }
+
+#tex-bow { position:absolute; top:-16px; left:50%; transform:translateX(-50%); }
+.bl,.br {
+  position:absolute; width:28px; height:22px;
   background:#B6D094; border-radius:50% 0 50% 0;
 }
-.bow-left  { transform: rotate(-30deg); left:-18px; top:0; }
-.bow-right { transform: rotate(30deg);  left: 4px;  top:0; }
-.bow-center {
-  position:absolute; width:12px; height:12px;
+.bl { transform:rotate(-35deg); left:-22px; top:0; }
+.br { transform:rotate(35deg);  left:4px;  top:0; }
+.bc {
+  position:absolute; width:14px; height:14px;
   background:#83BCFF; border-radius:50%;
-  left:-4px; top:2px; z-index:2;
+  left:-3px; top:2px; z-index:2;
 }
 
-#box-body {
-  width:160px; height:140px;
-  background: #1C2541;
-  border-radius:0 0 6px 6px;
+#tex-body {
+  width:180px; height:160px;
+  background:#1C2541;
+  border-radius:0 0 8px 8px;
   position:relative; overflow:hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  box-shadow:0 10px 30px rgba(0,0,0,0.7);
 }
-.ribbon-body-h { position:absolute; background:#83BCFF; height:8px; width:100%; top:50%; transform:translateY(-50%); }
-.ribbon-body-v { position:absolute; background:#83BCFF; width:8px; height:100%; left:50%; transform:translateX(-50%); }
+.gb-h,.gb-v { position:absolute; background:#83BCFF; }
+.gb-h { height:9px; width:100%; top:40%; }
+.gb-v { width:9px; height:100%; left:50%; transform:translateX(-50%); }
 
-#machine-reveal {
+#tex-machine {
+  position:absolute; inset:0;
+  transform:translateY(110%);
+  animation:machUp 1s 3.2s ease forwards;
+}
+@keyframes machUp { to { transform:translateY(0); } }
+#tex-machine img { width:100%; height:100%; object-fit:cover; }
+
+/* ── Note card ── */
+#tex-note {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  transform:translateY(100%);
-  animation: machineRise 1s 3.2s ease forwards;
+  pointer-events:none;
+  opacity:0; animation:noteIn 0.9s 4.4s ease forwards;
 }
-@keyframes machineRise { to { transform:translateY(0); } }
-#machine-img {
-  width:100%; height:100%; object-fit:cover;
-}
-
-/* ── Note Card ── */
-#note-card {
-  max-width: 620px; width: 90%;
-  opacity:0;
-  animation: noteAppear 0.8s 4.4s ease forwards;
-}
-@keyframes noteAppear { to { opacity:1; transform:translateY(0); } }
-#note-inner {
-  background: #f8f4eb;
-  border-radius: 4px;
-  padding: 28px 32px 24px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+@keyframes noteIn { to { opacity:1; } }
+#tex-note-inner {
+  background:#f8f4eb;
+  border-radius:4px;
+  padding:30px 36px 26px;
+  max-width:560px; width:88%;
+  box-shadow:0 12px 60px rgba(0,0,0,0.8);
   position:relative;
-  transform:translateY(20px);
+  pointer-events:all;
 }
-#note-inner::before {
+#tex-note-inner::before {
   content:''; position:absolute;
-  left:0; top:0; bottom:0; width:4px;
-  background: linear-gradient(to bottom, #B6D094, #83BCFF, #3A506B);
+  left:0; top:0; bottom:0; width:5px;
+  background:linear-gradient(to bottom,#B6D094,#83BCFF,#3A506B);
   border-radius:4px 0 0 4px;
 }
-#note-text {
-  font-family: 'Georgia', serif;
-  font-size: 14px; line-height: 1.85;
-  color: #1C2541; margin:0 0 20px;
-  font-style: italic;
+#tex-note-inner p {
+  font-size:14px; line-height:1.9;
+  color:#1C2541; margin:0 0 22px;
+  font-style:italic;
 }
-#enter-arcade-btn {
-  display:block; width:100%;
-  padding:14px;
-  background:#1C2541;
-  color:#ffffff;
+#tex-enter-btn {
+  display:block; width:100%; padding:14px;
+  background:#1C2541; color:#fff;
   border:2px solid #3A506B;
   font-family:'Bungee','Impact',sans-serif;
-  font-size:16px; letter-spacing:3px;
+  font-size:15px; letter-spacing:3px;
   cursor:pointer; border-radius:3px;
-  transition:background 0.2s, border-color 0.2s;
+  transition:background 0.2s,border-color 0.2s;
+  opacity:0; animation:btnIn 0.5s 5.8s ease forwards;
 }
-#enter-arcade-btn:hover {
-  background:#3A506B; border-color:#83BCFF;
-}
-#enter-arcade-btn { opacity:0; animation: btnAppear 0.5s 5.8s ease forwards; }
-@keyframes btnAppear { to { opacity:1; } }
+@keyframes btnIn { to { opacity:1; } }
+#tex-enter-btn:hover { background:#3A506B; border-color:#83BCFF; }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function(){
-    document.getElementById('enter-arcade-btn').addEventListener('click', function(){
-      var o = document.getElementById('teaser-overlay');
-      o.classList.add('fade-out');
-      setTimeout(function(){ o.style.display='none'; }, 1200);
-    });
+document.addEventListener('DOMContentLoaded', function(){
+  var btn = document.getElementById('tex-enter-btn');
+  var door = document.getElementById('tex-door');
+  var overlay = document.getElementById('teaser-overlay');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    // Hide note, swing door open
+    document.getElementById('tex-note').style.opacity='0';
+    document.getElementById('tex-note').style.transition='opacity 0.4s';
+    document.getElementById('tex-step').style.opacity='0';
+    document.getElementById('tex-step').style.transition='opacity 0.4s';
+    setTimeout(function(){
+      door.classList.add('open');
+      // Fade whole overlay away after door is open
+      setTimeout(function(){
+        overlay.style.transition='opacity 1.4s ease';
+        overlay.style.opacity='0';
+        setTimeout(function(){ overlay.style.display='none'; }, 1400);
+      }, 1800);
+    }, 400);
   });
+});
 </script>
 
   <!-- ══ BACKGROUND MUSIC ══ -->
