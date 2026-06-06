@@ -905,34 +905,65 @@
         _dormScr.src='game3/assets/dorm.png';
 
       } else if (idx === 3) {
-        // Flute Face-Off — whack-a-mole holes on dark background
-        cx.fillStyle='#070e07'; cx.fillRect(0,0,256,200);
-        // musical notes
-        cx.fillStyle='rgba(0,180,80,0.08)'; cx.font='18px serif'; cx.textAlign='left';
-        ['♩','♪','♫','♬'].forEach((n,i)=>cx.fillText(n,20+i*58,28));
-        // draw 9 holes in 3x3
-        const hxs=[56,128,200], hys=[70,120,170];
-        hxs.forEach(hx=>hys.forEach(hy=>{
-          // outer rim
-          const rim=cx.createRadialGradient(hx-3,hy-3,14,hx,hy,26);
-          rim.addColorStop(0,'#ccc'); rim.addColorStop(0.6,'#888'); rim.addColorStop(1,'#333');
-          cx.beginPath(); cx.arc(hx,hy,26,0,Math.PI*2); cx.fillStyle=rim; cx.fill();
-          // dark hole
-          const hole=cx.createRadialGradient(hx,hy-4,0,hx,hy,20);
-          hole.addColorStop(0,'#1a1a1a'); hole.addColorStop(1,'#040404');
-          cx.beginPath(); cx.arc(hx,hy,20,0,Math.PI*2); cx.fillStyle=hole; cx.fill();
-        }));
-        // a face peeking from center hole
+        // Flute Face-Off — dark bg with a clear silver flute illustration
+        const fluteGrad=cx.createLinearGradient(0,0,256,200);
+        fluteGrad.addColorStop(0,'#0a0a1a'); fluteGrad.addColorStop(1,'#0d1a0d');
+        cx.fillStyle=fluteGrad; cx.fillRect(0,0,256,200);
+        // floating music notes background
+        cx.font='22px serif'; cx.textAlign='center';
+        [['♩',38,60,0.18],['♪',200,80,0.22],['♫',60,160,0.20],['♬',190,150,0.25],['♪',128,55,0.15]].forEach(([n,x,y,a])=>{
+          cx.globalAlpha=a; cx.fillStyle='#88ffcc'; cx.fillText(n,x,y);
+        });
+        cx.globalAlpha=1;
+        // Draw flute diagonally across screen
         cx.save();
-        cx.beginPath(); cx.arc(128,120,20,0,Math.PI*2); cx.clip();
-        cx.fillStyle='#ffcc88'; cx.fillRect(108,108,40,32);
-        cx.fillStyle='#222'; cx.beginPath(); cx.arc(120,116,3,0,Math.PI*2); cx.fill();
-        cx.beginPath(); cx.arc(136,116,3,0,Math.PI*2); cx.fill();
-        cx.strokeStyle='#222'; cx.lineWidth=2; cx.beginPath();
-        cx.arc(128,122,6,0.1,Math.PI-0.1); cx.stroke();
+        cx.translate(128,110); cx.rotate(-0.22);
+        // Main tube body — silver gradient
+        const tubeG=cx.createLinearGradient(0,-9,0,9);
+        tubeG.addColorStop(0,'#f0f0f0'); tubeG.addColorStop(0.3,'#d0d0d8');
+        tubeG.addColorStop(0.55,'#a8a8b8'); tubeG.addColorStop(0.8,'#e0e0e8');
+        tubeG.addColorStop(1,'#b0b0be');
+        cx.fillStyle=tubeG;
+        cx.beginPath(); cx.roundRect(-110,-8,220,16,8); cx.fill();
+        // Tube highlight stripe
+        cx.fillStyle='rgba(255,255,255,0.55)';
+        cx.beginPath(); cx.roundRect(-108,-6,216,4,3); cx.fill();
+        // Head joint (left end) — slightly wider
+        const headG=cx.createLinearGradient(0,-11,0,11);
+        headG.addColorStop(0,'#e8e8e8'); headG.addColorStop(0.5,'#b0b0c0'); headG.addColorStop(1,'#d8d8e8');
+        cx.fillStyle=headG;
+        cx.beginPath(); cx.roundRect(-118,-10,22,20,10); cx.fill();
+        cx.strokeStyle='#888898'; cx.lineWidth=1; cx.stroke();
+        // Embouchure hole (the oval you blow into)
+        cx.fillStyle='#1a1a2a';
+        cx.beginPath(); cx.ellipse(-104,0,6,4,0,0,Math.PI*2); cx.fill();
+        cx.strokeStyle='#aaa'; cx.lineWidth=0.8; cx.stroke();
+        // Tone holes — 6 main keys
+        const holeXs=[-60,-38,-18,10,36,58];
+        holeXs.forEach(hx=>{
+          // Key pad cup
+          const padG=cx.createRadialGradient(hx-1,-1,1,hx,0,8);
+          padG.addColorStop(0,'#d8d8e8'); padG.addColorStop(1,'#888898');
+          cx.beginPath(); cx.arc(hx,0,8,0,Math.PI*2); cx.fillStyle=padG; cx.fill();
+          cx.strokeStyle='#666676'; cx.lineWidth=0.8; cx.stroke();
+          // Tone hole opening
+          cx.beginPath(); cx.arc(hx,0,4,0,Math.PI*2); cx.fillStyle='#1a1a2a'; cx.fill();
+        });
+        // Foot joint (right end) — extra keys
+        cx.fillStyle=tubeG;
+        cx.beginPath(); cx.roundRect(96,-9,22,18,9); cx.fill();
+        cx.strokeStyle='#888898'; cx.lineWidth=1; cx.stroke();
+        [104,112].forEach(fx=>{
+          const padG2=cx.createRadialGradient(fx-1,-1,1,fx,0,6);
+          padG2.addColorStop(0,'#d8d8e8'); padG2.addColorStop(1,'#888898');
+          cx.beginPath(); cx.arc(fx,0,6,0,Math.PI*2); cx.fillStyle=padG2; cx.fill();
+          cx.strokeStyle='#666676'; cx.lineWidth=0.7; cx.stroke();
+          cx.beginPath(); cx.arc(fx,0,3,0,Math.PI*2); cx.fillStyle='#1a1a2a'; cx.fill();
+        });
         cx.restore();
-        cx.fillStyle='rgba(0,0,0,.5)'; cx.fillRect(0,0,256,32);
-        cx.fillStyle='#00ff88'; cx.font='bold 11px monospace'; cx.textAlign='center';
+        // Label
+        cx.fillStyle='rgba(0,0,0,.55)'; cx.fillRect(0,0,256,34);
+        cx.fillStyle='#00ff88'; cx.font='bold 12px monospace'; cx.textAlign='center';
         cx.fillText('FLUTE FACE-OFF',128,22);
 
       } else {
