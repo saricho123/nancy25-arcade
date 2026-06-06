@@ -1067,6 +1067,8 @@
       }
     }
 
+    const _arcadeBgm = document.getElementById('bgm');
+
     function insertCoin() {
       if(nearIdx<0) return;
       const g=ALL_MACHINES[nearIdx];
@@ -1075,6 +1077,9 @@
 
       coins--;
       updateCoinDisplay();
+
+      // Mute arcade music while game is playing
+      if(_arcadeBgm) _arcadeBgm.pause();
 
       const fadeEl=el('coin-fade'), overlayEl=el('game-overlay'), frameEl=el('game-frame');
       if(fadeEl) fadeEl.classList.add('fading');
@@ -1091,6 +1096,8 @@
       setTimeout(()=>{
         if(overlayEl) overlayEl.classList.remove('active');
         if(frameEl)   frameEl.src='';
+        // Resume arcade music when returning
+        if(_arcadeBgm) _arcadeBgm.play().catch(()=>{});
         setTimeout(()=>{ if(fadeEl) fadeEl.classList.remove('fading'); }, 300);
       }, 350);
     }
