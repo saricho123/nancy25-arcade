@@ -905,43 +905,16 @@
         _dormScr.src='game3/assets/dorm.png';
 
       } else if (idx === 3) {
-        // Flute Face-Off — dark bg + clear silver flute
+        // Flute Face-Off — load pre-rendered flute PNG
         cx.fillStyle='#080818'; cx.fillRect(0,0,256,200);
-        // music notes
-        cx.globalAlpha=0.2; cx.fillStyle='#88ffcc'; cx.font='20px serif'; cx.textAlign='left';
-        cx.fillText('♩',20,55); cx.fillText('♪',190,75); cx.fillText('♫',50,165); cx.fillText('♬',185,155);
-        cx.globalAlpha=1;
-        // draw flute: rotated pill body
-        cx.save(); cx.translate(128,112); cx.rotate(-0.18);
-        // body
-        cx.fillStyle='#d8d8e0'; cx.fillRect(-108,-7,216,14);
-        cx.beginPath(); cx.arc(-108,0,7,0,Math.PI*2); cx.fill();
-        cx.beginPath(); cx.arc(108,0,7,0,Math.PI*2); cx.fill();
-        // highlight
-        cx.fillStyle='rgba(255,255,255,0.6)'; cx.fillRect(-106,-5,212,4);
-        // shadow
-        cx.fillStyle='rgba(0,0,0,0.25)'; cx.fillRect(-106,4,212,3);
-        // head joint (left, wider)
-        cx.fillStyle='#c0c0cc'; cx.fillRect(-118,-9,20,18);
-        cx.beginPath(); cx.arc(-118,0,9,0,Math.PI*2); cx.fill();
-        // embouchure hole
-        cx.fillStyle='#111'; cx.beginPath(); cx.ellipse(-106,0,5,3,0,0,Math.PI*2); cx.fill();
-        // 6 key pads
-        var kx=[-65,-45,-25,5,30,55];
-        for(var ki=0;ki<kx.length;ki++){
-          cx.fillStyle='#aaaabc'; cx.beginPath(); cx.arc(kx[ki],-8,5,0,Math.PI*2); cx.fill();
-          cx.fillStyle='#111';    cx.beginPath(); cx.arc(kx[ki],-8,2.5,0,Math.PI*2); cx.fill();
-        }
-        // foot joint
-        cx.fillStyle='#b8b8c8'; cx.fillRect(100,-9,20,18);
-        cx.beginPath(); cx.arc(120,0,9,0,Math.PI*2); cx.fill();
-        cx.fillStyle='#aaaabc'; cx.beginPath(); cx.arc(107,-8,4,0,Math.PI*2); cx.fill();
-        cx.fillStyle='#111';    cx.beginPath(); cx.arc(107,-8,2,0,Math.PI*2); cx.fill();
-        cx.restore();
-        // label
-        cx.fillStyle='rgba(0,0,0,0.5)'; cx.fillRect(0,0,256,32);
         cx.fillStyle='#00ff88'; cx.font='bold 11px monospace'; cx.textAlign='center';
         cx.fillText('FLUTE FACE-OFF',128,22);
+        var _fluteImg=new Image();
+        _fluteImg.onload=function(){
+          cx.drawImage(_fluteImg,0,0,256,200);
+          if(_fluteTex) _fluteTex.needsUpdate=true;
+        };
+        _fluteImg.src='game4/flute.png';
 
       } else {
         // Shoe Shuffle — mini shoe rack
@@ -977,9 +950,10 @@
 
       const tex = new THREE.CanvasTexture(C);
       if (idx === 2) _wheelerTex = tex;
+      if (idx === 3) _fluteTex = tex;
       return tex;
     }
-    let _wheelerTex = null;
+    let _wheelerTex = null, _fluteTex = null;
 
     /* ════════════════════════════════════════════════════
        5 GAME MACHINES — position + game data bundled together
