@@ -483,15 +483,14 @@
       });
 
       // "25" glowing panels on side walls
-      const p25cols=['#ff44cc','#ffd700','#44ffcc'];
-      [[[RW/2-0.05, 4.2, -8,-Math.PI/2],  p25cols[0]],
-       [[-RW/2+0.05,4.2,-6, Math.PI/2],   p25cols[1]],
-       [[-RW/2+0.05,4.2,-18,Math.PI/2],   p25cols[2]]
-      ].forEach(([[px,py,pz,ry],col])=>{
+      [{px:RW/2-0.05,  py:4.2, pz:-8,  ry:-Math.PI/2, col:'#ff44cc', hex:0xff44cc},
+       {px:-RW/2+0.05, py:4.2, pz:-6,  ry: Math.PI/2, col:'#ffd700', hex:0xffd700},
+       {px:-RW/2+0.05, py:4.2, pz:-18, ry: Math.PI/2, col:'#44ffcc', hex:0x44ffcc}
+      ].forEach(({px,py,pz,ry,col,hex})=>{
         const t=make25Tex(col);
         const m=new THREE.Mesh(new THREE.PlaneGeometry(3.0,1.88),new THREE.MeshBasicMaterial({map:t}));
         m.position.set(px,py,pz); m.rotation.y=ry; scene.add(m);
-        const lc=new THREE.Color(col); const l=new THREE.PointLight(lc.getHex(),2.5,7);
+        const l=new THREE.PointLight(hex,2.5,7);
         l.position.set(px+(ry>0?1:-1),py,pz); scene.add(l);
       });
     })();
@@ -772,32 +771,32 @@
       const gr=cx.createRadialGradient(110,100,10,160,200,180);
       gr.addColorStop(0,'#fffae0'); gr.addColorStop(0.45,'#f8d060'); gr.addColorStop(0.8,'#c89010'); gr.addColorStop(1,'#7a5000');
       cx.fillStyle=gr;
-      // Rounded rectangle balloon shape
-      cx.beginPath(); cx.roundRect(14,14,292,372,60); cx.fill();
+      // Balloon oval shape (ellipse — universally supported)
+      cx.beginPath(); cx.ellipse(160,194,148,186,0,0,Math.PI*2); cx.fill();
       cx.strokeStyle='rgba(200,140,0,0.5)'; cx.lineWidth=3;
-      cx.beginPath(); cx.roundRect(14,14,292,372,60); cx.stroke();
+      cx.beginPath(); cx.ellipse(160,194,148,186,0,0,Math.PI*2); cx.stroke();
       // Highlight
       cx.fillStyle='rgba(255,255,255,0.28)';
-      cx.beginPath(); cx.ellipse(115,90,70,44,-0.3,0,Math.PI*2); cx.fill();
+      cx.beginPath(); cx.ellipse(110,100,62,40,-0.3,0,Math.PI*2); cx.fill();
       // Number
-      cx.fillStyle='rgba(80,44,0,0.80)';
-      cx.font='bold 240px "Bungee","Impact",Arial Black,sans-serif';
+      cx.fillStyle='rgba(80,44,0,0.82)';
+      cx.font='bold 230px "Bungee","Impact",Arial,sans-serif';
       cx.textAlign='center'; cx.textBaseline='middle';
-      cx.fillText(num,160,210);
+      cx.fillText(num,160,205);
       // Knot
       cx.fillStyle='#c89010';
-      cx.beginPath(); cx.ellipse(160,388,12,10,0,0,Math.PI*2); cx.fill();
+      cx.beginPath(); cx.ellipse(160,385,11,9,0,0,Math.PI*2); cx.fill();
       const tex=new THREE.CanvasTexture(C); tex.needsUpdate=true;
-      const bg=new THREE.Group();
+      const nbg=new THREE.Group();
       const body=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.75),
         new THREE.MeshBasicMaterial({map:tex,transparent:true,alphaTest:0.05,side:THREE.DoubleSide}));
-      bg.add(body);
-      bg.add(curlyString(0.75,ni*1.2+0.5));
-      const bx=(ni===0?-1.2:1.2), by=RH-1.4, bz=9;
-      bg.position.set(bx,by,bz);
-      bg.userData={baseY:by,phase:ni*1.5,r:0.75};
-      scene.add(bg); balloons.push(bg);
-      const bl=new THREE.PointLight(0xf8d060,2,5); bl.position.set(bx,by,bz); scene.add(bl);
+      nbg.add(body);
+      nbg.add(curlyString(0.75,ni*1.2+0.5));
+      const nbx=(ni===0?-1.2:1.2), nby=RH-1.4, nbz=9;
+      nbg.position.set(nbx,nby,nbz);
+      nbg.userData={baseY:nby,phase:ni*1.5,r:0.75};
+      scene.add(nbg); balloons.push(nbg);
+      const nbl=new THREE.PointLight(0xf8d060,2,5); nbl.position.set(nbx,nby,nbz); scene.add(nbl);
     });
 
     /* ═══ CONFETTI — 500 pieces falling from ceiling ═══ */
