@@ -946,7 +946,27 @@
       {url:'game5/index.html', name:'SHOE SHUFFLE',       x: 8.5, z:-3,  body:0x1c0818, screen:0xff55bb, marq:0x500030, accent:0xffaadd},
     ];
 
-    function addGameMachine({x,z,body,screen,marq,accent}, idx) {
+    function makeMarqueeTexture(name, bgColor, accentColor) {
+      const C=document.createElement('canvas'); C.width=256; C.height=64;
+      const cx=C.getContext('2d');
+      // Background
+      cx.fillStyle='#'+bgColor.toString(16).padStart(6,'0');
+      cx.fillRect(0,0,256,64);
+      // Glow border
+      cx.strokeStyle='#'+accentColor.toString(16).padStart(6,'0');
+      cx.lineWidth=3; cx.strokeRect(2,2,252,60);
+      // Text — scale font size to fit name
+      const fontSize = name.length > 14 ? 10 : name.length > 10 ? 12 : 14;
+      cx.font='bold '+fontSize+'px monospace';
+      cx.fillStyle='#ffffff';
+      cx.textAlign='center'; cx.textBaseline='middle';
+      cx.shadowColor='#'+accentColor.toString(16).padStart(6,'0');
+      cx.shadowBlur=8;
+      cx.fillText(name, 128, 32);
+      return new THREE.CanvasTexture(C);
+    }
+
+    function addGameMachine({x,z,body,screen,marq,accent,name}, idx) {
       const g=new THREE.Group(), W=1.3, H=3.0, D=0.72;
 
       [-W/2-0.02,W/2+0.02].forEach(sx=>{
@@ -963,8 +983,9 @@
         new THREE.MeshLambertMaterial({color:body}));
       cab.castShadow=true; cab.receiveShadow=true; g.add(cab);
 
+      const mqTex=makeMarqueeTexture(name,marq,accent);
       const mq=new THREE.Mesh(new THREE.BoxGeometry(W*0.95,H*0.14,0.06),
-        new THREE.MeshBasicMaterial({color:marq}));
+        new THREE.MeshBasicMaterial({color:marq,map:mqTex}));
       mq.position.set(0,H*0.43,D/2+0.01); g.add(mq);
       const ml=new THREE.PointLight(screen,1.2,3);
       ml.position.set(0,H*0.43,D/2+0.5); g.add(ml);
