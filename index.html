@@ -136,10 +136,10 @@
     const dbRod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.1,8),
       new THREE.MeshStandardMaterial({color:0x888899,metalness:0.8,roughness:0.2}));
     dbRod.position.set(0,RH-0.5-(-1.2),0); scene.add(dbRod);
-    // Mirror tiles — MeshBasicMaterial, reduced count for performance
-    const tileMat=new THREE.MeshBasicMaterial({color:0xddeeff});
-    const TILES=300;
-    const tileGeo=new THREE.BoxGeometry(0.13,0.13,0.02);
+    // Mirror tiles — MeshBasicMaterial (no PBR cost), 900 tiles for full coverage
+    const tileMat=new THREE.MeshBasicMaterial({color:0xe8f0ff});
+    const TILES=900;
+    const tileGeo=new THREE.BoxGeometry(0.118,0.118,0.018);
     const discoInst=new THREE.InstancedMesh(tileGeo,tileMat,TILES);
     const _dmmy=new THREE.Object3D();
     for(let i=0;i<TILES;i++){
@@ -154,25 +154,53 @@
     discoInst.instanceMatrix.needsUpdate=true;
     db.add(discoInst);
     const discoLights=[];
-    for(let i=0;i<3;i++){
-      const pl=new THREE.PointLight(0xffffff,6,40); scene.add(pl); discoLights.push({pl,off:i/3});
+    for(let i=0;i<4;i++){
+      const pl=new THREE.PointLight(0xffffff,5,36); scene.add(pl); discoLights.push({pl,off:i/4});
     }
 
-    /* ═══ DANCE FLOOR — animated coloured tiles (InstancedMesh = 1 draw call) ═══ */
+    /* ═══ DANCE FLOOR — GPU shader plane, zero per-frame CPU cost ═══ */
     const DFCOLS=14, DFROWS=6, TW=RW/DFCOLS, TD=2.2;
-    const _dfGeo=new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07);
-    const _dfMat=new THREE.MeshBasicMaterial({color:0xffffff});
-    const danceFloorInst=new THREE.InstancedMesh(_dfGeo,_dfMat,DFCOLS*DFROWS);
-    danceFloorInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
-    const _dfDummy=new THREE.Object3D();
-    for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
-      _dfDummy.position.set(-RW/2+(c+0.5)*TW, 0.025, 2+(r+0.5)*TD);
-      _dfDummy.updateMatrix();
-      danceFloorInst.setMatrixAt(r*DFCOLS+c, _dfDummy.matrix);
-    }
-    danceFloorInst.instanceMatrix.needsUpdate=true;
-    scene.add(danceFloorInst);
-    const _dfColor=new THREE.Color();
+    const _dfShader=new THREE.ShaderMaterial({
+      uniforms:{uTime:{value:0},uFlash:{value:0}},
+      vertexShader:`varying vec2 vUv;
+        void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+      fragmentShader:`
+        uniform float uTime;
+        uniform float uFlash;
+        varying vec2 vUv;
+        vec3 hsl2rgb(float h,float s,float l){
+          float c=(1.0-abs(2.0*l-1.0))*s;
+          float x=c*(1.0-abs(mod(h*6.0,2.0)-1.0));
+          float m=l-c/2.0;
+          vec3 rgb;
+          if(h<1.0/6.0)rgb=vec3(c,x,0.0);
+          else if(h<2.0/6.0)rgb=vec3(x,c,0.0);
+          else if(h<3.0/6.0)rgb=vec3(0.0,c,x);
+          else if(h<4.0/6.0)rgb=vec3(0.0,x,c);
+          else if(h<5.0/6.0)rgb=vec3(x,0.0,c);
+          else rgb=vec3(c,0.0,x);
+          return rgb+vec3(m);
+        }
+        void main(){
+          float col=floor(vUv.x*14.0);
+          float row=floor(vUv.y*6.0);
+          float cx=fract(vUv.x*14.0);
+          float cy=fract(vUv.y*6.0);
+          float gap=0.05;
+          if(cx<gap||cx>1.0-gap||cy<gap||cy>1.0-gap){
+            gl_FragColor=vec4(0.04,0.04,0.04,1.0);return;
+          }
+          float wave=sin(col*0.6-uTime*3.5+row*0.4);
+          float hue=mod(col*0.07+row*0.13+uTime*0.15,1.0);
+          float bright=max(0.0,wave)*0.4+uFlash*0.3+0.38;
+          gl_FragColor=vec4(hsl2rgb(hue,1.0,bright),1.0);
+        }`
+    });
+    const _dfFloorW=RW-0.1, _dfFloorD=DFROWS*TD-0.1;
+    const _dfPlane=new THREE.Mesh(new THREE.PlaneGeometry(_dfFloorW,_dfFloorD),_dfShader);
+    _dfPlane.rotation.x=-Math.PI/2;
+    _dfPlane.position.set(0,0.03,2+DFROWS*TD/2);
+    scene.add(_dfPlane);
 
     /* ═══ PENNANT BANNER + streamers ═══ */
     (function(){
@@ -1117,15 +1145,9 @@
         pl.color.setHSL((t*0.09+off)%1,1,0.7);
         pl.intensity=3.5+flash*5;
       });
-      // Dance floor wave — single instanced color update (1 draw call)
-      for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
-        const wave=Math.sin(c*0.6-t*3.5+r*0.4);
-        const hue=(c*0.07+r*0.13+t*0.15)%1;
-        const bright=Math.max(0,wave)*0.6+flash*0.5;
-        _dfColor.setHSL(hue,1,0.35+bright*0.4);
-        danceFloorInst.setColorAt(r*DFCOLS+c,_dfColor);
-      }
-      danceFloorInst.instanceColor.needsUpdate=true;
+      // Dance floor — GPU shader, just update two uniforms
+      _dfShader.uniforms.uTime.value=t;
+      _dfShader.uniforms.uFlash.value=flash;
       // Balloons bob + slow sway
       balloons.forEach(b=>{
         b.position.y=b.userData.baseY+Math.sin(t*0.85+b.userData.phase)*0.20;
