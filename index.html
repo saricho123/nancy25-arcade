@@ -404,7 +404,7 @@
     })();
 
     /* ═══ QUARTER COIN PLAQUES + "25" WALL DECORATIONS ═══ */
-    (function(){
+    (function(){ try {
       // Build a quarter coin canvas texture
       function makeQuarterTex(){
         const C=document.createElement('canvas'); C.width=512; C.height=512;
@@ -493,10 +493,10 @@
         const l=new THREE.PointLight(hex,2.5,7);
         l.position.set(px+(ry>0?1:-1),py,pz); scene.add(l);
       });
-    })();
+    } catch(e){ console.error('Quarter section crashed:',e); } })();
 
     /* ═══ HANGING STAR DECORATIONS ═══ */
-    (function(){
+    (function(){ try {
       const starCols=[0xffee00,0xff44aa,0x44ffcc,0xff8822,0xcc44ff,0x44aaff,0xffcc00,0xff3366];
       const spots=[[-10,4],[-6,1],[0,-2],[6,0],[10,3],[-8,-6],[8,-5],[-3,7],[3,-8]];
       spots.forEach(([sx,sz],i)=>{
