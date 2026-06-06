@@ -37,21 +37,19 @@
   <!-- Gift on doorstep -->
   <div id="tex-step">
     <div id="tex-gift">
-      <!-- Lid with bow (flies off on explode) -->
+      <!-- Lid with ribbon (flies off on explode) -->
       <div id="gift-lid">
         <div class="lid-rib-h"></div>
         <div class="lid-rib-v"></div>
-        <div id="gift-bow">
-          <div class="loop l1"></div><div class="loop l2"></div>
-          <div class="loop l3"></div><div class="loop l4"></div>
-          <div class="bow-tail t1"></div><div class="bow-tail t2"></div>
-          <div class="bow-knot"></div>
-        </div>
+        <canvas id="gift-bow-canvas" width="200" height="90"></canvas>
       </div>
       <!-- Box body -->
       <div id="gift-box-body">
         <div class="body-rib-h"></div>
         <div class="body-rib-v"></div>
+        <!-- Ribbon tails draping down sides -->
+        <div class="ribbon-tail left-tail"></div>
+        <div class="ribbon-tail right-tail"></div>
       </div>
       <!-- Machine reveal (hidden until explode) -->
       <div id="gift-machine">
@@ -65,6 +63,7 @@
   <div id="tex-note">
     <div id="tex-note-inner">
       <p>Happy 25th birthday, Nankicho!! I got you this sewing machine for your birthday so that 25 can be a year of new art mediums and special creations for you. Because I couldn't bring you this in person physically, please accept this interim gift! Welcome to the Quarter Century Arcade, my love. You make everything in life 25x more special. Thank you for being my best friend in the entire world. Cheers to 25!</p>
+      <p style="text-align:right;font-style:italic;margin:0 0 16px;color:#3A506B;font-size:15px;">Love, Sarichoski</p>
       <button id="tex-enter-btn">ENTER THE ARCADE &rarr;</button>
     </div>
   </div>
@@ -197,36 +196,20 @@
 .lid-rib-h { height:12px; width:100%; top:50%; transform:translateY(-50%); }
 .lid-rib-v { width:12px; height:100%; left:50%; transform:translateX(-50%); }
 
-/* Bow */
-#gift-bow { position:absolute; top:-42px; left:50%; transform:translateX(-50%); width:100px; height:48px; }
-.loop {
-  position:absolute;
-  width:38px; height:30px;
+/* Canvas bow sits above the lid */
+#gift-bow-canvas {
+  position:absolute; top:-90px; left:50%;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+/* Ribbon tails draping down box sides */
+.ribbon-tail {
+  position:absolute; top:0; width:12px; height:100%;
   background:#7a9a6a;
-  border-radius:50%;
-  border:2px solid #5a7a4a;
-  opacity:0.92;
+  border-radius:0 0 4px 4px;
 }
-.l1 { top:0; left:5px;  transform:rotate(-30deg); }
-.l2 { top:0; right:5px; transform:rotate(30deg); }
-.l3 { top:8px; left:0;  transform:rotate(-55deg) scaleX(0.75); opacity:0.7; }
-.l4 { top:8px; right:0; transform:rotate(55deg)  scaleX(0.75); opacity:0.7; }
-.bow-tail {
-  position:absolute; bottom:-10px;
-  width:14px; height:22px;
-  background:#7a9a6a;
-  border-radius:0 0 6px 6px;
-  border:1px solid #5a7a4a;
-}
-.bow-tail.t1 { left:30px; transform:rotate(-15deg); }
-.bow-tail.t2 { right:30px; transform:rotate(15deg); }
-.bow-knot {
-  position:absolute; width:16px; height:16px;
-  background:#5a7a4a; border-radius:50%;
-  top:50%; left:50%; transform:translate(-50%,-50%);
-  z-index:4; border:2px solid #3a5a2a;
-  box-shadow:0 0 8px rgba(90,122,74,0.6);
-}
+.ribbon-tail.left-tail  { left:calc(50% - 6px); } /* center-left of vertical ribbon */
+.ribbon-tail.right-tail { display:none; } /* vertical only */
 
 /* Body */
 #gift-box-body {
@@ -352,6 +335,50 @@ document.addEventListener('DOMContentLoaded', function(){
   var overlay= document.getElementById('teaser-overlay');
   var gift = document.getElementById('tex-gift');
   if(!btn) return;
+
+  // Draw flowing ribbon bow on canvas
+  var bowCanvas = document.getElementById('gift-bow-canvas');
+  if(bowCanvas){
+    var bc = bowCanvas.getContext('2d');
+    bc.strokeStyle='#5a7a4a'; bc.lineWidth=2.5; bc.lineCap='round';
+    bc.fillStyle='#7a9a6a';
+    // Left loop
+    bc.beginPath();
+    bc.moveTo(100,75);
+    bc.bezierCurveTo(80,60, 30,30, 45,15);
+    bc.bezierCurveTo(60,0,  80,20, 100,75);
+    bc.fill(); bc.stroke();
+    // Right loop
+    bc.beginPath();
+    bc.moveTo(100,75);
+    bc.bezierCurveTo(120,60, 170,30, 155,15);
+    bc.bezierCurveTo(140,0, 120,20, 100,75);
+    bc.fill(); bc.stroke();
+    // Left tail draping down
+    bc.beginPath();
+    bc.moveTo(94,80);
+    bc.bezierCurveTo(75,82, 55,88, 50,100);
+    bc.bezierCurveTo(48,106,55,108,62,104);
+    bc.bezierCurveTo(68,100, 80,90, 106,82);
+    bc.closePath(); bc.fill(); bc.stroke();
+    // Right tail draping down
+    bc.beginPath();
+    bc.moveTo(106,80);
+    bc.bezierCurveTo(125,82, 145,88, 150,100);
+    bc.bezierCurveTo(152,106,145,108,138,104);
+    bc.bezierCurveTo(132,100, 120,90, 94,82);
+    bc.closePath(); bc.fill(); bc.stroke();
+    // Knot center
+    bc.beginPath();
+    bc.arc(100,75,9,0,Math.PI*2);
+    bc.fillStyle='#4a6a3a'; bc.fill(); bc.stroke();
+    // Shading on loops
+    bc.globalAlpha=0.18;
+    bc.fillStyle='#000';
+    bc.beginPath(); bc.moveTo(100,75); bc.bezierCurveTo(80,60,30,30,45,15); bc.bezierCurveTo(52,8,65,15,75,35); bc.bezierCurveTo(85,55,92,68,100,75); bc.fill();
+    bc.beginPath(); bc.moveTo(100,75); bc.bezierCurveTo(120,60,170,30,155,15); bc.bezierCurveTo(148,8,135,15,125,35); bc.bezierCurveTo(115,55,108,68,100,75); bc.fill();
+    bc.globalAlpha=1;
+  }
 
   // Shimmy → shake → explode sequence
   setTimeout(function(){
