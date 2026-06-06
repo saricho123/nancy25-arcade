@@ -497,6 +497,8 @@ document.addEventListener('DOMContentLoaded', function(){
     document.getElementById('tex-step').style.transition='opacity 0.4s';
     setTimeout(function(){
       door.classList.add('open');
+      // Music kicks in the moment the door swings open
+      if(window._startArcadeBgm) window._startArcadeBgm();
       setTimeout(function(){
         overlay.style.transition='opacity 1.4s ease';
         overlay.style.opacity='0';
@@ -539,13 +541,10 @@ document.addEventListener('DOMContentLoaded', function(){
       const bgm = document.getElementById('bgm');
       const btn = document.getElementById('mute-btn');
       bgm.volume = 0.55;
-      // Try immediate autoplay
-      const tryPlay = () => bgm.play().catch(()=>{});
-      tryPlay();
-      // Browsers often block autoplay until first gesture — catch that too
-      const onGesture = () => { tryPlay(); document.removeEventListener('pointerdown', onGesture); document.removeEventListener('keydown', onGesture); };
-      document.addEventListener('pointerdown', onGesture);
-      document.addEventListener('keydown', onGesture);
+      // BGM stays silent until the arcade door opens — see teaser script
+      window._startArcadeBgm = function(){
+        bgm.play().catch(()=>{});
+      };
       // Mute toggle
       btn.addEventListener('click', e => {
         e.stopPropagation();
