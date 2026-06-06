@@ -6,7 +6,7 @@
   <title>Quarter Century Arcade — Nancy's 25th</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Dancing+Script:wght@700&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Orbitron:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="hub.css">
   <script src="three.min.js"></script>
 </head>
@@ -211,15 +211,15 @@
         // Subtle inner highlight
         c2.strokeStyle='rgba(255,255,255,0.35)'; c2.lineWidth=2.5;
         c2.beginPath(); c2.moveTo(2,2); c2.lineTo(126,2); c2.lineTo(64,168); c2.closePath(); c2.stroke();
-        // Letter — cursive/script with shadow
+        // Letter — white fill + dark outline for pop
         if(letter){
-          c2.font='bold 70px "Dancing Script","Pacifico","Segoe Script","Comic Sans MS",cursive';
+          c2.font='bold 72px "Bungee",Impact,sans-serif';
           c2.textAlign='center'; c2.textBaseline='top';
-          c2.strokeStyle='rgba(0,0,0,0.65)'; c2.lineWidth=7; c2.lineJoin='round';
-          c2.strokeText(letter,64,10);
-          c2.shadowColor='rgba(0,0,0,0.45)'; c2.shadowBlur=5;
+          c2.strokeStyle='rgba(0,0,0,0.7)'; c2.lineWidth=8; c2.lineJoin='round';
+          c2.strokeText(letter,64,8);
+          c2.shadowColor='rgba(0,0,0,0.5)'; c2.shadowBlur=4;
           c2.fillStyle='#ffffff';
-          c2.fillText(letter,64,10);
+          c2.fillText(letter,64,8);
           c2.shadowBlur=0;
         }
         const ptex=new THREE.CanvasTexture(C2); ptex.needsUpdate=true;
@@ -252,16 +252,18 @@
           cx2.font='28px serif'; cx2.textAlign='center'; cx2.textBaseline='middle';
           cx2.fillText(e,[48,976,48,976][i],[34,34,126,126][i]);
         });
-        // Main text — single color, elegant
-        cx2.shadowColor='rgba(255,200,100,0.8)'; cx2.shadowBlur=24;
-        cx2.fillStyle='#ffd700';
-        cx2.font='bold 44px "Bungee","Impact",Arial,sans-serif';
+        // Main text — Bungee with rainbow gradient
+        const tg=cx2.createLinearGradient(80,0,944,0);
+        tg.addColorStop(0,'#ff4488'); tg.addColorStop(0.2,'#ffcc00'); tg.addColorStop(0.4,'#44ff88');
+        tg.addColorStop(0.6,'#44aaff'); tg.addColorStop(0.8,'#cc44ff'); tg.addColorStop(1,'#ff4488');
+        cx2.shadowColor='rgba(200,100,255,0.7)'; cx2.shadowBlur=22;
+        cx2.fillStyle=tg; cx2.font='bold 44px "Bungee","Impact",Arial,sans-serif';
         cx2.textAlign='center'; cx2.textBaseline='middle';
         cx2.fillText('QUARTER CENTURY ARCADE',512,65);
         cx2.shadowBlur=0;
-        // Sub-text
-        cx2.fillStyle='rgba(255,220,120,0.75)'; cx2.font='bold 15px "Bungee","Impact",Arial,sans-serif';
-        cx2.fillText('✦  NANKY\'S 25TH  ·  EST. 2001  ·  25¢ PER PLAY  ✦',512,118);
+        // Sub-text — fun & bright
+        cx2.fillStyle='#ffee88'; cx2.font='bold 15px "Bungee","Impact",Arial,sans-serif';
+        cx2.fillText('🎈  NANKY\'S 25TH  ·  EST. 2001  ·  25¢ PER PLAY  🎈',512,118);
         const tex2=new THREE.CanvasTexture(C2); tex2.needsUpdate=true;
         const sign=new THREE.Mesh(new THREE.PlaneGeometry(15,2.2),new THREE.MeshBasicMaterial({map:tex2}));
         sign.position.set(0,6.5,-RD/2+0.2); scene.add(sign);
@@ -302,94 +304,85 @@
     })();
 
     /* ═══ BIRTHDAY CAKE ═══ */
-    (function(){ try {
+    (function(){
       const g=new THREE.Group();
       const cm=(col)=>new THREE.MeshLambertMaterial({color:col});
-      const add=(mesh,x,y,z)=>{ mesh.position.set(x,y,z); g.add(mesh); return mesh; };
 
-      // ── Bottom tier — deep rose with icing text ──
-      const icC=document.createElement('canvas'); icC.width=1024; icC.height=256;
-      const icx=icC.getContext('2d');
-      icx.fillStyle='#cc1155'; icx.fillRect(0,0,1024,256);
-      // Sprinkle dots
-      ['#ffc800','#00ccbb','#ffffff','#ff88dd','#aaffee'].forEach(c=>{
-        for(let d=0;d<14;d++){ icx.fillStyle=c; icx.beginPath(); icx.arc(Math.random()*1024,Math.random()*256,4,0,Math.PI*2); icx.fill(); }
-      });
-      // Icing text
-      icx.strokeStyle='#ff88cc'; icx.lineWidth=5; icx.lineJoin='round';
-      icx.font='bold italic 58px "Bungee","Georgia",sans-serif';
-      icx.textAlign='center'; icx.textBaseline='middle';
-      icx.strokeText('Happy Birthday, Nankicho! ♡',512,128);
-      icx.fillStyle='#ffffff'; icx.shadowColor='#ff44aa'; icx.shadowBlur=14;
-      icx.fillText('Happy Birthday, Nankicho! ♡',512,128);
-      icx.shadowBlur=0;
-      const icTex=new THREE.CanvasTexture(icC); icTex.needsUpdate=true;
-      add(new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,48),new THREE.MeshLambertMaterial({map:icTex})),0,0.36,0);
-      // Gold vertical piping
+      // ── Bottom tier — deep rose pink ──
+      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,48),cm(0xff2277)),{position:{x:0,y:0.36,z:0}}));
+      // Vertical gold piping stripes on bottom tier
       for(let i=0;i<16;i++){
         const a=i/16*Math.PI*2;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.038,0.68,8),cm(0xffc800,0.25)),Math.cos(a)*1.04,0.36,Math.sin(a)*1.04);
+        const pipe=new THREE.Mesh(new THREE.CylinderGeometry(0.038,0.038,0.68,8),cm(0xffd700,0.3));
+        pipe.position.set(Math.cos(a)*1.04,0.36,Math.sin(a)*1.04); g.add(pipe);
       }
-      // Gold mid-band torus
-      const b1=new THREE.Mesh(new THREE.TorusGeometry(1.05,0.045,8,48),cm(0xffc800,0.25));
-      b1.rotation.x=Math.PI/2; add(b1,0,0.36,0);
-      // Peach icing rim disc
-      add(new THREE.Mesh(new THREE.CylinderGeometry(1.08,1.08,0.06,48),cm(0xffccaa,0.45)),0,0.72,0);
-      // Peach rosettes around rim
+      // Gold icing band around mid-bottom tier
+      const band1=new THREE.Mesh(new THREE.TorusGeometry(1.05,0.045,8,48),cm(0xffd700,0.3));
+      band1.rotation.x=Math.PI/2; band1.position.y=0.36; g.add(band1);
+      // Cream icing top rim + rosettes on bottom tier
+      const icingTop1=new THREE.Mesh(new THREE.CylinderGeometry(1.07,1.07,0.06,48),cm(0xffeedd,0.4));
+      icingTop1.position.y=0.72; g.add(icingTop1);
       for(let i=0;i<12;i++){
         const a=i/12*Math.PI*2;
-        add(new THREE.Mesh(new THREE.TorusGeometry(0.09,0.044,6,12),cm(0xffccaa,0.45)),Math.cos(a)*0.95,0.77,Math.sin(a)*0.95);
+        const ros=new THREE.Mesh(new THREE.TorusGeometry(0.09,0.045,6,12),cm(0xffeedd,0.4));
+        ros.position.set(Math.cos(a)*0.95,0.76,Math.sin(a)*0.95); g.add(ros);
       }
-      // Icing drips
+      // Icing drips down bottom tier sides
       for(let i=0;i<10;i++){
-        const a=i/10*Math.PI*2+Math.PI/10;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.018,0.16+Math.sin(i*1.3)*0.06,8),cm(0xffccaa,0.45)),Math.cos(a)*1.04,0.64,Math.sin(a)*1.04);
+        const a=i/10*Math.PI*2+(Math.PI/10);
+        const drip=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.02,0.18+Math.sin(i*1.3)*0.07,8),cm(0xffeedd,0.4));
+        drip.position.set(Math.cos(a)*1.04,0.63,Math.sin(a)*1.04); g.add(drip);
       }
 
-      // ── Top tier — deep purple ──
-      add(new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,48),cm(0x8800ee)),0,1.01,0);
-      // Turquoise piping
+      // ── Top tier — soft lavender ──
+      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,48),cm(0xaa44ff)),{position:{x:0,y:1.01,z:0}}));
+      // Turquoise piping stripes on top tier
       for(let i=0;i<12;i++){
         const a=i/12*Math.PI*2;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.032,0.54,8),cm(0x00ccbb,0.25)),Math.cos(a)*0.67,1.01,Math.sin(a)*0.67);
+        const pipe=new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.032,0.54,8),cm(0x00ddcc,0.3));
+        pipe.position.set(Math.cos(a)*0.67,1.01,Math.sin(a)*0.67); g.add(pipe);
       }
-      // Gold mid-band torus
-      const b2=new THREE.Mesh(new THREE.TorusGeometry(0.68,0.04,8,48),cm(0xffc800,0.25));
-      b2.rotation.x=Math.PI/2; add(b2,0,1.01,0);
-      // Peach icing top disc
-      add(new THREE.Mesh(new THREE.CylinderGeometry(0.70,0.70,0.06,48),cm(0xffccaa,0.45)),0,1.33,0);
-      // Rosettes on top tier rim
+      // Gold band mid top tier
+      const band2=new THREE.Mesh(new THREE.TorusGeometry(0.68,0.04,8,48),cm(0xffd700,0.3));
+      band2.rotation.x=Math.PI/2; band2.position.y=1.01; g.add(band2);
+      // Cream icing top + rosettes on top tier
+      const icingTop2=new THREE.Mesh(new THREE.CylinderGeometry(0.70,0.70,0.06,48),cm(0xffeedd,0.4));
+      icingTop2.position.y=1.33; g.add(icingTop2);
       for(let i=0;i<8;i++){
         const a=i/8*Math.PI*2;
-        add(new THREE.Mesh(new THREE.TorusGeometry(0.07,0.038,6,12),cm(0xffccaa,0.45)),Math.cos(a)*0.60,1.37,Math.sin(a)*0.60);
+        const ros=new THREE.Mesh(new THREE.TorusGeometry(0.07,0.038,6,12),cm(0xffeedd,0.4));
+        ros.position.set(Math.cos(a)*0.60,1.37,Math.sin(a)*0.60); g.add(ros);
       }
-      // Drips on top tier
+      // Icing drips down top tier
       for(let i=0;i<8;i++){
-        const a=i/8*Math.PI*2+Math.PI/8;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.016,0.13+Math.sin(i*1.7)*0.05,8),cm(0xffccaa,0.45)),Math.cos(a)*0.67,1.27,Math.sin(a)*0.67);
+        const a=i/8*Math.PI*2+(Math.PI/8);
+        const drip=new THREE.Mesh(new THREE.CylinderGeometry(0.033,0.018,0.14+Math.sin(i*1.7)*0.06,8),cm(0xffeedd,0.4));
+        drip.position.set(Math.cos(a)*0.67,1.27,Math.sin(a)*0.67); g.add(drip);
       }
-      // Rainbow sprinkles
-      const SPRC=[0xff2255,0xff8800,0xffdd00,0x22cc66,0x2288ff,0xaa22ff,0xff44aa,0x00ccbb];
-      for(let i=0;i<24;i++){
-        const sa=(i/24)*Math.PI*2*3.1, sr=0.08+Math.random()*0.48;
-        const spr=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.085,6),cm(SPRC[i%8],0.6));
-        spr.rotation.z=Math.PI/2; spr.rotation.y=sa*0.7;
-        add(spr,Math.cos(sa)*sr,1.38,Math.sin(sa)*sr);
+      // Rainbow sprinkles on top
+      const SPRCOLS=[0xff3366,0xff8800,0xffee00,0x44ff88,0x4488ff,0xcc44ff,0xff55aa,0x00ddcc];
+      for(let i=0;i<22;i++){
+        const a=Math.random()*Math.PI*2, r=Math.random()*0.55;
+        const spr=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,0.09,6),cm(SPRCOLS[i%8],0.6));
+        spr.rotation.z=Math.PI/2; spr.rotation.y=Math.random()*Math.PI;
+        spr.position.set(Math.cos(a)*r,1.38,Math.sin(a)*r); g.add(spr);
       }
 
       // ── Candles ──
-      const CCAND=[0xff2255,0xff8800,0xffdd00,0x22cc66,0x2288ff,0xaa22ff,0xff44aa];
+      const CCAND=[0xff3366,0xff8800,0xffee00,0x44ff88,0x4488ff,0xcc44ff,0xff55aa];
       for(let i=0;i<7;i++){
-        const a=i===0?0:(i-1)/6*Math.PI*2, cr=i===0?0:0.38;
-        const cx=Math.cos(a)*cr, cz=Math.sin(a)*cr;
-        add(new THREE.Mesh(new THREE.CylinderGeometry(0.052,0.052,0.42,8),cm(CCAND[i],0.55)),cx,1.57,cz);
-        const fl=new THREE.Mesh(new THREE.SphereGeometry(0.062,8,8),new THREE.MeshBasicMaterial({color:0xffee44}));
-        fl.scale.y=1.7; add(fl,cx,1.81,cz);
-        const fll=new THREE.PointLight(0xffaa33,1.0,1.8); fll.position.set(cx,1.83,cz); g.add(fll);
+        const a=i===0?0:((i-1)/6*Math.PI*2), cr=i===0?0:0.38;
+        const cndx=Math.cos(a)*cr, cndz=Math.sin(a)*cr;
+        const candle=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,0.42,8),cm(CCAND[i],0.6));
+        candle.position.set(cndx,1.56,cndz); g.add(candle);
+        const flame=new THREE.Mesh(new THREE.SphereGeometry(0.065,8,8),new THREE.MeshBasicMaterial({color:0xffee88}));
+        flame.scale.y=1.7; flame.position.set(cndx,1.80,cndz); g.add(flame);
+        const fl=new THREE.PointLight(0xffcc55,1.2,2.0); fl.position.set(cndx,1.82,cndz); g.add(fl);
       }
 
-      // ── Gold cake stand ──
-      add(new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.25,0.06,32),new THREE.MeshBasicMaterial({color:0xffc800})),0,0.03,0);
+      // ── Cake stand — shiny gold ──
+      const stand=new THREE.Mesh(new THREE.CylinderGeometry(1.18,1.25,0.06,32),new THREE.MeshBasicMaterial({color:0xffd700}));
+      stand.position.set(0,0.03,0); g.add(stand);
       // Round table with tablecloth
       const tableGroup=new THREE.Group();
       const mkM=(geo,col,y)=>{ const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:col})); m.position.y=y; return m; };
@@ -400,103 +393,11 @@
       tableGroup.position.set(-10,0,-8);
       scene.add(tableGroup);
       g.position.set(-10,1.0,-8); scene.add(g);
-      const ck=new THREE.PointLight(0xffe0cc,2.0,7); ck.position.set(-10,3.2,-8); scene.add(ck);
-    } catch(e){ console.error('Cake crashed:',e); } })();
-
-    /* ═══ QUARTER COIN PLAQUES + "25" WALL DECORATIONS ═══ */
-    (function(){ try {
-      // Build a quarter coin canvas texture
-      function makeQuarterTex(){
-        const C=document.createElement('canvas'); C.width=512; C.height=512;
-        const cx=C.getContext('2d');
-        cx.clearRect(0,0,512,512);
-        // Metallic silver coin circle
-        const gr=cx.createRadialGradient(185,145,18,256,256,238);
-        gr.addColorStop(0,'#f2f2e8'); gr.addColorStop(0.35,'#d0d0c0');
-        gr.addColorStop(0.72,'#a8a898'); gr.addColorStop(1,'#686858');
-        cx.fillStyle=gr;
-        cx.beginPath(); cx.arc(256,256,238,0,Math.PI*2); cx.fill();
-        // Reeded edge
-        cx.strokeStyle='rgba(90,90,80,0.45)'; cx.lineWidth=2;
-        for(let i=0;i<80;i++){
-          const a=i/80*Math.PI*2;
-          cx.beginPath(); cx.moveTo(256+Math.cos(a)*226,256+Math.sin(a)*226);
-          cx.lineTo(256+Math.cos(a)*238,256+Math.sin(a)*238); cx.stroke();
-        }
-        // Inner circle line
-        cx.strokeStyle='rgba(80,80,70,0.4)'; cx.lineWidth=3;
-        cx.beginPath(); cx.arc(256,256,212,0,Math.PI*2); cx.stroke();
-        // Big "25" center
-        cx.fillStyle='#3c3c30';
-        cx.shadowColor='rgba(0,0,0,0.3)'; cx.shadowBlur=7;
-        cx.font='bold 148px "Bungee","Impact",Arial,sans-serif';
-        cx.textAlign='center'; cx.textBaseline='middle';
-        cx.fillText('25',256,218);
-        cx.font='bold 60px "Bungee","Impact",Arial,sans-serif';
-        cx.fillText('¢',256,316); cx.shadowBlur=0;
-        // Circular rim text
-        cx.fillStyle='#303028'; cx.font='bold 17px "Bungee",Arial,sans-serif';
-        const msg='  QUARTER CENTURY ARCADE  ·  EST. 2001  ·  ';
-        [...msg].forEach((ch,i)=>{
-          const a=i/msg.length*Math.PI*2-Math.PI/2;
-          cx.save(); cx.translate(256+Math.cos(a)*194,256+Math.sin(a)*194);
-          cx.rotate(a+Math.PI/2); cx.fillText(ch,0,0); cx.restore();
-        });
-        return new THREE.CanvasTexture(C);
-      }
-
-      // Build a "25" wall panel
-      function make25Tex(col){
-        const C=document.createElement('canvas'); C.width=512; C.height=320;
-        const cx=C.getContext('2d');
-        const bg=cx.createLinearGradient(0,0,0,320);
-        bg.addColorStop(0,'#08001a'); bg.addColorStop(1,'#04000e');
-        cx.fillStyle=bg; cx.fillRect(0,0,512,320);
-        cx.strokeStyle=col; cx.lineWidth=4; cx.strokeRect(6,6,500,308);
-        cx.fillStyle=col; cx.shadowColor=col; cx.shadowBlur=22;
-        cx.font='bold 210px "Bungee","Impact",Arial,sans-serif';
-        cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('25',256,162);
-        cx.shadowBlur=0;
-        cx.fillStyle='rgba(255,255,255,0.45)'; cx.font='bold 24px "Bungee",Arial,sans-serif';
-        cx.fillText('QUARTER CENTURY',256,286);
-        return new THREE.CanvasTexture(C);
-      }
-
-      const qTex=makeQuarterTex();
-      // Right wall coins  (x = RW/2)
-      [[-4,3.8],[-12,4.5],[-18,3.2]].forEach(([z,y])=>{
-        const m=new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.6),new THREE.MeshBasicMaterial({map:qTex,transparent:true,alphaTest:0.04}));
-        m.position.set(RW/2-0.05,y,z); m.rotation.y=-Math.PI/2; scene.add(m);
-        const l=new THREE.PointLight(0xfff0cc,1.8,5); l.position.set(RW/2-1,y+0.5,z); scene.add(l);
-      });
-      // Left wall coins
-      [[0,4.2],[-10,3.6],[-16,4.0]].forEach(([z,y])=>{
-        const m=new THREE.Mesh(new THREE.PlaneGeometry(2.6,2.6),new THREE.MeshBasicMaterial({map:qTex,transparent:true,alphaTest:0.04}));
-        m.position.set(-RW/2+0.05,y,z); m.rotation.y=Math.PI/2; scene.add(m);
-        const l=new THREE.PointLight(0xfff0cc,1.8,5); l.position.set(-RW/2+1,y+0.5,z); scene.add(l);
-      });
-      // Back wall coins
-      [[-8,4.5],[0,5.2],[8,4.5]].forEach(([x,y])=>{
-        const m=new THREE.Mesh(new THREE.PlaneGeometry(2.2,2.2),new THREE.MeshBasicMaterial({map:qTex,transparent:true,alphaTest:0.04}));
-        m.position.set(x,y,-RD/2+0.05); scene.add(m);
-        const l=new THREE.PointLight(0xfff0cc,1.5,5); l.position.set(x,y+0.5,-RD/2+1.2); scene.add(l);
-      });
-
-      // "25" glowing panels on side walls
-      [{px:RW/2-0.05,  py:4.2, pz:-8,  ry:-Math.PI/2, col:'#ff44cc', hex:0xff44cc},
-       {px:-RW/2+0.05, py:4.2, pz:-6,  ry: Math.PI/2, col:'#ffd700', hex:0xffd700},
-       {px:-RW/2+0.05, py:4.2, pz:-18, ry: Math.PI/2, col:'#44ffcc', hex:0x44ffcc}
-      ].forEach(({px,py,pz,ry,col,hex})=>{
-        const t=make25Tex(col);
-        const m=new THREE.Mesh(new THREE.PlaneGeometry(3.0,1.88),new THREE.MeshBasicMaterial({map:t}));
-        m.position.set(px,py,pz); m.rotation.y=ry; scene.add(m);
-        const l=new THREE.PointLight(hex,2.5,7);
-        l.position.set(px+(ry>0?1:-1),py,pz); scene.add(l);
-      });
-    } catch(e){ console.error('Quarter section crashed:',e); } })();
+      const ck=new THREE.PointLight(0xffffff,4.5,8); ck.position.set(-10,3.5,-8); scene.add(ck);
+    })();
 
     /* ═══ HANGING STAR DECORATIONS ═══ */
-    (function(){ try {
+    (function(){
       const starCols=[0xffee00,0xff44aa,0x44ffcc,0xff8822,0xcc44ff,0x44aaff,0xffcc00,0xff3366];
       const spots=[[-10,4],[-6,1],[0,-2],[6,0],[10,3],[-8,-6],[8,-5],[-3,7],[3,-8]];
       spots.forEach(([sx,sz],i)=>{
@@ -763,41 +664,6 @@
     [[-13,RH-0.6,-8,1,0.46],[-13,RH-0.4,2,2,0.54],[13,RH-0.5,-8,3,0.42],[13,RH-0.7,2,4,0.50],
      [ -5,RH-0.6,-16,5,0.52],[ 5,RH-0.5,-16,6,0.44]]
       .forEach(([x,y,z,ci,r],i)=>addHeliumBalloon(x,y,z,BCOLS[ci],r,i*0.8+6));
-
-    // "25" foil number balloons — gold metallic
-    try { ['2','5'].forEach((num,ni)=>{
-      const C=document.createElement('canvas'); C.width=320; C.height=400;
-      const cx=C.getContext('2d');
-      const gr=cx.createRadialGradient(110,100,10,160,200,180);
-      gr.addColorStop(0,'#fffae0'); gr.addColorStop(0.45,'#f8d060'); gr.addColorStop(0.8,'#c89010'); gr.addColorStop(1,'#7a5000');
-      cx.fillStyle=gr;
-      // Balloon oval shape (ellipse — universally supported)
-      cx.beginPath(); cx.ellipse(160,194,148,186,0,0,Math.PI*2); cx.fill();
-      cx.strokeStyle='rgba(200,140,0,0.5)'; cx.lineWidth=3;
-      cx.beginPath(); cx.ellipse(160,194,148,186,0,0,Math.PI*2); cx.stroke();
-      // Highlight
-      cx.fillStyle='rgba(255,255,255,0.28)';
-      cx.beginPath(); cx.ellipse(110,100,62,40,-0.3,0,Math.PI*2); cx.fill();
-      // Number
-      cx.fillStyle='rgba(80,44,0,0.82)';
-      cx.font='bold 230px "Bungee","Impact",Arial,sans-serif';
-      cx.textAlign='center'; cx.textBaseline='middle';
-      cx.fillText(num,160,205);
-      // Knot
-      cx.fillStyle='#c89010';
-      cx.beginPath(); cx.ellipse(160,385,11,9,0,0,Math.PI*2); cx.fill();
-      const tex=new THREE.CanvasTexture(C); tex.needsUpdate=true;
-      const nbg=new THREE.Group();
-      const body=new THREE.Mesh(new THREE.PlaneGeometry(1.4,1.75),
-        new THREE.MeshBasicMaterial({map:tex,transparent:true,alphaTest:0.05,side:THREE.DoubleSide}));
-      nbg.add(body);
-      nbg.add(curlyString(0.75,ni*1.2+0.5));
-      const nbx=(ni===0?-1.2:1.2), nby=RH-1.4, nbz=9;
-      nbg.position.set(nbx,nby,nbz);
-      nbg.userData={baseY:nby,phase:ni*1.5,r:0.75};
-      scene.add(nbg); balloons.push(nbg);
-      const nbl=new THREE.PointLight(0xf8d060,2,5); nbl.position.set(nbx,nby,nbz); scene.add(nbl);
-    }); } catch(e){ console.error('25 balloons crashed:',e); }
 
     /* ═══ CONFETTI — 500 pieces falling from ceiling ═══ */
     const confetti=[];
