@@ -54,6 +54,12 @@ let canvas, ctx
 let LAYOUT = {}   // computed in resize()
 
 // ─────────────────────────────────────────────────────────────────────────────
+// DORM BACKGROUND IMAGE
+// ─────────────────────────────────────────────────────────────────────────────
+const dormImg = new Image()
+dormImg.src = 'assets/dorm.png'
+
+// ─────────────────────────────────────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────────────────────────────────────
 function init() {
@@ -312,30 +318,20 @@ function generateBricks() {
   LAYOUT.brickW = bW; LAYOUT.brickH = bH; LAYOUT.brickGap = gap
 }
 
-// ── Brick wall background ──────────────────────────────────────────────────
+// ── Dorm building background ──────────────────────────────────────────────
 function drawBrickWall() {
-  // Mortar base (warm cream-gray, brighter than before)
-  ctx.fillStyle = '#c4a882'
-  ctx.fillRect(0, 0, LAYOUT.W, LAYOUT.H)
-
-  // Individual bricks with colour variation
-  for (const b of (LAYOUT.bricks || [])) {
-    ctx.fillStyle = b.color
-    ctx.fillRect(b.x, b.y, b.w, b.h)
-
-    // Top-edge highlight (light catching top face of brick)
-    ctx.fillStyle = 'rgba(255,255,255,0.10)'
-    ctx.fillRect(b.x, b.y, b.w, 2)
-
-    // Bottom-edge shadow (depth)
-    ctx.fillStyle = 'rgba(0,0,0,0.14)'
-    ctx.fillRect(b.x, b.y + b.h - 2, b.w, 2)
-
-    // Very faint left shadow on alternating bricks for texture
-    if ((Math.abs(b.x + b.y) % 3) === 0) {
-      ctx.fillStyle = 'rgba(0,0,0,0.06)'
-      ctx.fillRect(b.x, b.y, 3, b.h)
-    }
+  if (dormImg.complete && dormImg.naturalWidth > 0) {
+    // Cover the full canvas, cropping to center if needed
+    const scale = Math.max(LAYOUT.W / dormImg.naturalWidth, LAYOUT.H / dormImg.naturalHeight)
+    const dw = dormImg.naturalWidth  * scale
+    const dh = dormImg.naturalHeight * scale
+    const dx = (LAYOUT.W - dw) / 2
+    const dy = (LAYOUT.H - dh) / 2
+    ctx.drawImage(dormImg, dx, dy, dw, dh)
+  } else {
+    // Fallback while image loads
+    ctx.fillStyle = '#b5735a'
+    ctx.fillRect(0, 0, LAYOUT.W, LAYOUT.H)
   }
 }
 
