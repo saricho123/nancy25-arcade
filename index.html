@@ -41,7 +41,7 @@
       <div id="gift-lid">
         <div class="lid-rib-h"></div>
         <div class="lid-rib-v"></div>
-        <canvas id="gift-bow-canvas" width="200" height="90"></canvas>
+        <canvas id="gift-bow-canvas" width="200" height="120"></canvas>
       </div>
       <!-- Box body -->
       <div id="gift-box-body">
@@ -198,7 +198,7 @@
 
 /* Canvas bow sits above the lid */
 #gift-bow-canvas {
-  position:absolute; top:-90px; left:50%;
+  position:absolute; top:-120px; left:50%;
   transform:translateX(-50%);
   pointer-events:none;
 }
@@ -336,48 +336,68 @@ document.addEventListener('DOMContentLoaded', function(){
   var gift = document.getElementById('tex-gift');
   if(!btn) return;
 
-  // Draw flowing ribbon bow on canvas
+  // Draw bow on canvas — wide natural loops, short tails
   var bowCanvas = document.getElementById('gift-bow-canvas');
   if(bowCanvas){
     var bc = bowCanvas.getContext('2d');
-    bc.strokeStyle='#5a7a4a'; bc.lineWidth=2.5; bc.lineCap='round';
-    bc.fillStyle='#7a9a6a';
-    // Left loop
+    var kx=100, ky=62; // knot center
+    bc.lineCap='round'; bc.lineJoin='round';
+
+    function drawLoop(side){ // side: -1=left, 1=right
+      // Each loop is a rounded teardrop pointing outward
+      bc.beginPath();
+      bc.moveTo(kx, ky);
+      bc.bezierCurveTo(
+        kx + side*18, ky-18,   // leave knot going up-out
+        kx + side*58, ky-28,   // far top control
+        kx + side*56, ky-8     // far bottom point
+      );
+      bc.bezierCurveTo(
+        kx + side*54, ky+8,    // curve back
+        kx + side*16, ky+12,   // inner bottom
+        kx, ky                 // back to knot
+      );
+      bc.fillStyle='#7a9a6a'; bc.fill();
+      bc.strokeStyle='#4a6a3a'; bc.lineWidth=2; bc.stroke();
+      // Inner highlight
+      bc.beginPath();
+      bc.moveTo(kx + side*12, ky-4);
+      bc.bezierCurveTo(kx+side*22, ky-20, kx+side*48, ky-24, kx+side*50, ky-12);
+      bc.strokeStyle='rgba(255,255,255,0.3)'; bc.lineWidth=3; bc.stroke();
+    }
+    drawLoop(-1); drawLoop(1);
+
+    // Tails — two short ribbon ends curling down from knot
+    function drawTail(side, curve){
+      bc.beginPath();
+      bc.moveTo(kx - 5, ky+4);
+      bc.bezierCurveTo(
+        kx + side*10, ky+18,
+        kx + side*18 + curve, ky+40,
+        kx + side*14 + curve, ky+52
+      );
+      bc.lineTo(kx + side*26 + curve, ky+52);
+      bc.bezierCurveTo(
+        kx + side*30 + curve, ky+40,
+        kx + side*22, ky+18,
+        kx + 5, ky+4
+      );
+      bc.closePath();
+      bc.fillStyle='#7a9a6a'; bc.fill();
+      bc.strokeStyle='#4a6a3a'; bc.lineWidth=1.5; bc.stroke();
+    }
+    drawTail(-1, -8);
+    drawTail(1,   8);
+
+    // Knot
     bc.beginPath();
-    bc.moveTo(100,75);
-    bc.bezierCurveTo(80,60, 30,30, 45,15);
-    bc.bezierCurveTo(60,0,  80,20, 100,75);
-    bc.fill(); bc.stroke();
-    // Right loop
+    bc.ellipse(kx, ky, 9, 7, 0, 0, Math.PI*2);
+    bc.fillStyle='#4a6a3a'; bc.fill();
+    bc.strokeStyle='#3a5a2a'; bc.lineWidth=1.5; bc.stroke();
+    // Knot highlight
     bc.beginPath();
-    bc.moveTo(100,75);
-    bc.bezierCurveTo(120,60, 170,30, 155,15);
-    bc.bezierCurveTo(140,0, 120,20, 100,75);
-    bc.fill(); bc.stroke();
-    // Left tail draping down
-    bc.beginPath();
-    bc.moveTo(94,80);
-    bc.bezierCurveTo(75,82, 55,88, 50,100);
-    bc.bezierCurveTo(48,106,55,108,62,104);
-    bc.bezierCurveTo(68,100, 80,90, 106,82);
-    bc.closePath(); bc.fill(); bc.stroke();
-    // Right tail draping down
-    bc.beginPath();
-    bc.moveTo(106,80);
-    bc.bezierCurveTo(125,82, 145,88, 150,100);
-    bc.bezierCurveTo(152,106,145,108,138,104);
-    bc.bezierCurveTo(132,100, 120,90, 94,82);
-    bc.closePath(); bc.fill(); bc.stroke();
-    // Knot center
-    bc.beginPath();
-    bc.arc(100,75,9,0,Math.PI*2);
-    bc.fillStyle='#4a6a3a'; bc.fill(); bc.stroke();
-    // Shading on loops
-    bc.globalAlpha=0.18;
-    bc.fillStyle='#000';
-    bc.beginPath(); bc.moveTo(100,75); bc.bezierCurveTo(80,60,30,30,45,15); bc.bezierCurveTo(52,8,65,15,75,35); bc.bezierCurveTo(85,55,92,68,100,75); bc.fill();
-    bc.beginPath(); bc.moveTo(100,75); bc.bezierCurveTo(120,60,170,30,155,15); bc.bezierCurveTo(148,8,135,15,125,35); bc.bezierCurveTo(115,55,108,68,100,75); bc.fill();
-    bc.globalAlpha=1;
+    bc.ellipse(kx-2, ky-2, 4, 3, -0.4, 0, Math.PI*2);
+    bc.fillStyle='rgba(255,255,255,0.25)'; bc.fill();
   }
 
   // Shimmy → shake → explode sequence
