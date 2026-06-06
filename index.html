@@ -72,6 +72,15 @@
     if(!canvas) return;
     canvas.style.zIndex = '2';
 
+    // Preload cabinet photo textures — applied to screen meshes as they load
+    const _tl = new THREE.TextureLoader();
+    const _cabinetPhotos = {};
+    [{idx:1,src:'game2/koreanair.png'},{idx:2,src:'game3/assets/dorm.png'},
+     {idx:3,src:'game4/flute.png'},{idx:4,src:'game5/shoe_rack_cover.png'}
+    ].forEach(function(p){
+      _tl.load(p.src, function(t){ _cabinetPhotos[p.idx]=t; });
+    });
+
     /* ── Renderer ── */
     const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
     renderer.setSize(innerWidth, innerHeight);
@@ -969,13 +978,12 @@
       const scrMat=new THREE.MeshBasicMaterial({map:scrTex, side:THREE.FrontSide});
       const scrMesh=new THREE.Mesh(new THREE.PlaneGeometry(W*0.76,H*0.34),scrMat);
       scrMesh.position.set(0,H*0.10,D/2+0.06); g.add(scrMesh);
-      // For photo-based screens load directly via TextureLoader (reliable)
-      const _photoMap={1:'game2/koreanair.png',2:'game3/assets/dorm.png',
-                       3:'game4/flute.png',4:'game5/shoe_rack_cover.png'};
-      if(_photoMap[idx]){
-        new THREE.TextureLoader().load(_photoMap[idx],function(t){
-          scrMat.map=t; scrMat.needsUpdate=true;
-        });
+      // Apply preloaded photo texture once ready
+      if([1,2,3,4].indexOf(idx)>=0){
+        (function waitForPhoto(){
+          if(_cabinetPhotos[idx]){ scrMat.map=_cabinetPhotos[idx]; scrMat.needsUpdate=true; }
+          else { setTimeout(waitForPhoto,100); }
+        })();
       }
       const sl=new THREE.PointLight(screen,2.2,5);
       sl.position.set(0,H*0.10,D/2+0.6); g.add(sl);
