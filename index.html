@@ -862,31 +862,19 @@
         cx.fillText('SHEEP ESCAPE',128,22);
 
       } else if (idx === 1) {
-        // Fear of Flying — sky, clouds, plane
-        const sg = cx.createLinearGradient(0,0,0,200);
-        sg.addColorStop(0,'#1255a0'); sg.addColorStop(1,'#a8dff2');
-        cx.fillStyle=sg; cx.fillRect(0,0,256,200);
-        // clouds
-        [[50,55,40],[160,35,35],[210,75,30],[100,80,25]].forEach(([x,y,r])=>{
-          cx.fillStyle='rgba(255,255,255,0.82)';
-          cx.beginPath(); cx.arc(x,y,r,0,Math.PI*2); cx.fill();
-          cx.beginPath(); cx.arc(x-r*.6,y+r*.4,r*.65,0,Math.PI*2); cx.fill();
-          cx.beginPath(); cx.arc(x+r*.6,y+r*.4,r*.65,0,Math.PI*2); cx.fill();
-        });
-        // turbulence zones
-        cx.fillStyle='rgba(200,70,10,0.55)';
-        cx.fillRect(180,30,40,90); cx.fillRect(30,100,35,80);
-        cx.fillStyle='rgba(255,220,40,0.7)';
-        cx.font='bold 20px sans-serif'; cx.textAlign='center';
-        cx.fillText('⚡',200,80); cx.fillText('⚡',47,145);
-        // plane
-        cx.fillStyle='#f4f6fb';
-        cx.beginPath(); cx.ellipse(128,130,50,16,0,0,Math.PI*2); cx.fill();
-        cx.fillStyle='#1565c0'; cx.fillRect(115,122,26,8);
-        cx.beginPath(); cx.moveTo(165,130); cx.quadraticCurveTo(180,130,170,140); cx.closePath(); cx.fill();
-        cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,256,32);
+        // Fear of Flying — Korean Air photo
+        cx.fillStyle='#0a1830'; cx.fillRect(0,0,256,200);
         cx.fillStyle='#fff'; cx.font='bold 12px monospace'; cx.textAlign='center';
         cx.fillText('FEAR OF FLYING',128,22);
+        var _airImg=new Image();
+        _airImg.onload=function(){
+          cx.drawImage(_airImg,0,0,256,200);
+          cx.fillStyle='rgba(0,0,0,.45)'; cx.fillRect(0,0,256,32);
+          cx.fillStyle='#fff'; cx.font='bold 12px monospace'; cx.textAlign='center';
+          cx.fillText('FEAR OF FLYING',128,22);
+          if(_airTex) _airTex.needsUpdate=true;
+        };
+        _airImg.src='game2/koreanair.png';
 
       } else if (idx === 2) {
         // Wheeler Climb — actual dorm photo as background
@@ -930,12 +918,13 @@
       }
 
       const tex = new THREE.CanvasTexture(C);
+      if (idx === 1) _airTex = tex;
       if (idx === 2) _wheelerTex = tex;
       if (idx === 3) _fluteTex = tex;
       if (idx === 4) _shoeTex = tex;
       return tex;
     }
-    let _wheelerTex = null, _fluteTex = null, _shoeTex = null;
+    let _airTex = null, _wheelerTex = null, _fluteTex = null, _shoeTex = null;
 
     /* ════════════════════════════════════════════════════
        5 GAME MACHINES — position + game data bundled together
