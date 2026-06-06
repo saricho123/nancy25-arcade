@@ -5,9 +5,11 @@ const ctx = canvas.getContext('2d');
 
 const CW = 480, CH = 460;
 const DPR = window.devicePixelRatio || 1;
-canvas.width  = CW * DPR;
-canvas.height = CH * DPR;
-ctx.scale(DPR, DPR);
+// Match canvas physical pixels to CSS display size so no upscaling occurs
+const CSS_W = 560, CSS_H = 560;
+canvas.width  = CSS_W * DPR;
+canvas.height = CSS_H * DPR;
+ctx.scale(CSS_W * DPR / CW, CSS_H * DPR / CH);
 ctx.imageSmoothingEnabled = true;
 ctx.imageSmoothingQuality = 'high';
 
