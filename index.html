@@ -309,7 +309,7 @@
       const cm=(col)=>new THREE.MeshLambertMaterial({color:col});
 
       // ── Bottom tier — deep rose pink ──
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,48),cm(0xff2277)),{position:{x:0,y:0.36,z:0}}));
+      const t1=new THREE.Mesh(new THREE.CylinderGeometry(1.05,1.05,0.72,48),cm(0xff2277)); t1.position.set(0,0.36,0); g.add(t1);
       // Vertical gold piping stripes on bottom tier
       for(let i=0;i<16;i++){
         const a=i/16*Math.PI*2;
@@ -335,7 +335,7 @@
       }
 
       // ── Top tier — soft lavender ──
-      g.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,48),cm(0xaa44ff)),{position:{x:0,y:1.01,z:0}}));
+      const t2=new THREE.Mesh(new THREE.CylinderGeometry(0.68,0.68,0.58,48),cm(0xaa44ff)); t2.position.set(0,1.01,0); g.add(t2);
       // Turquoise piping stripes on top tier
       for(let i=0;i<12;i++){
         const a=i/12*Math.PI*2;
