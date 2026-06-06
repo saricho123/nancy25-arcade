@@ -161,7 +161,7 @@
     /* ═══ DANCE FLOOR — animated coloured tiles (InstancedMesh = 1 draw call) ═══ */
     const DFCOLS=14, DFROWS=6, TW=RW/DFCOLS, TD=2.2;
     const _dfGeo=new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07);
-    const _dfMat=new THREE.MeshStandardMaterial({metalness:0.7,roughness:0.15,vertexColors:false});
+    const _dfMat=new THREE.MeshBasicMaterial({color:0xffffff});
     const danceFloorInst=new THREE.InstancedMesh(_dfGeo,_dfMat,DFCOLS*DFROWS);
     danceFloorInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
     const _dfDummy=new THREE.Object3D();
@@ -1122,7 +1122,7 @@
         const wave=Math.sin(c*0.6-t*3.5+r*0.4);
         const hue=(c*0.07+r*0.13+t*0.15)%1;
         const bright=Math.max(0,wave)*0.6+flash*0.5;
-        _dfColor.setHSL(hue,1,0.08+bright*0.55);
+        _dfColor.setHSL(hue,1,0.15+bright*0.5);
         danceFloorInst.setColorAt(r*DFCOLS+c,_dfColor);
       }
       danceFloorInst.instanceColor.needsUpdate=true;
