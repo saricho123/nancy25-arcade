@@ -4,8 +4,12 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 const CW = 480, CH = 460;
-canvas.width = CW;
-canvas.height = CH;
+const DPR = window.devicePixelRatio || 1;
+canvas.width  = CW * DPR;
+canvas.height = CH * DPR;
+ctx.scale(DPR, DPR);
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
 
 // Rack layout: 3 rows × 4 cols
 const COLS = 4, ROWS = 3;
@@ -75,6 +79,8 @@ function drawShoeInRect(imgIdx, rx, ry, rw, rh, alpha) {
   const img = imgs[imgIdx];
   if (!img) return;
   ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.globalAlpha = alpha ?? 1;
   const scale = Math.min(rw / img.naturalWidth, rh / img.naturalHeight);
   const dw = img.naturalWidth * scale;
