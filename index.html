@@ -723,106 +723,36 @@
       const C = document.createElement('canvas'); C.width = 320; C.height = 420;
       const cx = C.getContext('2d');
 
-      // Wooden frame background
-      const woodGrad = cx.createLinearGradient(0,0,320,0);
-      woodGrad.addColorStop(0, '#2e1200'); woodGrad.addColorStop(0.3,'#5a2e00');
-      woodGrad.addColorStop(0.7,'#4a2600'); woodGrad.addColorStop(1,'#2e1200');
-      cx.fillStyle = woodGrad; cx.fillRect(0,0,320,420);
-      // Inner mat (deep navy — makes white coat stand out)
-      cx.fillStyle = '#0d1a2e'; cx.fillRect(14,14,292,392);
-      // White coat area
-      cx.fillStyle = '#f9f9f9'; cx.fillRect(28,28,264,330);
+      // Draw wooden frame placeholder
+      cx.fillStyle='#3a1800'; cx.fillRect(0,0,320,420);
+      cx.fillStyle='#0d1a2e'; cx.fillRect(14,14,292,392);
 
-      // Coat body shading
-      const coatShade = cx.createLinearGradient(28,0,292,0);
-      coatShade.addColorStop(0,'rgba(180,180,180,0.15)');
-      coatShade.addColorStop(0.5,'rgba(255,255,255,0)');
-      coatShade.addColorStop(1,'rgba(150,150,150,0.18)');
-      cx.fillStyle = coatShade; cx.fillRect(28,28,264,330);
-
-      // Collar — V-neck opening
-      cx.fillStyle = '#e6e6e6';
-      cx.beginPath();
-      cx.moveTo(160,40); cx.lineTo(118,100); cx.lineTo(100,100); cx.lineTo(100,40); cx.closePath(); cx.fill();
-      cx.beginPath();
-      cx.moveTo(160,40); cx.lineTo(202,100); cx.lineTo(220,100); cx.lineTo(220,40); cx.closePath(); cx.fill();
-      // Inner V collar line
-      cx.strokeStyle='#ccc'; cx.lineWidth=1.5;
-      cx.beginPath(); cx.moveTo(160,52); cx.lineTo(120,105); cx.stroke();
-      cx.beginPath(); cx.moveTo(160,52); cx.lineTo(200,105); cx.stroke();
-
-      // Left lapel fold shadow
-      cx.fillStyle='rgba(0,0,0,0.06)';
-      cx.beginPath(); cx.moveTo(100,40); cx.lineTo(118,100); cx.lineTo(110,100); cx.lineTo(100,60); cx.closePath(); cx.fill();
-
-      // Button placket (center line)
-      cx.strokeStyle='#ddd'; cx.lineWidth=1;
-      cx.beginPath(); cx.moveTo(160,100); cx.lineTo(160,358); cx.stroke();
-      // Buttons
-      [130,165,200,235,270,308].forEach(by=>{
-        cx.fillStyle='#d0d0d0';
-        cx.beginPath(); cx.arc(160,by,4,0,Math.PI*2); cx.fill();
-        cx.strokeStyle='#aaa'; cx.lineWidth=0.8; cx.stroke();
-        // Button holes
-        cx.strokeStyle='rgba(0,0,0,0.2)'; cx.lineWidth=1;
-        cx.beginPath(); cx.moveTo(158,by-2); cx.lineTo(162,by-2); cx.stroke();
-        cx.beginPath(); cx.moveTo(158,by+2); cx.lineTo(162,by+2); cx.stroke();
-      });
-
-      // Left breast pocket
-      cx.fillStyle='#f0f0f0';
-      cx.strokeStyle='#ccc'; cx.lineWidth=1.2;
-      cx.beginPath(); cx.rect(80,115,55,42); cx.fill(); cx.stroke();
-      // Pocket flap
-      cx.fillStyle='#e8e8e8';
-      cx.beginPath(); cx.rect(80,115,55,14); cx.fill(); cx.stroke();
-      // Blue pen in pocket
-      cx.fillStyle='#1a5fc8'; cx.fillRect(115,115,4,30);
-      cx.fillStyle='#0d3a80'; cx.fillRect(115,115,4,5);
-      cx.fillStyle='silver'; cx.fillRect(115,145,4,3);
-
-      // NAME BADGE on pocket
-      cx.fillStyle='#ffffff';
-      cx.strokeStyle='#3060c0'; cx.lineWidth=1.5;
-      cx.beginPath(); cx.roundRect(82,128,50,22,3); cx.fill(); cx.stroke();
-      cx.fillStyle='#0a2a80'; cx.font='bold 9px Arial,sans-serif';
-      cx.textAlign='center'; cx.textBaseline='middle';
-      cx.fillText('DR. PARK', 107, 139);
-
-      // Stethoscope draped over shoulders
-      cx.strokeStyle='#444'; cx.lineWidth=3; cx.lineCap='round';
-      // Left side drape
-      cx.beginPath(); cx.moveTo(110,60); cx.bezierCurveTo(90,100,80,140,95,170); cx.stroke();
-      // Right side drape
-      cx.beginPath(); cx.moveTo(210,60); cx.bezierCurveTo(230,100,240,140,225,170); cx.stroke();
-      // Bottom connector
-      cx.beginPath(); cx.moveTo(95,170); cx.bezierCurveTo(100,185,220,185,225,170); cx.stroke();
-      // Earpieces
-      cx.lineWidth=2;
-      cx.beginPath(); cx.moveTo(110,60); cx.lineTo(108,50); cx.stroke();
-      cx.beginPath(); cx.moveTo(210,60); cx.lineTo(212,50); cx.stroke();
-      // Chest piece (diaphragm)
-      cx.fillStyle='#666'; cx.lineWidth=2; cx.strokeStyle='#444';
-      cx.beginPath(); cx.arc(160,182,9,0,Math.PI*2); cx.fill(); cx.stroke();
-      cx.fillStyle='#999';
-      cx.beginPath(); cx.arc(160,182,5,0,Math.PI*2); cx.fill();
-
-      // Bottom plaque area (gold plate on navy mat)
-      cx.fillStyle='#c8a84a';
-      cx.beginPath(); cx.roundRect(36,366,248,34,4); cx.fill();
-      cx.strokeStyle='#8a6c20'; cx.lineWidth=1.5; cx.stroke();
+      // Gold plaque text at bottom
+      cx.fillStyle='#c8a84a'; cx.fillRect(14,366,292,40);
+      cx.strokeStyle='#8a6c20'; cx.lineWidth=1.5; cx.strokeRect(14,366,292,40);
       cx.fillStyle='#1a0c00'; cx.font='bold 11px "Courier New",monospace';
       cx.textAlign='center'; cx.textBaseline='middle';
-      cx.fillText('DR. PARK  ·  COMING SOON  ✦', 160, 383);
-
-      // Frame inner shadow
-      cx.strokeStyle='rgba(0,0,0,0.35)'; cx.lineWidth=4;
-      cx.strokeRect(14,14,292,392);
-      // Frame outer highlight
-      cx.strokeStyle='rgba(120,70,20,0.6)'; cx.lineWidth=2;
-      cx.strokeRect(1,1,318,418);
+      cx.fillText('DR. PARK  ·  COMING SOON  ✦', 160, 386);
+      // Frame border
+      cx.strokeStyle='rgba(120,70,20,0.7)'; cx.lineWidth=3; cx.strokeRect(1,1,318,418);
 
       const tex = new THREE.CanvasTexture(C); tex.needsUpdate = true;
+
+      // Load actual whitecoat photo and draw into frame
+      const _wcImg = new Image();
+      _wcImg.onload = function(){
+        cx.fillStyle='#3a1800'; cx.fillRect(0,0,320,420);
+        cx.fillStyle='#0d1a2e'; cx.fillRect(14,14,292,392);
+        cx.drawImage(_wcImg, 18, 18, 284, 344);
+        cx.fillStyle='#c8a84a'; cx.fillRect(14,366,292,40);
+        cx.strokeStyle='#8a6c20'; cx.lineWidth=1.5; cx.strokeRect(14,366,292,40);
+        cx.fillStyle='#1a0c00'; cx.font='bold 11px "Courier New",monospace';
+        cx.textAlign='center'; cx.textBaseline='middle';
+        cx.fillText('DR. PARK  ·  COMING SOON  ✦', 160, 386);
+        cx.strokeStyle='rgba(120,70,20,0.7)'; cx.lineWidth=3; cx.strokeRect(1,1,318,418);
+        tex.needsUpdate = true;
+      };
+      _wcImg.src = 'whitecoat.jpg';
 
       // Frame mesh on right wall (x = RW/2, gap between vending machines)
       const frame = new THREE.Mesh(
