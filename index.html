@@ -1067,19 +1067,20 @@
     });
     window.addEventListener('keyup',e=>keys[e.key]=false);
 
-    const SPEED=0.10;
-    function handleMovement(){
+    const SPEED=6.0; // units per second
+    function handleMovement(dt){
       const _ov=el('game-overlay'); if(_ov&&_ov.classList.contains('active')) return; // freeze while game is open
+      const step=SPEED*dt;
       const fwd=new THREE.Vector3(-Math.sin(rotY),0,-Math.cos(rotY));
       const rgt=new THREE.Vector3( Math.cos(rotY),0,-Math.sin(rotY));
-      if(keys['w']||keys['W']) camera.position.addScaledVector(fwd, SPEED);
-      if(keys['s']||keys['S']) camera.position.addScaledVector(fwd,-SPEED);
-      if(keys['a']||keys['A']) camera.position.addScaledVector(rgt,-SPEED);
-      if(keys['d']||keys['D']) camera.position.addScaledVector(rgt, SPEED);
-      if(keys['ArrowLeft'])  rotY+=0.025;
-      if(keys['ArrowRight']) rotY-=0.025;
-      if(keys['ArrowUp'])    rotX=Math.max(-0.7,Math.min(0.6,rotX+0.018));
-      if(keys['ArrowDown'])  rotX=Math.max(-0.7,Math.min(0.6,rotX-0.018));
+      if(keys['w']||keys['W']) camera.position.addScaledVector(fwd, step);
+      if(keys['s']||keys['S']) camera.position.addScaledVector(fwd,-step);
+      if(keys['a']||keys['A']) camera.position.addScaledVector(rgt,-step);
+      if(keys['d']||keys['D']) camera.position.addScaledVector(rgt, step);
+      if(keys['ArrowLeft'])  rotY+=1.5*dt;
+      if(keys['ArrowRight']) rotY-=1.5*dt;
+      if(keys['ArrowUp'])    rotX=Math.max(-0.7,Math.min(0.6,rotX+1.1*dt));
+      if(keys['ArrowDown'])  rotX=Math.max(-0.7,Math.min(0.6,rotX-1.1*dt));
       applyRot();
       camera.position.x=Math.max(-RW/2+1,Math.min(RW/2-1,camera.position.x));
       camera.position.z=Math.max(-RD/2+1,Math.min(RD/2-1,camera.position.z));
@@ -1095,10 +1096,12 @@
     document.body.appendChild(hint);
     setTimeout(()=>{ hint.style.transition='opacity 2s'; hint.style.opacity='0'; },10000);
 
-    let t=0;
-    (function loop(){
-      requestAnimationFrame(loop); t+=0.016;
-      handleMovement();
+    let t=0, lastNow=performance.now();
+    (function loop(now){
+      requestAnimationFrame(loop);
+      const dt=Math.min((now-lastNow)/1000, 0.05); lastNow=now;
+      t+=dt;
+      handleMovement(dt);
       checkProximity();  // every frame so prompt appears even when standing still
       // Giant disco ball spin + 6 sweeping coloured lights
       db.rotation.y=t*1.1;
