@@ -917,33 +917,55 @@
         _fluteImg.src='game4/flute.png';
 
       } else {
-        // Shoe Shuffle — mini shoe rack
-        cx.fillStyle='#12040e'; cx.fillRect(0,0,256,200);
-        // rack frame
-        cx.fillStyle='#1e0818';
-        cx.beginPath(); cx.roundRect(14,34,228,140,6); cx.fill();
-        cx.strokeStyle='#4a1840'; cx.lineWidth=2; cx.stroke();
-        // shelf planks
-        const shelfColors=['#5a3520','#3d2414'];
-        [94,154].forEach((sy,ri)=>{
-          const g2=cx.createLinearGradient(0,sy,0,sy+8);
-          g2.addColorStop(0,shelfColors[0]); g2.addColorStop(1,shelfColors[1]);
-          cx.fillStyle=g2; cx.fillRect(18,sy,220,8);
+        // Shoe Shuffle — detailed shoe rack
+        // bg
+        cx.fillStyle='#0d0010'; cx.fillRect(0,0,256,200);
+        // rack outer frame — dark wood
+        cx.fillStyle='#3a1f0a'; cx.fillRect(12,30,232,158);
+        cx.fillStyle='#5a3010'; cx.fillRect(12,30,232,6); // top rail
+        cx.fillStyle='#5a3010'; cx.fillRect(12,182,232,6); // bottom rail
+        cx.fillStyle='#4a2808'; cx.fillRect(12,30,8,158);  // left post
+        cx.fillStyle='#4a2808'; cx.fillRect(236,30,8,158); // right post
+        // 3 shelves
+        [72,114,156].forEach(sy=>{
+          const sg=cx.createLinearGradient(0,sy,0,sy+10);
+          sg.addColorStop(0,'#7a4a1a'); sg.addColorStop(0.4,'#6a3c12'); sg.addColorStop(1,'#4a2808');
+          cx.fillStyle=sg; cx.fillRect(20,sy,220,10);
+          // shelf shadow
+          cx.fillStyle='rgba(0,0,0,0.35)'; cx.fillRect(20,sy+10,220,3);
         });
-        // shoe slots — 2 rows × 6 cols
-        const shoeColors=['#ff88cc','#ffaadd','#cc66aa','#ff55bb','#dd4499','#ffbbee',
-                          '#aa3388','#ff99cc','#cc4488','#ff66aa','#dd77bb','#ff44aa'];
-        for(let row=0;row<2;row++){
-          for(let col=0;col<6;col++){
-            const sx=22+col*37, sy=44+row*58, sw=32, sh=46;
-            cx.fillStyle='#200a14'; cx.fillRect(sx,sy,sw,sh);
-            const c=shoeColors[row*6+col];
-            cx.fillStyle=c; cx.globalAlpha=0.7;
-            cx.fillRect(sx+3,sy+8,sw-6,sh-14);
-            cx.globalAlpha=1;
+        // draw shoe silhouettes — 3 rows x 4 cols
+        const SCOLS=[[0xff88cc],[0xffaadd],[0xff55bb],[0xcc66aa],
+                     [0xdd4499],[0xff99cc],[0xffbbee],[0xaa3388],
+                     [0xff66aa],[0xffaadd],[0xff44aa],[0xdd77bb]];
+        for(let row=0;row<3;row++){
+          for(let col=0;col<4;col++){
+            const bx=28+col*52, by=row===0?40:row===1?82:124;
+            const sc=SCOLS[row*4+col][0];
+            const sr='#'+sc.toString(16).padStart(6,'0');
+            // shoe body (simple heel+toe silhouette)
+            cx.fillStyle=sr;
+            cx.beginPath();
+            cx.moveTo(bx+4,by+26); // heel bottom
+            cx.lineTo(bx,by+18);   // heel back
+            cx.lineTo(bx+2,by+6);  // top back
+            cx.lineTo(bx+20,by+2); // top front
+            cx.lineTo(bx+40,by+8); // toe top
+            cx.lineTo(bx+42,by+18);// toe front
+            cx.lineTo(bx+38,by+26);// sole front
+            cx.closePath(); cx.fill();
+            // sole
+            cx.fillStyle='rgba(0,0,0,0.3)';
+            cx.fillRect(bx+2,by+24,40,4);
+            // highlight
+            cx.fillStyle='rgba(255,255,255,0.2)';
+            cx.beginPath();
+            cx.moveTo(bx+6,by+6); cx.lineTo(bx+22,by+3); cx.lineTo(bx+30,by+6); cx.lineTo(bx+14,by+9);
+            cx.closePath(); cx.fill();
           }
         }
-        cx.fillStyle='rgba(0,0,0,.5)'; cx.fillRect(0,0,256,32);
+        // label
+        cx.fillStyle='rgba(0,0,0,0.55)'; cx.fillRect(0,0,256,32);
         cx.fillStyle='#ff55bb'; cx.font='bold 11px monospace'; cx.textAlign='center';
         cx.fillText('SHOE SHUFFLE',128,22);
       }
