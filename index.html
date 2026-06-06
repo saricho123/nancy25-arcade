@@ -1038,13 +1038,6 @@
       const pb=el('prompt-btn'); if(pb) pb.addEventListener('click', insertCoin);
       const eb=el('exit-game-btn'); if(eb) eb.addEventListener('click', exitGame);
       const fr=el('game-frame');
-      if(fr) fr.addEventListener('load',()=>{
-        try {
-          const url=fr.contentWindow.location.href;
-          const ov=el('game-overlay');
-          if(url&&(url.endsWith('index.html')||url.endsWith('/'))&&ov&&ov.classList.contains('active')) exitGame();
-        } catch(e){}
-      });
     });
     // Also wire immediately in case DOMContentLoaded already fired
     setTimeout(()=>{
