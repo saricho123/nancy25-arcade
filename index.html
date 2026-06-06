@@ -29,7 +29,7 @@
         <div class="dp bl"></div><div class="dp br"></div>
         <div id="tex-knob"></div>
         <div id="tex-peep"></div>
-        <div id="tex-welcome">WELCOME</div>
+        <div id="tex-welcome">Welcome, Nanky!</div>
       </div>
     </div>
   </div>
@@ -39,6 +39,11 @@
     <div id="tex-gift">
       <div id="tex-lid">
         <div class="gl-h"></div><div class="gl-v"></div>
+        <div id="tex-bow">
+          <div class="bloop bl"></div>
+          <div class="bloop br"></div>
+          <div class="bknot"></div>
+        </div>
       </div>
       <div id="tex-body">
         <div class="gb-h"></div><div class="gb-v"></div>
@@ -145,11 +150,12 @@
 }
 #tex-welcome {
   position:absolute; bottom:28%; left:50%; transform:translateX(-50%);
-  color:rgba(255,220,150,0.35);
-  font-family:'Courier New',monospace;
-  font-size:clamp(10px,1.4vw,18px);
-  letter-spacing:6px;
+  color:rgba(255,220,150,0.85);
+  font-family:'Bungee','Impact',sans-serif;
+  font-size:clamp(14px,2vw,26px);
+  letter-spacing:2px;
   white-space:nowrap;
+  text-shadow: 0 0 12px rgba(255,180,80,0.8), 0 2px 4px rgba(0,0,0,0.6);
 }
 
 /* ── Doorstep + gift ── */
@@ -242,6 +248,30 @@
 }
 @keyframes btnIn { to { opacity:1; } }
 #tex-enter-btn:hover { background:#3A506B; border-color:#83BCFF; }
+/* ── Bow on lid ── */
+#tex-bow {
+  position:absolute; top:-22px; left:50%;
+  transform:translateX(-50%);
+  width:52px; height:28px;
+}
+.bloop {
+  position:absolute; bottom:4px;
+  width:22px; height:22px;
+  background:#B6D094;
+  border-radius:50%;
+  opacity:0.95;
+}
+.bloop.bl { left:0; }
+.bloop.br { right:0; }
+.bknot {
+  position:absolute; bottom:0; left:50%;
+  transform:translateX(-50%);
+  width:12px; height:12px;
+  background:#83BCFF;
+  border-radius:50%;
+  z-index:2;
+  box-shadow:0 0 6px rgba(131,188,255,0.7);
+}
 </style>
 
 <script>
