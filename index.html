@@ -158,18 +158,21 @@
       const pl=new THREE.PointLight(0xffffff,5,36); scene.add(pl); discoLights.push({pl,off:i/8});
     }
 
-    /* ═══ DANCE FLOOR — animated coloured tiles ═══ */
-    const danceFloorTiles=[];
+    /* ═══ DANCE FLOOR — animated coloured tiles (InstancedMesh = 1 draw call) ═══ */
     const DFCOLS=14, DFROWS=6, TW=RW/DFCOLS, TD=2.2;
+    const _dfGeo=new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07);
+    const _dfMat=new THREE.MeshStandardMaterial({metalness:0.7,roughness:0.15,vertexColors:false});
+    const danceFloorInst=new THREE.InstancedMesh(_dfGeo,_dfMat,DFCOLS*DFROWS);
+    danceFloorInst.instanceMatrix.setUsage(THREE.StaticDrawUsage);
+    const _dfDummy=new THREE.Object3D();
     for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
-      const tile=new THREE.Mesh(
-        new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07),
-        new THREE.MeshStandardMaterial({color:0x111111,metalness:0.55,roughness:0.2,emissive:0x000000})
-      );
-      tile.position.set(-RW/2+(c+0.5)*TW, 0.025, 2+(r+0.5)*TD);
-      tile.userData={r,c};
-      scene.add(tile); danceFloorTiles.push(tile);
+      _dfDummy.position.set(-RW/2+(c+0.5)*TW, 0.025, 2+(r+0.5)*TD);
+      _dfDummy.updateMatrix();
+      danceFloorInst.setMatrixAt(r*DFCOLS+c, _dfDummy.matrix);
     }
+    danceFloorInst.instanceMatrix.needsUpdate=true;
+    scene.add(danceFloorInst);
+    const _dfColor=new THREE.Color();
 
     /* ═══ PENNANT BANNER + streamers ═══ */
     (function(){
@@ -1114,15 +1117,15 @@
         pl.color.setHSL((t*0.09+off)%1,1,0.7);
         pl.intensity=3.5+flash*5;
       });
-      // Dance floor wave — update every 3rd frame to cut material update cost
-      if(frameCount%3===0) danceFloorTiles.forEach(tile=>{
-        const {r,c}=tile.userData;
+      // Dance floor wave — single instanced color update (1 draw call)
+      for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
         const wave=Math.sin(c*0.6-t*3.5+r*0.4);
         const hue=(c*0.07+r*0.13+t*0.15)%1;
         const bright=Math.max(0,wave)*0.6+flash*0.5;
-        tile.material.emissive.setHSL(hue,1,bright);
-        tile.material.color.setHSL(hue,0.4,0.06+bright*0.25);
-      });
+        _dfColor.setHSL(hue,1,0.08+bright*0.55);
+        danceFloorInst.setColorAt(r*DFCOLS+c,_dfColor);
+      }
+      danceFloorInst.instanceColor.needsUpdate=true;
       // Balloons bob + slow sway
       balloons.forEach(b=>{
         b.position.y=b.userData.baseY+Math.sin(t*0.85+b.userData.phase)*0.20;
