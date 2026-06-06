@@ -302,7 +302,7 @@
     })();
 
     /* ═══ BIRTHDAY CAKE ═══ */
-    (function(){
+    (function(){ try {
       const g=new THREE.Group();
       const cm=(col)=>new THREE.MeshLambertMaterial({color:col});
       const add=(mesh,x,y,z)=>{ mesh.position.set(x,y,z); g.add(mesh); return mesh; };
@@ -401,7 +401,7 @@
       scene.add(tableGroup);
       g.position.set(-10,1.0,-8); scene.add(g);
       const ck=new THREE.PointLight(0xffe0cc,2.0,7); ck.position.set(-10,3.2,-8); scene.add(ck);
-    })();
+    } catch(e){ console.error('Cake crashed:',e); } })();
 
     /* ═══ QUARTER COIN PLAQUES + "25" WALL DECORATIONS ═══ */
     (function(){ try {
@@ -765,7 +765,7 @@
       .forEach(([x,y,z,ci,r],i)=>addHeliumBalloon(x,y,z,BCOLS[ci],r,i*0.8+6));
 
     // "25" foil number balloons — gold metallic
-    ['2','5'].forEach((num,ni)=>{
+    try { ['2','5'].forEach((num,ni)=>{
       const C=document.createElement('canvas'); C.width=320; C.height=400;
       const cx=C.getContext('2d');
       const gr=cx.createRadialGradient(110,100,10,160,200,180);
@@ -797,7 +797,7 @@
       nbg.userData={baseY:nby,phase:ni*1.5,r:0.75};
       scene.add(nbg); balloons.push(nbg);
       const nbl=new THREE.PointLight(0xf8d060,2,5); nbl.position.set(nbx,nby,nbz); scene.add(nbl);
-    });
+    }); } catch(e){ console.error('25 balloons crashed:',e); }
 
     /* ═══ CONFETTI — 500 pieces falling from ceiling ═══ */
     const confetti=[];
