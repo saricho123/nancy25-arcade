@@ -136,10 +136,10 @@
     const dbRod=new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.1,8),
       new THREE.MeshStandardMaterial({color:0x888899,metalness:0.8,roughness:0.2}));
     dbRod.position.set(0,RH-0.5-(-1.2),0); scene.add(dbRod);
-    // Mirror tiles — InstancedMesh for full dense coverage (1 draw call)
-    const tileMat=new THREE.MeshStandardMaterial({color:0xe0ecff,metalness:1.0,roughness:0.0});
-    const TILES=900;
-    const tileGeo=new THREE.BoxGeometry(0.118,0.118,0.018);
+    // Mirror tiles — MeshBasicMaterial, reduced count for performance
+    const tileMat=new THREE.MeshBasicMaterial({color:0xddeeff});
+    const TILES=300;
+    const tileGeo=new THREE.BoxGeometry(0.13,0.13,0.02);
     const discoInst=new THREE.InstancedMesh(tileGeo,tileMat,TILES);
     const _dmmy=new THREE.Object3D();
     for(let i=0;i<TILES;i++){
@@ -154,8 +154,8 @@
     discoInst.instanceMatrix.needsUpdate=true;
     db.add(discoInst);
     const discoLights=[];
-    for(let i=0;i<8;i++){
-      const pl=new THREE.PointLight(0xffffff,5,36); scene.add(pl); discoLights.push({pl,off:i/8});
+    for(let i=0;i<3;i++){
+      const pl=new THREE.PointLight(0xffffff,6,40); scene.add(pl); discoLights.push({pl,off:i/3});
     }
 
     /* ═══ DANCE FLOOR — animated coloured tiles (InstancedMesh = 1 draw call) ═══ */
@@ -1122,7 +1122,7 @@
         const wave=Math.sin(c*0.6-t*3.5+r*0.4);
         const hue=(c*0.07+r*0.13+t*0.15)%1;
         const bright=Math.max(0,wave)*0.6+flash*0.5;
-        _dfColor.setHSL(hue,1,0.15+bright*0.5);
+        _dfColor.setHSL(hue,1,0.35+bright*0.4);
         danceFloorInst.setColorAt(r*DFCOLS+c,_dfColor);
       }
       danceFloorInst.instanceColor.needsUpdate=true;
