@@ -158,21 +158,18 @@
       const pl=new THREE.PointLight(0xffffff,5,36); scene.add(pl); discoLights.push({pl,off:i/4});
     }
 
-    /* ═══ DANCE FLOOR — canvas texture, vivid rainbow tiles ═══ */
+    /* ═══ DANCE FLOOR — MeshBasicMaterial tiles, no PBR cost ═══ */
     const DFCOLS=14, DFROWS=6, TW=RW/DFCOLS, TD=2.2;
-    const _dfCanvas=document.createElement('canvas');
-    _dfCanvas.width=DFCOLS*4; _dfCanvas.height=DFROWS*4;
-    const _dfCtx=_dfCanvas.getContext('2d');
-    const _dfTex=new THREE.CanvasTexture(_dfCanvas);
-    _dfTex.magFilter=THREE.NearestFilter; _dfTex.minFilter=THREE.NearestFilter;
-    const _dfFloorW=RW-0.1, _dfFloorD=DFROWS*TD-0.1;
-    const _dfPlane=new THREE.Mesh(
-      new THREE.PlaneGeometry(_dfFloorW,_dfFloorD),
-      new THREE.MeshBasicMaterial({map:_dfTex})
-    );
-    _dfPlane.rotation.x=-Math.PI/2;
-    _dfPlane.position.set(0,0.03,2+DFROWS*TD/2);
-    scene.add(_dfPlane);
+    const danceFloorTiles=[];
+    for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
+      const tile=new THREE.Mesh(
+        new THREE.BoxGeometry(TW-0.07,0.05,TD-0.07),
+        new THREE.MeshBasicMaterial({color:0x222222})
+      );
+      tile.position.set(-RW/2+(c+0.5)*TW,0.025,2+(r+0.5)*TD);
+      tile.userData={r,c};
+      scene.add(tile); danceFloorTiles.push(tile);
+    }
 
     /* ═══ PENNANT BANNER + streamers ═══ */
     (function(){
@@ -276,7 +273,7 @@
 
     /* ═══ STREAMERS — thick coily TubeGeometry, like real paper streamers ═══ */
     (function(){
-      const SCOLS=[0xff3355,0xffcc00,0x33ddaa,0x4488ff,0xcc33ff,0xff7722,0xff55aa,0x33ffcc];
+      const SCOLS=[0xECCBD9,0xEDDEA4,0x97D2FB,0x83BCFF,0xA7C035,0xECCBD9,0xEDDEA4,0x97D2FB];
 
       function addCoilyStreamer(x,z,col,phase,dropLen,curls,radius){
         const pts=[]; const N=60;
@@ -341,19 +338,14 @@
       stand.position.set(0,0.03,0); g.add(stand);
       // Round table with tablecloth
       const tableGroup=new THREE.Group();
-      // Tablecloth (flat cylinder, slightly wider than table top)
-      tableGroup.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,0.06,32),new THREE.MeshStandardMaterial({color:0xfce4ec,roughness:0.9})),(m=>(m.position.set(0,0.93,0),m))({})));
-      // Table top
-      tableGroup.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(1.35,1.35,0.08,32),new THREE.MeshStandardMaterial({color:0xf8bbd0,roughness:0.8})),(m=>(m.position.set(0,0.9,0),m))({})));
-      // Table leg
-      tableGroup.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.12,0.18,0.9,16),new THREE.MeshStandardMaterial({color:0xf48fb1,roughness:0.7})),(m=>(m.position.set(0,0.45,0),m))({})));
-      // Table base disc
-      tableGroup.add(Object.assign(new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.06,32),new THREE.MeshStandardMaterial({color:0xf48fb1,roughness:0.7})),(m=>(m.position.set(0,0.03,0),m))({})));
+      const mkM=(geo,col,y)=>{ const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:col,roughness:0.85})); m.position.y=y; return m; };
+      tableGroup.add(mkM(new THREE.CylinderGeometry(1.5,1.5,0.05,32),0xfce4ec,0.97));  // tablecloth
+      tableGroup.add(mkM(new THREE.CylinderGeometry(1.35,1.35,0.08,32),0xf8bbd0,0.92)); // table top
+      tableGroup.add(mkM(new THREE.CylinderGeometry(0.11,0.16,0.88,16),0xf48fb1,0.46)); // leg
+      tableGroup.add(mkM(new THREE.CylinderGeometry(0.55,0.55,0.05,32),0xf48fb1,0.025));// base
       tableGroup.position.set(-10,0,-8);
       scene.add(tableGroup);
-      // Cake sits on top of table (y offset = table height 0.96)
-      g.position.set(-10,0.96,-8); scene.add(g);
-      // Warm glow above cake
+      g.position.set(-10,1.0,-8); scene.add(g);
       const ck=new THREE.PointLight(0xffcc88,2.5,6); ck.position.set(-10,4,-8); scene.add(ck);
     })();
 
@@ -1174,17 +1166,13 @@
         pl.color.setHSL((t*0.09+off)%1,1,0.7);
         pl.intensity=3.5+flash*5;
       });
-      // Dance floor canvas update
-      for(let r=0;r<DFROWS;r++) for(let c=0;c<DFCOLS;c++){
+      // Dance floor tile colors
+      danceFloorTiles.forEach(tile=>{
+        const {r,c}=tile.userData;
         const wave=Math.sin(c*0.6-t*3.5+r*0.4);
-        const hue=Math.round((((c*0.07+r*0.13+t*0.15)%1)+1)%1*360);
-        const bright=Math.round((0.42+Math.max(0,wave)*0.38+flash*0.2)*100);
-        _dfCtx.fillStyle='#111';
-        _dfCtx.fillRect(c*4,r*4,4,4);
-        _dfCtx.fillStyle='hsl('+hue+',100%,'+bright+'%)';
-        _dfCtx.fillRect(c*4+0.5,r*4+0.5,3,3);
-      }
-      _dfTex.needsUpdate=true;
+        const hue=(c*0.07+r*0.13+t*0.15)%1;
+        tile.material.color.setHSL(hue,1,0.42+Math.max(0,wave)*0.38+flash*0.2);
+      });
       // Balloons bob + slow sway
       balloons.forEach(b=>{
         b.position.y=b.userData.baseY+Math.sin(t*0.85+b.userData.phase)*0.20;
