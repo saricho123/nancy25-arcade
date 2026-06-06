@@ -37,19 +37,9 @@
   <!-- Gift on doorstep -->
   <div id="tex-step">
     <div id="tex-gift">
-      <div id="tex-lid">
-        <div class="gl-h"></div><div class="gl-v"></div>
-        <div id="tex-bow">
-          <div class="bloop bl"></div>
-          <div class="bloop br"></div>
-          <div class="bknot"></div>
-        </div>
-      </div>
-      <div id="tex-body">
-        <div class="gb-h"></div><div class="gb-v"></div>
-        <div id="tex-machine">
-          <img src="singa.png" alt="Sewing Machine">
-        </div>
+      <img id="tex-present-img" src="present.jpg" alt="Gift">
+      <div id="tex-machine-img">
+        <img src="singa.png" alt="Sewing Machine">
       </div>
     </div>
   </div>
@@ -171,42 +161,27 @@
 
 #tex-gift { position:relative; margin-bottom:0; }
 
-#tex-lid {
-  width:180px; height:52px;
-  background:#1C2541;
-  border-radius:5px 5px 0 0;
-  position:relative;
-  transform-origin:top center;
-  animation:lidPop 1s 2.4s cubic-bezier(0.4,0,0.2,1) forwards;
-  box-shadow:0 -4px 14px rgba(131,188,255,0.4);
+#tex-gift {
+  position:relative; width:220px; height:220px;
 }
-@keyframes lidPop {
-  0%  { transform:rotateX(0); }
-  100%{ transform:rotateX(-140deg); }
+#tex-present-img {
+  width:100%; height:100%; object-fit:contain;
+  filter:drop-shadow(0 10px 30px rgba(0,0,0,0.7));
+  transition:opacity 0.6s ease, transform 0.6s ease;
 }
-.gl-h,.gl-v { position:absolute; background:#83BCFF; }
-.gl-h { height:11px; width:100%; top:50%; transform:translateY(-50%); box-shadow:0 0 8px rgba(131,188,255,0.6); }
-.gl-v { width:11px; height:100%; left:50%; transform:translateX(-50%); box-shadow:0 0 8px rgba(131,188,255,0.6); }
-
-
-#tex-body {
-  width:180px; height:160px;
-  background:#1C2541;
-  border-radius:0 0 8px 8px;
-  position:relative; overflow:hidden;
-  box-shadow:0 10px 30px rgba(0,0,0,0.7);
+#tex-present-img.open {
+  opacity:0; transform:scale(1.15) translateY(-15px);
 }
-.gb-h,.gb-v { position:absolute; background:#83BCFF; }
-.gb-h { height:11px; width:100%; top:0; bottom:0; margin:auto; position:absolute; box-shadow:0 0 8px rgba(131,188,255,0.6); }
-.gb-v { width:11px; height:100%; left:50%; transform:translateX(-50%); box-shadow:0 0 8px rgba(131,188,255,0.6); }
-
-#tex-machine {
+#tex-machine-img {
   position:absolute; inset:0;
-  transform:translateY(110%);
-  animation:machUp 1s 3.2s ease forwards;
+  opacity:0; transition:opacity 0.8s ease;
+  display:flex; align-items:center; justify-content:center;
 }
-@keyframes machUp { to { transform:translateY(0); } }
-#tex-machine img { width:100%; height:100%; object-fit:cover; }
+#tex-machine-img.visible { opacity:1; }
+#tex-machine-img img {
+  width:100%; height:100%; object-fit:contain;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6));
+}
 
 /* ── Note card ── */
 #tex-note {
@@ -248,47 +223,32 @@
 }
 @keyframes btnIn { to { opacity:1; } }
 #tex-enter-btn:hover { background:#3A506B; border-color:#83BCFF; }
-/* ── Bow on lid ── */
-#tex-bow {
-  position:absolute; top:-22px; left:50%;
-  transform:translateX(-50%);
-  width:52px; height:28px;
-}
-.bloop {
-  position:absolute; bottom:4px;
-  width:22px; height:22px;
-  background:#B6D094;
-  border-radius:50%;
-  opacity:0.95;
-}
-.bloop.bl { left:0; }
-.bloop.br { right:0; }
-.bknot {
-  position:absolute; bottom:0; left:50%;
-  transform:translateX(-50%);
-  width:12px; height:12px;
-  background:#83BCFF;
-  border-radius:50%;
-  z-index:2;
-  box-shadow:0 0 6px rgba(131,188,255,0.7);
-}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-  var btn = document.getElementById('tex-enter-btn');
-  var door = document.getElementById('tex-door');
-  var overlay = document.getElementById('teaser-overlay');
+  var btn    = document.getElementById('tex-enter-btn');
+  var door   = document.getElementById('tex-door');
+  var overlay= document.getElementById('teaser-overlay');
+  var presentImg = document.getElementById('tex-present-img');
+  var machineDiv = document.getElementById('tex-machine-img');
   if(!btn) return;
+
+  // Auto-open gift after 2.4s
+  setTimeout(function(){
+    if(presentImg) presentImg.classList.add('open');
+    setTimeout(function(){
+      if(machineDiv) machineDiv.classList.add('visible');
+    }, 600);
+  }, 2400);
+
   btn.addEventListener('click', function(){
-    // Hide note, swing door open
     document.getElementById('tex-note').style.opacity='0';
     document.getElementById('tex-note').style.transition='opacity 0.4s';
     document.getElementById('tex-step').style.opacity='0';
     document.getElementById('tex-step').style.transition='opacity 0.4s';
     setTimeout(function(){
       door.classList.add('open');
-      // Fade whole overlay away after door is open
       setTimeout(function(){
         overlay.style.transition='opacity 1.4s ease';
         overlay.style.opacity='0';
